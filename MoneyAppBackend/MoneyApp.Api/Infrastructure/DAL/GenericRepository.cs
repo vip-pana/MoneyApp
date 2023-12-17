@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using MoneyApp.Api.Config;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace MoneyApp.Api.Infrastructure.DAL
@@ -19,7 +20,31 @@ namespace MoneyApp.Api.Infrastructure.DAL
 
         public async Task<List<T>> GetAll()
         {
-            return await _collection.Find(_  => true).ToListAsync();
+            return await _collection.Find(_ => true).ToListAsync();
+        }
+
+        public async Task<T> GetById(string id)
+        {
+            var objectId = new ObjectId(id);
+            var filter = Builders<T>.Filter.Eq("_id", objectId);
+            return await _collection.Find(filter).FirstOrDefaultAsync();
+        }
+
+        public async Task Create(T entity)
+        {
+            await _collection.InsertOneAsync(entity);
+        }
+
+        public async Task DeleteById(string id)
+        {
+            await _collection.DeleteOneAsync(id);
+        }
+
+        public async Task Update(T entity, string id)
+        {
+            var objectId = new ObjectId(id);
+            var filters = Builders<T>.Filter.Eq("_id", objectId);
+            await _collection.ReplaceOneAsync(filter: filters, replacement: entity);
         }
     }
 }
