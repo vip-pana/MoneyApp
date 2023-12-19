@@ -1,7 +1,10 @@
-using Backend.API.Config;
-using Backend.API.Repositories;
-using Backend.API.Schema.Mutations;
-using Backend.API.Schema.Queries;
+using Backend.API.Queries;
+using Backend.API.Resolvers;
+using Backend.API.Types;
+using Backend.Core.Repositories;
+using Backend.Infrastructure.Configurations;
+using Backend.Infrastructure.Data;
+using Backend.Infrastructure.Repositories;
 
 namespace Backend.API
 {
@@ -11,12 +14,21 @@ namespace Backend.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("MongoDatabase"));
-            builder.Services.AddSingleton<UserRepository>();
+            // MongoDbConfiguration
+            builder.Services.Configure<MongoDbConfiguration>(builder.Configuration.GetSection("MongoDbConfiguration"));
+            //builder.Services.AddSingleton(builder.Configuration.Get<ApiConfiguration>().MongoDbConfiguration);
 
-            builder.Services.AddGraphQLServer()
+            // Repositories
+            builder.Services.AddSingleton<ICatalogContext, CatalogContext>();
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+
+            // GraphQL
+            builder.Services
+                .AddGraphQLServer()
                 .AddQueryType<Query>()
-                .AddMutationType<Mutation>();
+                .AddType<ProductType>()
+                .AddType<CategoryResolver>();
 
             var app = builder.Build();
 
