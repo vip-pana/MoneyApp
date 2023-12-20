@@ -8,23 +8,23 @@ namespace Backend.Infrastructure.Data
     public class CatalogContext : ICatalogContext
     {
         private readonly IOptions<MongoDbConfiguration> _mongoDbConfiguration;
-        private const string ProductCollectionName = "Products";
-        private const string CategoryCollectionName = "Categories";
+
+        private readonly IMongoDatabase database;
 
         public CatalogContext(IOptions<MongoDbConfiguration> mongoDbConfiguration)
         {
             _mongoDbConfiguration = mongoDbConfiguration;
+
             var client = new MongoClient(_mongoDbConfiguration.Value.ConnectionString);
-            var database = client.GetDatabase(_mongoDbConfiguration.Value.Database);
 
-            Categories = database.GetCollection<Category>(CategoryCollectionName);
-            Products = database.GetCollection<Product>(ProductCollectionName);
+            database = client.GetDatabase(_mongoDbConfiguration.Value.Database);
 
-            CatalogContextSeed.SeedData(Categories, Products);
+            CatalogContextSeed.SeedData(database);
         }
 
-        public IMongoCollection<Category> Categories { get; }
-        public IMongoCollection<Product> Products { get; }
-
+        public IMongoCollection<T> GetCollection<T>(string name)
+        {
+            return database.GetCollection<T>(name);
+        }
     }
 }

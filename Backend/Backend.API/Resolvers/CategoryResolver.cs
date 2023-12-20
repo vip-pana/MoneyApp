@@ -8,6 +8,6 @@ namespace Backend.API.Resolvers
     {
         public Task<Category> GetCategoryAsync(
             [Parent] Product product,
-            [Service] ICategoryRepository categoryRepository) => categoryRepository.GetById(product.CategoryId);
+            [Service] ICategoryRepository categoryRepository) => categoryRepository.GetByIdAsync(product.CategoryId);
     }
 }

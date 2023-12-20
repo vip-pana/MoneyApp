@@ -1,11 +1,9 @@
-﻿using Backend.Core.Entities;
-using MongoDB.Driver;
+﻿using MongoDB.Driver;
 
 namespace Backend.Infrastructure.Data
 {
     public interface ICatalogContext
     {
-        IMongoCollection<Category> Categories { get; }
-        IMongoCollection<Product> Products { get; }
+        IMongoCollection<T> GetCollection<T>(string name);
     }
 }

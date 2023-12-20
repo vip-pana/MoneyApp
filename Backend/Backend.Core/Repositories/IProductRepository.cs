@@ -2,9 +2,7 @@
 
 namespace Backend.Core.Repositories
 {
-    public interface IProductRepository
+    public interface IProductRepository : IBaseRepository<Product>
     {
-        Task<IEnumerable<Product>> GetAllAsync();
-        Task<Product> GetByIdAsync(string id);
     }
 }

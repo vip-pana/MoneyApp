@@ -2,8 +2,7 @@
 
 namespace Backend.Core.Repositories
 {
-    public interface ICategoryRepository
+    public interface ICategoryRepository : IBaseRepository<Category>
     {
-        Task<Category> GetById(string id);
     }
 }
