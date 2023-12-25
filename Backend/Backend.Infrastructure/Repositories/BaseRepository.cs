@@ -9,14 +9,14 @@ namespace Backend.Infrastructure.Repositories
     {
         private readonly IMongoCollection<T> collection;
 
-        public BaseRepository(ICatalogContext catalogContext)
+        public BaseRepository(IDbContext context)
         {
-            if (catalogContext == null)
+            if (context == null)
             {
-                throw new ArgumentNullException(nameof(catalogContext));
+                throw new ArgumentNullException(nameof(context));
             }
 
-            collection = catalogContext.GetCollection<T>(typeof(T).Name);
+            collection = context.GetCollection<T>(typeof(T).Name);
         }
 
         public async Task<IEnumerable<T>> GetAllAsync()

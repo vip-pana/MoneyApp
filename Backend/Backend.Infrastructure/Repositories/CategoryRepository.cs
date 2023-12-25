@@ -6,6 +6,6 @@ namespace Backend.Infrastructure.Repositories
 {
     public class CategoryRepository : BaseRepository<Category>, ICategoryRepository
     {
-        public CategoryRepository(ICatalogContext catalogContext) : base(catalogContext) { }
+        public CategoryRepository(IDbContext context) : base(context) { }
     }
 }

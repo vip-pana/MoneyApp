@@ -5,7 +5,7 @@ namespace Backend.Infrastructure.Repositories
 {
     public class UserRepository : BaseRepository<User>
     {
-        public UserRepository(ICatalogContext catalogContext) : base(catalogContext)
+        public UserRepository(IDbContext context) : base(context)
         {
         }
     }

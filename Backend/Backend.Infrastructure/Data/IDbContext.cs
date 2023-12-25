@@ -2,7 +2,7 @@
 
 namespace Backend.Infrastructure.Data
 {
-    public interface ICatalogContext
+    public interface IDbContext
     {
         IMongoCollection<T> GetCollection<T>(string name);
     }

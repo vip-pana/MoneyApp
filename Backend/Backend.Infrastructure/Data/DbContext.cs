@@ -1,17 +1,16 @@
-﻿using Backend.Core.Entities;
-using Backend.Infrastructure.Configurations;
+﻿using Backend.Infrastructure.Configurations;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
 namespace Backend.Infrastructure.Data
 {
-    public class CatalogContext : ICatalogContext
+    public class DbContext : IDbContext
     {
         private readonly IOptions<MongoDbConfiguration> _mongoDbConfiguration;
 
         private readonly IMongoDatabase database;
 
-        public CatalogContext(IOptions<MongoDbConfiguration> mongoDbConfiguration)
+        public DbContext(IOptions<MongoDbConfiguration> mongoDbConfiguration)
         {
             _mongoDbConfiguration = mongoDbConfiguration;
 
@@ -19,7 +18,7 @@ namespace Backend.Infrastructure.Data
 
             database = client.GetDatabase(_mongoDbConfiguration.Value.Database);
 
-            CatalogContextSeed.SeedData(database);
+            ContextSeed.SeedData(database);
         }
 
         public IMongoCollection<T> GetCollection<T>(string name)
