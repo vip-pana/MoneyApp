@@ -56,8 +56,12 @@ Questo spazio contiene esclusivamente il file `launchsettings.json`, che racchiu
 
 ### Resolver Folder
 Questa cartella ospita i Resolver dell'applicazione.
+I Resolver in GraphQL sono estensioni per gli oggetti, fornendo un meccanismo per implementare logica aggiuntiva all'interno della nostra applicazione.
 
-**Una volta completato l'approfondimento degli Resolver, questa sezione sarà aggiornata.**
+Per utilizzare un Resolver è necessario creare una nuova classe e aggiungere il decoratore `[ExtendObjectType("Name")]`. In questo contesto, "Name" rappresenta il nome dello schema dell'entità GraphQL che si desidera estendere. Di solito, questo nome corrisponde a quello dell'entità con cui si sta lavorando.
+
+
+**Nel contesto specifico del nostro utilizzo, è importante definire quando e come utilizzare i Resolver rispetto alle query standard.** 
 
 ### Types Folder
 
