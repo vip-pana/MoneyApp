@@ -1,6 +1,6 @@
 ﻿namespace Backend.API.Mutations
 {
-    [ExtendObjectType(Name = "Mutation")]
+    [ExtendObjectType("Mutation")]
     public class CategoryMutation
     {
     }

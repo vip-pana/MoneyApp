@@ -28,13 +28,13 @@ namespace Backend.API
             // GraphQL
             builder.Services
                 .AddGraphQLServer()
-                .AddQueryType(d => d.Name("Query"))
+                .AddQueryType(d => d.Name("Query")) // Queries section
                     .AddTypeExtension<ProductQuery>()
                     .AddTypeExtension<CategoryQuery>()
-                .AddMutationType(d => d.Name("Mutation"))
+                .AddMutationType(d => d.Name("Mutation")) // Mutations section
                     .AddTypeExtension<ProductMutation>()
                     .AddTypeExtension<CategoryMutation>()
-                .AddSubscriptionType(d => d.Name("Subscription"))
+                .AddSubscriptionType(d => d.Name("Subscription")) // Subscriptions section
                     .AddTypeExtension<ProductSubscriptions>()
                 .AddType<ProductType>()
                 .AddType<CategoryResolver>()

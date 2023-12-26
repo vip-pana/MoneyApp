@@ -3,7 +3,7 @@ using Backend.Core.Repositories;
 
 namespace Backend.API.Queries
 {
-    [ExtendObjectType(Name = "Query")]
+    [ExtendObjectType("Query")]
     public class ProductQuery
     {
         public Task<IEnumerable<Product>> GetProductsAsync([Service] IProductRepository productRepository) =>

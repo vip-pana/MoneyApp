@@ -4,7 +4,7 @@ using HotChocolate.Subscriptions;
 
 namespace Backend.API.Mutations
 {
-    [ExtendObjectType(Name = "Mutation")]
+    [ExtendObjectType("Mutation")]
     public class ProductMutation
     {
         public async Task<Product> CreateProductAsync(Product product, [Service] IProductRepository productRepository, [Service] ITopicEventSender eventSender)

@@ -3,7 +3,7 @@ using Backend.Core.Repositories;
 
 namespace Backend.API.Resolvers
 {
-    [ExtendObjectType(Name = "Category")]
+    [ExtendObjectType("Category")]
     public class CategoryResolver
     {
         public Task<Category> GetCategoryAsync(

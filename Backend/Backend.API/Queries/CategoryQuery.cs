@@ -3,7 +3,7 @@ using Backend.Core.Repositories;
 
 namespace Backend.API.Queries
 {
-    [ExtendObjectType(Name = "Query")]
+    [ExtendObjectType("Query")]
     public class CategoryQuery
     {
         public Task<Product> GetProductById(string id, [Service] IProductRepository productRepository) =>

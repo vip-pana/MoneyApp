@@ -2,7 +2,7 @@
 
 namespace Backend.API.Subscriptions
 {
-    [ExtendObjectType(Name = "Subscription")]
+    [ExtendObjectType("Subscription")]
     public class ProductSubscriptions
     {
         [Subscribe]
