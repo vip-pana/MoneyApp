@@ -3,3 +3,7 @@
 ################################################################################
 
 /Backend/.vs/Backend/FileContentIndex
+/Backend/Backend.API/bin/Debug/net8.0
+/Backend/Backend.API/obj/Debug/net8.0
+/Backend/Backend.Infrastructure/bin/Debug/net8.0
+/Backend/Backend.Infrastructure/obj
