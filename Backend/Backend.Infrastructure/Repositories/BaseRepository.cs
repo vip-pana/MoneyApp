@@ -7,7 +7,7 @@ namespace Backend.Infrastructure.Repositories
 {
     public class BaseRepository<T> : IBaseRepository<T> where T : BaseEntity
     {
-        private readonly IMongoCollection<T> collection;
+        protected readonly IMongoCollection<T> collection;
 
         public BaseRepository(IDbContext context)
         {
