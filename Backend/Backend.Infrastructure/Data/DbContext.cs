@@ -17,8 +17,6 @@ namespace Backend.Infrastructure.Data
             var client = new MongoClient(_mongoDbConfiguration.Value.ConnectionString);
 
             database = client.GetDatabase(_mongoDbConfiguration.Value.Database);
-
-            ContextSeed.SeedData(database);
         }
 
         public IMongoCollection<T> GetCollection<T>(string name)
