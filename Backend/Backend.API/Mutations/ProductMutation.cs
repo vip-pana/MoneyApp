@@ -9,22 +9,22 @@ namespace Backend.API.Mutations
     {
         public async Task<Product> CreateProductAsync(Product product, [Service] IProductRepository productRepository, [Service] ITopicEventSender eventSender)
         {
-            var result = await productRepository.InsertAsync(product);
+            var res = await productRepository.InsertAsync(product);
 
-            await eventSender.SendAsync(nameof(Subscriptions.ProductSubscriptions.OnCreateAsync), result);
+            await eventSender.SendAsync(nameof(Subscriptions.ProductSubscriptions.OnCreateAsync), res);
 
-            return result;
+            return res;
         }
         public async Task<bool> RemoveProductAsync(string id, [Service] IProductRepository productRepository, [Service] ITopicEventSender eventSender)
         {
-            var result = await productRepository.RemoveAsync(id);
+            var res = await productRepository.RemoveAsync(id);
 
-            if (result)
+            if (res)
             {
-                await eventSender.SendAsync(nameof(Subscriptions.ProductSubscriptions.onRemoveAsync), result);
+                await eventSender.SendAsync(nameof(Subscriptions.ProductSubscriptions.onRemoveAsync), res);
             }
 
-            return result;
+            return res;
         }
     }
 }
