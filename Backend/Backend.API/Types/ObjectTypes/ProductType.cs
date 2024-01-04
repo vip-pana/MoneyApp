@@ -1,7 +1,7 @@
 ﻿using Backend.API.Resolvers;
 using Backend.Core.Entities;
 
-namespace Backend.API.Types
+namespace Backend.API.Types.ObjectTypes
 {
     public class ProductType : ObjectType<Product>
     {
@@ -14,8 +14,8 @@ namespace Backend.API.Types
             descriptor.Field(_ => _.Price);
             descriptor.Field(_ => _.Quantity);
 
-        // Creates the relationship between Product x Category
-        descriptor.Field<CategoryResolver>(_ => _.GetCategoryAsync(default, default));
+            // Creates the relationship between Product x Category
+            descriptor.Field<CategoryResolver>(_ => _.GetCategoryAsync(default, default));
         }
     }
 }
