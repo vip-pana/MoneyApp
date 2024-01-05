@@ -18,7 +18,7 @@ namespace Backend.API.Properties
             _configuration = configuration;
         }
 
-        public async Task<string?> Signin([UseFluentValidation, UseValidator<UserValidator>] User user, [Service] IUserRepository userRepository)
+        public async Task<string?> Signup([UseFluentValidation, UseValidator<UserValidator>] User user, [Service] IUserRepository userRepository)
         {
             var registeredUsers = await userRepository.GetByEmailAsync(user.Email);
 
@@ -27,26 +27,41 @@ namespace Backend.API.Properties
                 throw new GraphQLException("User already registered.");
             }
 
-            var newUser = await userRepository.Signin(user);
+            var newUser = await userRepository.Signup(user);
 
-            string accessToken = GenerateAccessToken(email: newUser.Email, userId: Guid.NewGuid().ToString());
+            string? accessToken = null;
+
+            if (newUser != null)
+            {
+                accessToken = GenerateAccessToken(user: newUser, userId: Guid.NewGuid().ToString());
+            }
 
             return accessToken;
         }
 
-        private string GenerateAccessToken(string email, string? userId)
+        private string GenerateAccessToken(User user, string? userId)
         {
             var tokenSettings = _configuration.GetValue<string>("JwtKey");
+            JwtSecurityToken? token = null;
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenSettings));
+            if (tokenSettings != null && userId != null)
+            {
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenSettings));
 
-            var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var token = new JwtSecurityToken(
-               "issuer",
-               "audience",
-               expires: DateTime.Now.AddDays(90),
-               signingCredentials: signingCredentials);
+                var claims = new[]
+                {
+                    new System.Security.Claims.Claim("userId", userId)
+                };
+
+                token = new JwtSecurityToken(
+                    issuer: user.Name + " "+ user.Surname,
+                    audience: "audience",
+                    claims: claims,
+                    expires: DateTime.Now.AddMinutes(1),
+                    signingCredentials: signingCredentials);
+            }
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }

@@ -11,7 +11,7 @@ namespace Backend.Infrastructure.Repositories
 
         public BaseRepository(IDbContext context)
         {
-            if (context == null)
+            if (context is null)
             {
                 throw new ArgumentNullException(nameof(context));
             }
