@@ -14,7 +14,7 @@ namespace Backend.Infrastructure.Repositories
         {
         }
 
-        public async Task<User> Signup(User user)
+        public async Task<User> Signin(User user)
         {
             user.Password = AuthenticationUtils.HashPassword(password: user.Password);
 
