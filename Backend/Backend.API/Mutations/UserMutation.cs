@@ -29,6 +29,11 @@ namespace Backend.API.Properties
 
             string accessToken = AuthenticationUtils.GenerateAccessToken(jwtKey: _configuration.GetValue<string>("JwtKey") ?? "");
 
+            if (newUser != null)
+            {
+                accessToken = GenerateAccessToken(user: newUser, userId: Guid.NewGuid().ToString());
+            }
+
             return accessToken;
         }
 

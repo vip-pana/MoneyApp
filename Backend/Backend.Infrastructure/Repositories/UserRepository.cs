@@ -1,4 +1,6 @@
-﻿using Backend.Core.Entities;
+﻿using System.Security.Cryptography;
+using System.Text;
+using Backend.Core.Entities;
 using Backend.Core.Repositories;
 using Backend.Infrastructure.Data;
 using Backend.Utils.Authentication;
@@ -12,7 +14,7 @@ namespace Backend.Infrastructure.Repositories
         {
         }
 
-        public async Task<User> Signin(User user)
+        public async Task<User> Signup(User user)
         {
             user.Password = AuthenticationUtils.HashPassword(password: user.Password);
 
