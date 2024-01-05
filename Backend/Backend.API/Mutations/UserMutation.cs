@@ -3,6 +3,8 @@ using Backend.API.Validators.UserValidators;
 using Backend.Core.Entities;
 using Backend.Core.Repositories;
 using Backend.Utils.Authentication;
+using HotChocolate;
+using HotChocolate.Types;
 
 namespace Backend.API.Properties
 {
