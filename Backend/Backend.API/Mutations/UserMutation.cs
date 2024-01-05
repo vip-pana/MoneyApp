@@ -2,9 +2,7 @@
 using Backend.API.Validators.UserValidators;
 using Backend.Core.Entities;
 using Backend.Core.Repositories;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
+using Backend.Utils.Authentication;
 
 namespace Backend.API.Properties
 {
@@ -18,37 +16,42 @@ namespace Backend.API.Properties
             _configuration = configuration;
         }
 
-        public async Task<string?> Signin([UseFluentValidation, UseValidator<UserValidator>] User user, [Service] IUserRepository userRepository)
+        public async Task<string?> Signin([UseFluentValidation, UseValidator<UserSigninValidator>] User user, [Service] IUserRepository userRepository)
         {
-            var registeredUsers = await userRepository.GetByEmailAsync(user.Email);
+            var registeredUsers = await userRepository.GetByEmailAsync(email: user.Email);
 
             if (registeredUsers != null)
             {
                 throw new GraphQLException("User already registered.");
             }
 
-            var newUser = await userRepository.Signin(user);
+            await userRepository.Signin(user: user);
 
-            string accessToken = GenerateAccessToken(email: newUser.Email, userId: Guid.NewGuid().ToString());
+            string accessToken = AuthenticationUtils.GenerateAccessToken(jwtKey: _configuration.GetValue<string>("JwtKey") ?? "");
 
             return accessToken;
         }
 
-        private string GenerateAccessToken(string email, string? userId)
+        public async Task<string?> Signup([UseFluentValidation, UseValidator<UserSignupValidator>] User user, [Service] IUserRepository userRepository)
         {
-            var tokenSettings = _configuration.GetValue<string>("JwtKey");
+            var registeredUser = await userRepository.GetByEmailAsync(user.Email);
+            string accessToken;
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenSettings));
+            if (registeredUser == null)
+            {
+                throw new GraphQLException("User not registered.");
+            }
 
-            var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            if (!AuthenticationUtils.VerifyPassword(inputPassword: user.Password, hashedPassword: registeredUser.Password))
+            {
+                throw new GraphQLException("Wrong password.");
+            }
+            else
+            {
+                accessToken = AuthenticationUtils.GenerateAccessToken(jwtKey: _configuration.GetValue<string>("JwtKey") ?? "");
+            }
 
-            var token = new JwtSecurityToken(
-               "issuer",
-               "audience",
-               expires: DateTime.Now.AddDays(90),
-               signingCredentials: signingCredentials);
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            return accessToken;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Backend.Core.Entities;
 using Backend.Core.Repositories;
 using Backend.Infrastructure.Data;
+using Backend.Utils.Authentication;
 using MongoDB.Driver;
 
 namespace Backend.Infrastructure.Repositories
@@ -13,7 +14,7 @@ namespace Backend.Infrastructure.Repositories
 
         public async Task<User> Signin(User user)
         {
-            user.Password = HashPassword(user.Password);
+            user.Password = AuthenticationUtils.HashPassword(password: user.Password);
 
             await collection.InsertOneAsync(user);
 
@@ -23,11 +24,6 @@ namespace Backend.Infrastructure.Repositories
         {
             var filter = Builders<User>.Filter.Eq(_ => _.Email, email);
             return await collection.Find(filter).FirstOrDefaultAsync();
-        }
-
-        private string HashPassword(string password)
-        {
-            return BCrypt.Net.BCrypt.EnhancedHashPassword(password);
         }
     }
 }

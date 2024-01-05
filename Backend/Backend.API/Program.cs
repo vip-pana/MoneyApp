@@ -25,7 +25,8 @@ namespace Backend.API
 
             // Fluent Validation
             builder.Services.AddFluentValidationAutoValidation();
-            builder.Services.AddTransient<UserValidator>();
+            builder.Services.AddTransient<UserSigninValidator>();
+            builder.Services.AddTransient<UserSignupValidator>();
 
             // Repositories
             builder.Services.AddSingleton<IDbContext, DbContext>();
