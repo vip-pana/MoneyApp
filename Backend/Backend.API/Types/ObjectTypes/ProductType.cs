@@ -16,7 +16,7 @@ namespace Backend.API.Types.ObjectTypes
             descriptor.Field(_ => _.Quantity);
 
             // Creates the relationship between Product x Category
-            descriptor.Field<CategoryResolver>(_ => _.GetCategoryAsync(default, default));
+            descriptor.Field<CategoryProductResolver>(_ => _.GetCategoryAsync(default, default));
         }
     }
 }

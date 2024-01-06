@@ -31,6 +31,7 @@ namespace Backend.API
             // Repositories
             builder.Services.AddSingleton<IDbContext, DbContext>();
             builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+            builder.Services.AddScoped<ICategoryProductRepository, CategoryProductRepository>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
@@ -39,18 +40,20 @@ namespace Backend.API
             builder.Services
                 .AddGraphQLServer()
                 .AddQueryType(d => d.Name("Query")) // Queries section
+                    .AddTypeExtension<CategoryProductQuery>()
                     .AddTypeExtension<ProductQuery>()
                     .AddTypeExtension<CategoryQuery>()
                     .AddTypeExtension<UserQuery>()
                 .AddMutationType(d => d.Name("Mutation")) // Mutations section
                     .AddTypeExtension<ProductMutation>()
+                    .AddTypeExtension<CategoryProductMutation>()
                     .AddTypeExtension<CategoryMutation>()
                     .AddTypeExtension<UserMutation>()
                 .AddSubscriptionType(d => d.Name("Subscription")) // Subscriptions section
                     .AddTypeExtension<ProductSubscriptions>()
+                .AddType<CategoryProductResolver>()
                 .AddType<ProductType>() // Types section
                 .AddType<UserType>() // Types section
-                .AddType<CategoryResolver>()
                 .AddInMemorySubscriptions()
                 .AddFluentValidation();
 
