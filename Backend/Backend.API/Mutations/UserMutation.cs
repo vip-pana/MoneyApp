@@ -16,7 +16,7 @@ namespace Backend.API.Properties
             _configuration = configuration;
         }
 
-        public async Task<string?> Signin([UseFluentValidation, UseValidator<UserSigninValidator>] User user, [Service] IUserRepository userRepository)
+        public async Task<string?> Signup([UseFluentValidation, UseValidator<UserSigninValidator>] User user, [Service] IUserRepository userRepository)
         {
             var registeredUsers = await userRepository.GetByEmailAsync(email: user.Email);
 
@@ -25,14 +25,14 @@ namespace Backend.API.Properties
                 throw new GraphQLException("User already registered.");
             }
 
-            await userRepository.Signin(user: user);
+            await userRepository.Signup(user: user);
 
             string accessToken = AuthenticationUtils.GenerateAccessToken(jwtKey: _configuration.GetValue<string>("JwtKey") ?? "");
 
             return accessToken;
         }
 
-        public async Task<string?> Signup([UseFluentValidation, UseValidator<UserSignupValidator>] User user, [Service] IUserRepository userRepository)
+        public async Task<string?> Login([UseFluentValidation, UseValidator<UserSignupValidator>] User user, [Service] IUserRepository userRepository)
         {
             var registeredUser = await userRepository.GetByEmailAsync(user.Email);
             string accessToken;
