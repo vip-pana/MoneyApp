@@ -1,7 +1,11 @@
-﻿namespace Backend.Core.Entities
+﻿using Backend.Core.Enums;
+
+namespace Backend.Core.Entities
 {
     public class Category : BaseEntity
     {
-        public string Description { get; set; }
+        public required string Name {  get; set; }
+        public TypeEnum Type { get; set; }
+        public List<Category>? subcategories { get; set;}
     }
 }

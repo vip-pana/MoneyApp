@@ -1,8 +1,6 @@
 ﻿using Backend.Core.Entities;
 using Backend.Core.Repositories;
-using HotChocolate;
 using HotChocolate.Subscriptions;
-using HotChocolate.Types;
 
 namespace Backend.API.Mutations
 {

@@ -31,18 +31,22 @@ namespace Backend.API
             // Repositories
             builder.Services.AddSingleton<IDbContext, DbContext>();
             builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+            builder.Services.AddScoped<IAccountRepository, AccountRepository>();
             builder.Services.AddScoped<ICategoryProductRepository, CategoryProductRepository>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-            builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
 
             // GraphQL
             builder.Services
                 .AddGraphQLServer()
                 .AddQueryType(d => d.Name("Query")) // Queries section
+                    .AddTypeExtension<AccountQuery>()
                     .AddTypeExtension<CategoryProductQuery>()
-                    .AddTypeExtension<ProductQuery>()
                     .AddTypeExtension<CategoryQuery>()
+                    .AddTypeExtension<ProductQuery>()
+                    .AddTypeExtension<TransactionQuery>()
                     .AddTypeExtension<UserQuery>()
                 .AddMutationType(d => d.Name("Mutation")) // Mutations section
                     .AddTypeExtension<ProductMutation>()

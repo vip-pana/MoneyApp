@@ -1,7 +1,5 @@
 ﻿using Backend.Core.Entities;
 using Backend.Core.Repositories;
-using HotChocolate;
-using HotChocolate.Types;
 
 namespace Backend.API.Queries
 {

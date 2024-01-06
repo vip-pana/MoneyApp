@@ -4,9 +4,9 @@ using Backend.Infrastructure.Data;
 
 namespace Backend.Infrastructure.Repositories
 {
-    public class CategoryRepository : BaseRepository<Category>, ICategoryRepository
+    public class TransactionRepository : BaseRepository<Transaction>, ITransactionRepository
     {
-        public CategoryRepository(IDbContext context) : base(context)
+        public TransactionRepository(IDbContext context) : base(context)
         {
         }
     }

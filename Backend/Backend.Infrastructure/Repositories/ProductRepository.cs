@@ -6,6 +6,8 @@ namespace Backend.Infrastructure.Repositories
 {
     public class ProductRepository : BaseRepository<Product>, IProductRepository
     {
-        public ProductRepository(IDbContext context) : base(context) { }
+        public ProductRepository(IDbContext context) : base(context) 
+        {
+        }
     }
 }
