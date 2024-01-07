@@ -1,6 +1,5 @@
 ﻿using Backend.API.Resolvers;
 using Backend.Core.Entities;
-using HotChocolate.Types;
 
 namespace Backend.API.Types.ObjectTypes
 {
