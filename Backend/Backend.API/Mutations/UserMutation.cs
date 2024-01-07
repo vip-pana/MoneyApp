@@ -1,6 +1,7 @@
 ﻿using AppAny.HotChocolate.FluentValidation;
 using Backend.API.Validators.UserValidators;
 using Backend.Core.Entities;
+using Backend.Core.Enums;
 using Backend.Core.Repositories;
 using Backend.Utils.Authentication;
 
@@ -16,7 +17,7 @@ namespace Backend.API.Properties
             _configuration = configuration;
         }
 
-        public async Task<string?> Signup([UseFluentValidation, UseValidator<UserSigninValidator>] User user, [Service] IUserRepository userRepository)
+        public async Task<string?> Signup([UseFluentValidation, UseValidator<UserSigninValidator>] User user, CurrencyEnum currency, [Service] IUserRepository userRepository, [Service] IAccountRepository accountRepository)
         {
             var registeredUsers = await userRepository.GetByEmailAsync(email: user.Email);
 
@@ -24,6 +25,8 @@ namespace Backend.API.Properties
             {
                 throw new GraphQLException("User already registered.");
             }
+            var defaultAccount = await accountRepository.GenerateNewAccount(user: user, currency: currency);
+            user.Accounts = new List<Account>() { defaultAccount };
 
             await userRepository.Signup(user: user);
 
