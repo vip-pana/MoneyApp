@@ -1,6 +1,6 @@
 ﻿namespace Backend.Core.Enums
 {
-    public enum TypeEnum
+    public enum OperationType
     {
         Expense = 0,
         Income = 1,

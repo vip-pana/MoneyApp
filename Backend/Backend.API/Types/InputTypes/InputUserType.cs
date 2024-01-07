@@ -1,5 +1,4 @@
 ﻿using Backend.Core.Entities;
-using HotChocolate.Types;
 
 namespace Backend.API.Types.InputTypes
 {
@@ -7,6 +6,7 @@ namespace Backend.API.Types.InputTypes
     {
         protected override void Configure( IInputObjectTypeDescriptor<User> descriptor)
         {
+            // Method intentionally left empty.
         }
     }
 }

@@ -11,10 +11,7 @@ namespace Backend.Infrastructure.Repositories
 
         public BaseRepository(IDbContext context)
         {
-            if (context is null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
+            ArgumentNullException.ThrowIfNull(context);
 
             collection = context.GetCollection<T>(typeof(T).Name);
         }

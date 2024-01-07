@@ -18,7 +18,6 @@ namespace Backend.API.Validators.UserValidators
             .Matches("[A-Z]").WithMessage("The password must have at least one uppercase letter.")
             .Matches("[a-z]").WithMessage("The password must have at least one lowercase letter.")
             .Matches("[0-9]").WithMessage("The password must have at least one number.");
-
         }
     }
 }

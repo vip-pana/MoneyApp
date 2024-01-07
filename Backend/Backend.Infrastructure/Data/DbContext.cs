@@ -6,13 +6,11 @@ namespace Backend.Infrastructure.Data
 {
     public class DbContext : IDbContext
     {
-        private readonly IOptions<MongoDbConfiguration> _mongoDbConfiguration;
-
         private readonly IMongoDatabase database;
 
         public DbContext(IOptions<MongoDbConfiguration> mongoDbConfiguration)
         {
-            _mongoDbConfiguration = mongoDbConfiguration;
+            var _mongoDbConfiguration = mongoDbConfiguration;
 
             var client = new MongoClient(_mongoDbConfiguration.Value.ConnectionString);
 
