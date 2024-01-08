@@ -1,19 +1,31 @@
 # Organizzazione del progetto
+
 Il progetto è organizzato in tre rami principali, ciascuno responsabile di un aspetto specifico dell'architettura:
 
 - **Backend.API** — Questo ramo gestisce l'avvio del progetto e implementa GraphQL, occupandosi anche della gestione del database. Qui sono definite le query, mutations, subscriptions, resolvers e i tipi GraphQL necessari per l'interazione con il Frontend.
-- **Backend.Core** —************************ - In questa sezione, vengono create le entità POCO (Plain Old C# Objects) che rappresentano gli oggetti di base del backend. Queste entità sono utilizzate per definire la struttura del database in un approccio Code First. Inoltre, questo ramo definisce le interfacce dei repositories, fornendo un'astrazione per l'accesso ai dati.
-- **Backend.Infrastructure** — - Qui si occupa della comunicazione con il database, comprendendo la creazione del contesto (Context) del database e la definizione dei repositories necessari per modificare i dati. Questo ramo svolge un ruolo chiave nell'implementazione della logica di accesso ai dati, garantendo una gestione efficiente delle operazioni di lettura e scrittura nel database.
+- **Backend.Core** —\***\*\*\*\*\***\*\*\*\*\***\*\*\*\*\*** - In questa sezione, vengono create le entità POCO (Plain Old C# Objects) che rappresentano gli oggetti di base del backend. Queste entità sono utilizzate per definire la struttura del database in un approccio Code First. Inoltre, questo ramo definisce le interfacce dei repositories, fornendo un'astrazione per l'accesso ai dati.
+- **Backend.Infrastructure** — Si occupa della comunicazione con il database, comprendendo la creazione del contesto (Context) del database e la definizione dei repositories necessari per modificare i dati. Questo ramo svolge un ruolo chiave nell'implementazione della logica di accesso ai dati, garantendo una gestione efficiente delle operazioni di lettura e scrittura nel database.
+- **Backend.Utils** — Contiene tutte le classi di Utility messe a disposizione di tutta la soluzione.
 
 ## Backend.API
 
 Questo costituisce il nucleo del progetto all'interno della soluzione, originariamente creato come un progetto [ASP.NET](http://asp.net/) Core Empty. Le sue responsabilità principali includono:
 
 - **Startup Project:** La gestione del punto di avvio del programma è affidata al file `Program.cs`. Al suo interno, vengono implementate le seguenti funzionalità:
-    - Utilizzo del Context per la comunicazione con il Database.
-    - Implementazione di GraphQL, comprese Query, Mutations e Subscriptions, oltre alla definizione dei Type e dei Resolver.
+  - Utilizzo del Context per la comunicazione con il Database.
+  - Implementazione di GraphQL, comprese Query, Mutations e Subscriptions, oltre alla definizione dei Type e dei Resolver.
+
+### Dependency Injection
+
+Dentro la directory "Configuration" sono definite tutti i servizi che verranno installati su `Program.cs`. I servizi in questione sono:
+
+- Servizio di configurazione di MongoDB
+- Servizio di configurazione di FluentValidation
+- Servizio di configurazione di HotChocolate
+- Servizio di inizializzazione dei repository
 
 ### Mutations, Queries, Subscriptions Folders
+
 Ognuna di queste cartelle contiene definizioni suddivise in classi corrispondenti ai loro nomi. L'implementazione di queste parti di GraphQL è strutturata in diverse sottoclassi, migliorando la leggibilità e l'organizzazione del codice.
 
 Per aggiungere una nuova classe a una di queste cartelle, è necessario applicare il decoratore `[ExtendObjectType(Name = "<Operation>")]` può essere `Query`, `Mutation` o `Subscription`, a seconda della cartella e del suo scopo. Questo approccio garantisce una chiara estensione delle operazioni GraphQL, mantenendo una struttura coerente e ben organizzata.
@@ -50,18 +62,19 @@ builder.Services
 ```
 
 ### Properties Folder
+
 Questo spazio contiene esclusivamente il file `launchsettings.json`, che racchiude le configurazioni di avvio del progetto.
 
 **La decisione di includere anche `appsettings.Development.json` e `appsettings.json` verrà presa successivamente, in base alle esigenze.**
 
 ### Resolver Folder
+
 Questa cartella ospita i Resolver dell'applicazione.
 I Resolver in GraphQL sono estensioni per gli oggetti, fornendo un meccanismo per implementare logica aggiuntiva all'interno della nostra applicazione.
 
 Per utilizzare un Resolver è necessario creare una nuova classe e aggiungere il decoratore `[ExtendObjectType("Name")]`. In questo contesto, "Name" rappresenta il nome dello schema dell'entità GraphQL che si desidera estendere. Di solito, questo nome corrisponde a quello dell'entità con cui si sta lavorando.
 
-
-**Nel contesto specifico del nostro utilizzo, è importante definire quando e come utilizzare i Resolver rispetto alle query standard.** 
+**Nel contesto specifico del nostro utilizzo, è importante definire quando e come utilizzare i Resolver rispetto alle query standard.**
 
 ### Types Folder
 
@@ -92,14 +105,13 @@ I Repository costituiscono il layer di comunicazione tra il Backend e il Databas
 
 - **`IBaseRepository.cs`** — - Un'interfaccia generica adattabile a tutte le interfacce dei repository. Contiene i metodi che ogni interfaccia dei repository deve implementare.
 - L’implementazione di `IBaseRepository` - consiste nel seguente frammento di codice:
-    
-    ```csharp
-    public interface IProductRepository : IBaseRepository<Product>
-    {
-    	// Other things.
-    }
-    ```
-    Implementando `IBaseRepository` e passandogli come Generics l’entità legata alla repository.
+  ```csharp
+  public interface IProductRepository : IBaseRepository<Product>
+  {
+  	// Other things.
+  }
+  ```
+  Implementando `IBaseRepository` e passandogli come Generics l’entità legata alla repository.
 
 ## Backend.Infrastructure
 
@@ -128,11 +140,12 @@ public class CategoryRepository : BaseRepository<Category>, ICategoryRepository
 		// Other things.
 }
 ```
+
 Dove `<Category>`è l’entità e `ICategoryRepository` è l’interfaccia della repository. Inoltre tutte le Repositories devono avere un costruttore in cui implementano il context del database per poter funzionare.
 
 ### Data Folder
 
-Questa cartella contiene la definizione dell'interfaccia del Context `IDbContext.cs`, insieme alla sua implementazione `DbContext.cs`. 
+Questa cartella contiene la definizione dell'interfaccia del Context `IDbContext.cs`, insieme alla sua implementazione `DbContext.cs`.
 Inoltre, include `ContextSeed.cs`, responsabile del popolamento del database con le entità. Questo file è utilizzato durante la costruzione della struttura e per il debug. **È importante notare che deve essere eliminato in seguito**.
 
 ### Configurations Folder
