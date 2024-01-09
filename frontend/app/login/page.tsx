@@ -13,6 +13,17 @@ import {
   Tooltip,
   VStack,
   Button,
+  ModalOverlay,
+  useDisclosure,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  FormControl,
+  FormLabel,
+  ModalFooter,
+  Select,
 } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
 import { Divider } from "@chakra-ui/react";
@@ -53,6 +64,27 @@ const Login = () => {
     }
   };
 
+  //
+  //
+  //
+  //
+  //
+  const OverlayOne = () => (
+    <ModalOverlay
+      bg="blackAlpha.300"
+      backdropFilter="blur(10px) hue-rotate(90deg)"
+    />
+  );
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [overlay, setOverlay] = React.useState(<OverlayOne />);
+  const initialRef = React.useRef(null);
+  const finalRef = React.useRef(null);
+  //
+  //
+  //
+  //
+  //
+
   return (
     <center>
       <Box mt={"15vh"}>
@@ -66,11 +98,13 @@ const Login = () => {
             type="email"
             onChange={handleInputEmail}
             onKeyDown={handleOnEnter}
+            isRequired={true}
+            focusBorderColor="black"
           />
           <InputRightElement>
             <IconButton
               aria-label="confirm email"
-              variant="ghost"
+              variant={"ghost"}
               colorScheme="white"
               icon={<ArrowForwardIcon />}
               onClick={handleOnEnter}
@@ -83,12 +117,13 @@ const Login = () => {
             placeholder="Password"
             type={showPassword ? "text" : "password"}
             onChange={handleInputPassword}
+            focusBorderColor="black"
           />
           <InputRightElement>
             <IconButton
               h="1.75rem"
               aria-label="confirm email"
-              variant="ghost"
+              variant={"ghost"}
               colorScheme="white"
               onClick={() => setShowPassword(!showPassword)}
               icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
@@ -96,12 +131,100 @@ const Login = () => {
           </InputRightElement>
         </InputGroup>
 
-        <Button w={"100%"} variant={"outline"} mb={-5}>
+        <Button w={"100%"} variant={"ghost"} mb={-5}>
           Login
         </Button>
         <Spacer />
         <HStack w={"100%"} mb={-5}>
-          <Text>Sign Up</Text>
+          {/* 
+
+
+ */}
+
+          <Button
+            variant={"ghost"}
+            colorScheme="white"
+            onClick={() => {
+              setOverlay(<OverlayOne />);
+              onOpen();
+            }}
+          >
+            Sign Up
+          </Button>
+          <Modal
+            initialFocusRef={initialRef}
+            finalFocusRef={finalRef}
+            isOpen={isOpen}
+            onClose={onClose}
+            isCentered
+          >
+            {overlay}
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader w={"100%"}>Create your account</ModalHeader>
+              <ModalCloseButton />
+              <ModalBody pb={6}>
+                <FormControl>
+                  <FormLabel>First Name</FormLabel>
+                  <Input
+                    ref={initialRef}
+                    placeholder="First Name"
+                    focusBorderColor="black"
+                  />
+                </FormControl>
+
+                <FormControl mt={4}>
+                  <FormLabel>Last Name</FormLabel>
+                  <Input placeholder="Last Name" focusBorderColor="black" />
+                </FormControl>
+
+                <FormControl mt={4}>
+                  <FormLabel>Mail</FormLabel>
+                  <Input placeholder="Mail" focusBorderColor="black" />
+                </FormControl>
+
+                <FormControl mt={4}>
+                  <FormLabel>Password</FormLabel>
+                  <Input placeholder="Password" focusBorderColor="black" />
+                </FormControl>
+
+                <FormControl mt={4}>
+                  <FormLabel>Confirm Password</FormLabel>
+                  <Input
+                    placeholder="Confirm Password"
+                    focusBorderColor="black"
+                  />
+                </FormControl>
+
+                <FormControl mt={4}>
+                  <FormLabel>Currency</FormLabel>
+                  <Select placeholder="Currency" focusBorderColor="black">
+                    <option value="option1">EUR €</option>
+                    <option value="option2">USD $</option>
+                  </Select>
+                </FormControl>
+              </ModalBody>
+
+              <ModalFooter>
+                <Button variant={"ghost"} mr={3}>
+                  Sign Up
+                </Button>
+                {/* <Button
+                  variant={"ghost"}
+                  color="red"
+                  colorScheme="white"
+                  onClick={onClose}
+                >
+                  Cancel
+                </Button> */}
+              </ModalFooter>
+            </ModalContent>
+          </Modal>
+          {/* 
+
+
+ */}
+
           <Spacer />
           <Text>
             <Tooltip
