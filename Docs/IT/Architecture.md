@@ -15,9 +15,27 @@ Questo costituisce il nucleo del progetto all'interno della soluzione, originari
   - Utilizzo del Context per la comunicazione con il Database.
   - Implementazione di GraphQL, comprese Query, Mutations e Subscriptions, oltre alla definizione dei Type e dei Resolver.
 
-### Dependency Injection
+## Dependency Injection
 
-Dentro la directory "Configuration" sono definiti tutti i servizi che verranno installati su `Program.cs`. I servizi sono posizionati nella cartella Services e ogni servizio deve implementare l'interfaccia `IServiceInstaller.cs`.
+All'interno della directory "Configuration" sono definiti tutti i servizi che verranno installati su `Program.cs`. Questi servizi risiedono nella cartella Services e ciascuno di essi deve implementare l'interfaccia `IServiceInstaller.cs`.
+
+### Come implementare un nuovo servizio:
+
+1. Creare una nuova classe all'interno della cartella "Services" e nominarla come segue: `<NomeServizio>ServiceInstaller.cs`.
+2. Implementare l'interfaccia `IServiceInstaller.cs` all'interno della classe appena creata.
+3. Scrivere la logica di installazione del servizio all'interno del metodo "Install" come mostrato nell'esempio seguente:
+
+```csharp
+public class NomeServizioServiceInstaller : IServiceInstaller
+{
+   public void Install(IServiceCollection services, IConfiguration configuration)
+   {
+    // Inserire qui il codice per aggiungere l'istanza del proprio servizio
+   }
+}
+```
+
+Sostituire <NomeServizio> con il nome appropriato del servizio che si sta implementando e inserire la logica necessaria all'interno del metodo "Install" per aggiungere correttamente l'istanza del servizio al `IServiceCollection`.
 
 ### Mutations, Queries, Subscriptions Folders
 
