@@ -17,12 +17,7 @@ Questo costituisce il nucleo del progetto all'interno della soluzione, originari
 
 ### Dependency Injection
 
-Dentro la directory "Configuration" sono definite tutti i servizi che verranno installati su `Program.cs`. I servizi in questione sono:
-
-- Servizio di configurazione di MongoDB
-- Servizio di configurazione di FluentValidation
-- Servizio di configurazione di HotChocolate
-- Servizio di inizializzazione dei repository
+Dentro la directory "Configuration" sono definiti tutti i servizi che verranno installati su `Program.cs`. I servizi sono posizionati nella cartella Services e ogni servizio deve implementare l'interfaccia `IServiceInstaller.cs`.
 
 ### Mutations, Queries, Subscriptions Folders
 
