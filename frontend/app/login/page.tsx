@@ -37,14 +37,34 @@ const Login = () => {
   };
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
-  const handleOnKeyEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      console.log("bella");
+  // const handleOnKeyEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  //   if (e.key === "Enter") {
+  //     console.log("bella");
+  //   }
+  // };
+
+  // const handleOnClickEnter = (e: React.MouseEvent<HTMLElement>) => {
+  //   console.log("bella");
+  // };
+
+  const handleOnEnter = (
+    e:
+      | React.KeyboardEvent<HTMLInputElement>
+      | React.MouseEvent<HTMLButtonElement>
+  ) => {
+    if ((e as React.MouseEvent<HTMLButtonElement>).button === 0) {
+      console.log("hello");
+    } else {
+      if (e as React.KeyboardEvent<HTMLInputElement>) {
+        if ((e as React.KeyboardEvent<HTMLInputElement>).key === "Enter") {
+          console.log("bella");
+        }
+      }
     }
   };
 
-  const handleOnClickEnter = (e: any) => {
-    console.log("bella");
+  const Enter = () => {
+    console.log("porco dio");
   };
 
   return (
@@ -56,10 +76,10 @@ const Login = () => {
         <InputGroup>
           <Input
             placeholder="Mail"
-            value={email}
+            value={email || ""}
             type="email"
             onChange={handleInputEmail}
-            onKeyDown={handleOnKeyEnter}
+            onKeyDown={handleOnEnter}
           />
           <InputRightElement>
             <IconButton
@@ -67,7 +87,7 @@ const Login = () => {
               variant="ghost"
               colorScheme="white"
               icon={<ArrowForwardIcon />}
-              onClick={handleOnClickEnter}
+              onClick={handleOnEnter}
             ></IconButton>
           </InputRightElement>
         </InputGroup>
@@ -89,6 +109,7 @@ const Login = () => {
             ></IconButton>
           </InputRightElement>
         </InputGroup>
+
         <Button w={"100%"} variant={"outline"} mb={-5}>
           Login
         </Button>
