@@ -3,7 +3,7 @@
 Il progetto è organizzato in tre rami principali, ciascuno responsabile di un aspetto specifico dell'architettura:
 
 - **Backend.API** — Questo ramo gestisce l'avvio del progetto e implementa GraphQL, occupandosi anche della gestione del database. Qui sono definite le query, mutations, subscriptions, resolvers e i tipi GraphQL necessari per l'interazione con il Frontend.
-- **Backend.Core** —\***\*\*\*\*\***\*\*\*\*\***\*\*\*\*\*** - In questa sezione, vengono create le entità POCO (Plain Old C# Objects) che rappresentano gli oggetti di base del backend. Queste entità sono utilizzate per definire la struttura del database in un approccio Code First. Inoltre, questo ramo definisce le interfacce dei repositories, fornendo un'astrazione per l'accesso ai dati.
+- **Backend.Core** — In questa sezione, vengono create le entità POCO (Plain Old C# Objects) che rappresentano gli oggetti di base del backend. Queste entità sono utilizzate per definire la struttura del database in un approccio Code First. Inoltre, questo ramo definisce le interfacce dei repositories, fornendo un'astrazione per l'accesso ai dati.
 - **Backend.Infrastructure** — Si occupa della comunicazione con il database, comprendendo la creazione del contesto (Context) del database e la definizione dei repositories necessari per modificare i dati. Questo ramo svolge un ruolo chiave nell'implementazione della logica di accesso ai dati, garantendo una gestione efficiente delle operazioni di lettura e scrittura nel database.
 - **Backend.Utils** — Contiene tutte le classi di Utility messe a disposizione di tutta la soluzione.
 
