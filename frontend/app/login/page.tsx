@@ -37,16 +37,6 @@ const Login = () => {
   };
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
-  // const handleOnKeyEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
-  //   if (e.key === "Enter") {
-  //     console.log("bella");
-  //   }
-  // };
-
-  // const handleOnClickEnter = (e: React.MouseEvent<HTMLElement>) => {
-  //   console.log("bella");
-  // };
-
   const handleOnEnter = (
     e:
       | React.KeyboardEvent<HTMLInputElement>
@@ -61,10 +51,6 @@ const Login = () => {
         }
       }
     }
-  };
-
-  const Enter = () => {
-    console.log("porco dio");
   };
 
   return (
