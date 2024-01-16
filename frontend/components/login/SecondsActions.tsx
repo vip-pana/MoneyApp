@@ -1,3 +1,5 @@
+"use client";
+
 import {
   HStack,
   Button,
@@ -24,10 +26,11 @@ export const SecondsActions = () => {
 
   return (
     <>
-      <HStack w={"100%"} mt={20}>
+      <HStack w={"100%"} mt={"50"} mb={"-10"} spacing={20}>
         <Button
           variant={"ghost"}
           colorScheme="white"
+          size="sm"
           onClick={() => {
             setOverlay(<OverlayOne />);
             onOpen();
@@ -37,7 +40,7 @@ export const SecondsActions = () => {
         </Button>
 
         <Spacer />
-        <Button variant={"ghost"} colorScheme="white">
+        <Button variant={"ghost"} colorScheme="white" size="sm">
           <Tooltip
             hasArrow
             label="Please, first insert email."

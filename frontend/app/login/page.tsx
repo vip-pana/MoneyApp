@@ -1,8 +1,4 @@
-"use client";
-
-import { Box, VStack } from "@chakra-ui/react";
-import React from "react";
-import { Divider } from "@chakra-ui/react";
+import { Box, Divider, Flex, Text, VStack } from "@chakra-ui/react";
 import { Logo } from "@/components/base/Logo";
 import { FormLogin } from "@/components/login/FormLogin";
 import { ThirdPartAuthentications } from "@/components/authentication/ThirdPartAuthentications";
@@ -14,10 +10,16 @@ const Login = () => {
       <Box mt={"18vh"}>
         <Logo />
       </Box>
-      <VStack w="350px" mt="10vh">
+      <VStack w="350px" mt={"20"}>
         <FormLogin />
         <SecondsActions />
-        <Divider />
+        <Flex align="center" w={"100%"} mb={"-10"}>
+          <Divider />
+          <Text position="relative" padding="10">
+            or
+          </Text>
+          <Divider />
+        </Flex>
         <ThirdPartAuthentications />
       </VStack>
     </center>

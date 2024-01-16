@@ -5,7 +5,7 @@ import { FcGoogle } from "react-icons/fc";
 
 export const ThirdPartAuthentications = () => {
   return (
-    <HStack w={"90%"}>
+    <HStack w={"100%"}>
       <IconButton
         variant="outline"
         aria-label="Apple authentication"
