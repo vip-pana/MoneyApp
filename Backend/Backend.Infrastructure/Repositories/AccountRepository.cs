@@ -11,7 +11,7 @@ namespace Backend.Infrastructure.Repositories
         {
         }
 
-        public async Task<Account> GenerateNewAccount(User user, CurrencyEnum currency)
+        public async Task<Account> GenerateNewAccount(User user, Currency currency)
         {
             List<Category> categories = GenerateDefaultCategories();
 
@@ -49,12 +49,12 @@ namespace Backend.Infrastructure.Repositories
                 "Tax",
                 "Purchases",
             };
-            List<Category> financeAndInvestmentsCategories = GenerateCategories(financeAndInvestmentsNames, TypeEnum.Income);
+            List<Category> financeAndInvestmentsCategories = GenerateCategories(financeAndInvestmentsNames, OperationType.Income);
 
             categories.Add(new Category()
             {
                 Name = "Finance & Investments",
-                Type = TypeEnum.Income,
+                Type = OperationType.Income,
                 subcategories = financeAndInvestmentsCategories
             });
 
@@ -64,12 +64,12 @@ namespace Backend.Infrastructure.Repositories
                 "Tax",
                 "Purchases",
             };
-            List<Category> refundsCategories = GenerateCategories(refundsNames, TypeEnum.Income);
+            List<Category> refundsCategories = GenerateCategories(refundsNames, OperationType.Income);
 
             categories.Add(new Category()
             {
                 Name = "Refunds",
-                Type = TypeEnum.Income,
+                Type = OperationType.Income,
                 subcategories = refundsCategories
             });
 
@@ -88,7 +88,7 @@ namespace Backend.Infrastructure.Repositories
                 categories.Add(new Category()
                 {
                     Name = name,
-                    Type = TypeEnum.Income,
+                    Type = OperationType.Income,
                 });
             }
 
@@ -103,12 +103,12 @@ namespace Backend.Infrastructure.Repositories
                 "Restaurant, Fast-food",
                 "Bar, Cafe",
             };
-            List<Category> foodAndDrinksCategories = GenerateCategories(foodAndDrinksNames, TypeEnum.Income);
+            List<Category> foodAndDrinksCategories = GenerateCategories(foodAndDrinksNames, OperationType.Income);
 
             categories.Add(new Category()
             {
                 Name = "Food & Drinks",
-                Type = TypeEnum.Expense,
+                Type = OperationType.Expense,
                 subcategories = foodAndDrinksCategories
             });
 
@@ -124,12 +124,12 @@ namespace Backend.Infrastructure.Repositories
                 "Drug store",
                 "Gifts",
             };
-            List<Category> shoppingCategories = GenerateCategories(shoppingNames, TypeEnum.Income);
+            List<Category> shoppingCategories = GenerateCategories(shoppingNames, OperationType.Income);
 
             categories.Add(new Category()
             {
                 Name = "Shopping",
-                Type = TypeEnum.Expense,
+                Type = OperationType.Expense,
                 subcategories = shoppingCategories
             });
 
@@ -143,12 +143,12 @@ namespace Backend.Infrastructure.Repositories
                 "Maintenance, repairs",
                 "Property insurance",
             };
-            List<Category> housingCategories = GenerateCategories(housingNames, TypeEnum.Income);
+            List<Category> housingCategories = GenerateCategories(housingNames, OperationType.Income);
 
             categories.Add(new Category()
             {
                 Name = "Housing",
-                Type = TypeEnum.Expense,
+                Type = OperationType.Expense,
                 subcategories = housingCategories
             });
 
@@ -165,12 +165,12 @@ namespace Backend.Infrastructure.Repositories
                 "Vehicle insurance",
                 "Leasing",
             };
-            List<Category> trasportationCategories = GenerateCategories(trasportationNames, TypeEnum.Income);
+            List<Category> trasportationCategories = GenerateCategories(trasportationNames, OperationType.Income);
 
             categories.Add(new Category()
             {
                 Name = "Vehicle, Travel & Transportation",
-                Type = TypeEnum.Expense,
+                Type = OperationType.Expense,
                 subcategories = trasportationCategories
             });
 
@@ -187,12 +187,12 @@ namespace Backend.Infrastructure.Repositories
                 "Vehicle insurance",
                 "Leasing",
             };
-            List<Category> lifeAndEntertainmentCategories = GenerateCategories(lifeAndEntertainmentNames, TypeEnum.Income);
+            List<Category> lifeAndEntertainmentCategories = GenerateCategories(lifeAndEntertainmentNames, OperationType.Income);
 
             categories.Add(new Category()
             {
                 Name = "Life & entertainment",
-                Type = TypeEnum.Expense,
+                Type = OperationType.Expense,
                 subcategories = lifeAndEntertainmentCategories
             });
 
@@ -206,12 +206,12 @@ namespace Backend.Infrastructure.Repositories
                 "Fees",
                 "Financial investments",
             };
-            List<Category> financeAndInvestmentsCategories = GenerateCategories(financeAndInvestmentsNames, TypeEnum.Income);
+            List<Category> financeAndInvestmentsCategories = GenerateCategories(financeAndInvestmentsNames, OperationType.Income);
 
             categories.Add(new Category()
             {
                 Name = "Finance & Investments",
-                Type = TypeEnum.Expense,
+                Type = OperationType.Expense,
                 subcategories = financeAndInvestmentsCategories
             });
 
@@ -219,13 +219,13 @@ namespace Backend.Infrastructure.Repositories
             categories.Add(new Category()
             {
                 Name = "Other",
-                Type = TypeEnum.Expense,
+                Type = OperationType.Expense,
             });
 
             return categories;
         }
 
-        private List<Category> GenerateCategories(List<string> names, TypeEnum type)
+        private List<Category> GenerateCategories(List<string> names, OperationType type)
         {
             var categories = new List<Category>();
 

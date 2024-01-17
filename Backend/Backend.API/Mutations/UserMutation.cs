@@ -17,7 +17,7 @@ namespace Backend.API.Properties
             _configuration = configuration;
         }
 
-        public async Task<string?> Signup([UseFluentValidation, UseValidator<UserSigninValidator>] User user, CurrencyEnum currency, [Service] IUserRepository userRepository, [Service] IAccountRepository accountRepository)
+        public async Task<string?> Signup([UseFluentValidation, UseValidator<UserSigninValidator>] User user, Currency currency, [Service] IUserRepository userRepository, [Service] IAccountRepository accountRepository)
         {
             var registeredUsers = await userRepository.GetByEmailAsync(email: user.Email);
 
