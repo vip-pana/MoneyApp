@@ -32,6 +32,15 @@ export const FormCheckEmail = () => {
               },
             })}
           />
+          {/* <InputRightElement>
+            <IconButton
+              aria-label="confirm email"
+              variant={"ghost"}
+              colorScheme="white"
+              icon={<ArrowForwardIcon />}
+              onClick={handleOnEnter}
+            ></IconButton>
+          </InputRightElement> */}
         </InputGroup>
         <Text color={"red"} fontSize={"small"}>
           {errors.email?.message}
