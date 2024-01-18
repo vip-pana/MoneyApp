@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowForwardIcon } from "@chakra-ui/icons";
+import { ArrowForwardIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import {
   Input,
   InputGroup,
@@ -8,76 +8,85 @@ import {
   IconButton,
   Button,
   VStack,
-  Box,
 } from "@chakra-ui/react";
-import { useEffect, useRef, useState } from "react";
-import { PasswordInput } from "./PasswordInput";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { graphql } from "@/graphql";
+import request from "graphql-request";
+import { useQuery } from "@tanstack/react-query";
+
+const usersQuery = graphql(/* GraphQL */ `
+  query Query {
+    users {
+      name
+      surname
+    }
+  }
+`);
 
 export const FormLogin = () => {
-  const [email, setEmail] = useState<string>();
-  const handleInputEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  };
+  const [isInputVisible, setIsInputVisible] = useState<boolean>(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
+  const { register, handleSubmit } = useForm();
+  const onSubmit = handleSubmit((data) => console.log(data));
 
-  const [password, setPassword] = useState<string>();
-  const handleInputPassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  };
-  const [showPasswordInput, setShowPasswordInput] = useState<boolean>(false);
-
-  const handleOnEnter = (
-    e:
-      | React.KeyboardEvent<HTMLInputElement>
-      | React.MouseEvent<HTMLButtonElement>
-  ) => {
-    if ((e as React.MouseEvent<HTMLButtonElement>).button === 0) {
-      setShowPasswordInput(true);
-    } else {
-      if (e as React.KeyboardEvent<HTMLInputElement>) {
-        if ((e as React.KeyboardEvent<HTMLInputElement>).key === "Enter") {
-          setShowPasswordInput(true);
-        }
-      }
-    }
-  };
-
-  const previousInputValue = useRef<string>();
-  useEffect(() => {
-    previousInputValue.current = email;
-  }, [email]);
+  const { data } = useQuery({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const users = await request("http://localhost:5116/graphql", usersQuery);
+      console.log(users);
+    },
+  });
 
   return (
     <>
-      <VStack spacing={10}>
-        <InputGroup>
-          <Input
-            placeholder="Mail"
-            value={email || ""}
-            type="email"
-            onChange={handleInputEmail}
-            onKeyDown={handleOnEnter}
-            isRequired={true}
-            focusBorderColor="black"
-          />
-          <InputRightElement>
-            <IconButton
-              aria-label="confirm email"
-              variant={"ghost"}
-              colorScheme="white"
-              icon={<ArrowForwardIcon />}
-              onClick={handleOnEnter}
-            ></IconButton>
-          </InputRightElement>
-        </InputGroup>
+      <form onSubmit={onSubmit}>
+        <VStack spacing={10}>
+          <InputGroup>
+            <Input
+              placeholder="Email"
+              type="email"
+              isRequired={true}
+              focusBorderColor="black"
+              {...register("email")}
+            />
+            <InputRightElement>
+              <IconButton
+                aria-label="Confirm email"
+                variant={"ghost"}
+                colorScheme="white"
+                icon={<ArrowForwardIcon />}
+                onClick={() => setIsInputVisible(true)}
+              ></IconButton>
+            </InputRightElement>
+          </InputGroup>
 
-        <Box display={showPasswordInput ? "block" : "none"}>
-          <PasswordInput handleInputPassword={handleInputPassword} />
-        </Box>
+          <InputGroup display={isInputVisible ? "block" : "none"}>
+            <Input
+              placeholder="Password"
+              type={isPasswordVisible ? "text" : "password"}
+              isRequired={true}
+              focusBorderColor="black"
+              {...register("password")}
+            />
+            <InputRightElement>
+              <IconButton
+                aria-label={
+                  isPasswordVisible ? "Hide password" : "Show password"
+                }
+                variant={"ghost"}
+                colorScheme="white"
+                icon={isPasswordVisible ? <ViewOffIcon /> : <ViewIcon />}
+                onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+              ></IconButton>
+            </InputRightElement>
+          </InputGroup>
 
-        <Button w={"100%"} variant={"ghost"} mb={-5}>
-          Login
-        </Button>
-      </VStack>
+          <Button type="submit" w={"100%"} variant={"ghost"} mb={-5}>
+            Login
+          </Button>
+        </VStack>
+      </form>
     </>
   );
 };

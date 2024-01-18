@@ -11,7 +11,7 @@ import {
 import React from "react";
 import { SignUpModal } from "./SignUpModal";
 
-export const SecondsActions = () => {
+export const SecondActions = () => {
   const OverlayOne = () => (
     <ModalOverlay
       bg="blackAlpha.100"

@@ -2,7 +2,7 @@ import { Box, Divider, Flex, Text, VStack } from "@chakra-ui/react";
 import { Logo } from "@/components/base/Logo";
 import { FormLogin } from "@/components/login/FormLogin";
 import { ThirdPartAuthentications } from "@/components/authentication/ThirdPartAuthentications";
-import { SecondsActions } from "@/components/login/SecondsActions";
+import { SecondActions } from "@/components/login/SecondsActions";
 
 const Login = () => {
   return (
@@ -12,7 +12,7 @@ const Login = () => {
       </Box>
       <VStack w="350px" mt={"20"}>
         <FormLogin />
-        <SecondsActions />
+        <SecondActions />
         <Flex align="center" w={"100%"} mb={"-10"}>
           <Divider />
           <Text position="relative" padding="10">
