@@ -1,0 +1,3 @@
+type FormCheckMailValues = {
+  email: string;
+};
