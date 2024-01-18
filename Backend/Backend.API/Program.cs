@@ -8,12 +8,17 @@ namespace Backend.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            var corsPolicy = builder.Configuration.GetValue<string>("corspolicy");
+
             // Dependencies Injection
             builder.Services.InstallServices(builder.Configuration, typeof(IServiceInstaller).Assembly);
 
             var app = builder.Build();
 
-            app.UseCors("corspolicy");
+            if (corsPolicy != null)
+            {
+                app.UseCors(corsPolicy);
+            }
 
             app.UseWebSockets();
             app.MapGraphQL();
