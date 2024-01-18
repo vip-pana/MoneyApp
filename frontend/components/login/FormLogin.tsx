@@ -87,6 +87,3 @@ export const FormLogin = () => {
           </Button>
         </VStack>
       </form>
-    </>
-  );
-};
