@@ -1,5 +1,4 @@
 using Backend.API.Configuration;
-using Microsoft.AspNetCore.Cors.Infrastructure;
 
 namespace Backend.API
 {

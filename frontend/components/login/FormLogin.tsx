@@ -33,7 +33,7 @@ export const FormLogin = () => {
   const { data } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
-      const users = await request("http://localhost:5116/graphql", usersQuery);
+      const users = await request("https://localhost:7234/graphql", usersQuery);
       console.log(users);
     },
   });
@@ -87,3 +87,5 @@ export const FormLogin = () => {
           </Button>
         </VStack>
       </form>
+</>
+  )}
