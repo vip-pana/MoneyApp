@@ -1,4 +1,5 @@
 using Backend.API.Configuration;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 
 namespace Backend.API
 {
@@ -12,6 +13,8 @@ namespace Backend.API
             builder.Services.InstallServices(builder.Configuration, typeof(IServiceInstaller).Assembly);
 
             var app = builder.Build();
+
+            app.UseCors("corspolicy");
 
             app.UseWebSockets();
             app.MapGraphQL();
