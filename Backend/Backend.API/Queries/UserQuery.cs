@@ -7,5 +7,11 @@ namespace Backend.API.Queries
     public class UserQuery
     {
         public Task<IEnumerable<User>> GetUsersAsync([Service] IUserRepository userRepository) => userRepository.GetAllAsync();
+        public async Task<bool> UserExistByEmail([Service] IUserRepository userRepository, string email) {
+
+            User user = await userRepository.GetByEmailAsync(email);
+            
+            return user != null;
     }
+}
 }
