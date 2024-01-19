@@ -1,10 +1,15 @@
 "use client";
 
-import { InputGroup, Input, Button, Text } from "@chakra-ui/react";
+import { InputGroup, Input, Button, Text, InputRightElement, IconButton } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { formCheckEmailValidation } from "@/utils/typeValidation";
+import { formCheckEmailValidation } from "@/utils/definitions/typeValidation";
+import { useQuery } from "react-query";
+import request from "graphql-request";
+import { fetchPath } from "@/utils/FetchPath";
+import { getUsers } from "@/utils/definitions/queryDefinition";
+import { ArrowForwardIcon } from "@chakra-ui/icons";
 
 export const FormCheckEmail = () => {
   const form = useForm<FormCheckMailValues>({
@@ -16,6 +21,14 @@ export const FormCheckEmail = () => {
   const onSubmit = (data: FormCheckMailValues) => {
     console.log("Form submitted", data); 
   };
+
+  const CheckEmailExist = useQuery({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const users = await request(fetchPath, getUsers);
+      console.log(users);
+    },
+  });
 
   return (
     <>
@@ -32,22 +45,19 @@ export const FormCheckEmail = () => {
               },
             })}
           />
-          {/* <InputRightElement>
+          <InputRightElement>
             <IconButton
               aria-label="confirm email"
               variant={"ghost"}
               colorScheme="white"
+              type="submit"
               icon={<ArrowForwardIcon />}
-              onClick={handleOnEnter}
             ></IconButton>
-          </InputRightElement> */}
+          </InputRightElement>
         </InputGroup>
         <Text color={"red"} fontSize={"small"}>
           {errors.email?.message}
         </Text>
-        <Button w={"100%"} variant={"ghost"} mb={-5} type="submit">
-          Login
-        </Button>
       </form>
       {/* <DevTool control={control} /> */}
     </>

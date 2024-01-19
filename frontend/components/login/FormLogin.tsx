@@ -11,32 +11,12 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { graphql } from "@/graphql";
-import request from "graphql-request";
-import { useQuery } from "@tanstack/react-query";
-
-const usersQuery = graphql(/* GraphQL */ `
-  query Query {
-    users {
-      name
-      surname
-    }
-  }
-`);
 
 export const FormLogin = () => {
   const [isInputVisible, setIsInputVisible] = useState<boolean>(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
   const { register, handleSubmit } = useForm();
   const onSubmit = handleSubmit((data) => console.log(data));
-
-  const { data } = useQuery({
-    queryKey: ["users"],
-    queryFn: async () => {
-      const users = await request("https://localhost:7234/graphql", usersQuery);
-      console.log(users);
-    },
-  });
 
   return (
     <>
