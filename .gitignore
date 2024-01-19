@@ -33,3 +33,7 @@ frontend/graphql/graphql.ts
 /Backend/Backend.API/Backend.API.csproj.user
 /Backend/Backend.Infrastructure/bin/Debug/net8.0
 /Backend/Backend.Infrastructure/obj
+/frontend/graphql/fragment-masking.ts
+/frontend/graphql/gql.ts
+/frontend/graphql/graphql.ts
+/frontend/graphql/index.ts
