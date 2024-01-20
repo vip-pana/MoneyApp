@@ -1,33 +1,34 @@
 "use client";
 
-import { InputGroup, Input, Button, Text, InputRightElement, IconButton } from "@chakra-ui/react";
+import {
+  InputGroup,
+  Input,
+  Text,
+  InputRightElement,
+  IconButton,
+} from "@chakra-ui/react";
+import { ArrowForwardIcon } from "@chakra-ui/icons";
 import { useForm } from "react-hook-form";
-import { DevTool } from "@hookform/devtools";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formCheckEmailValidation } from "@/utils/definitions/typeValidation";
+import { useCheckEmailExistQuery } from "@/utils/definitions/useQueryDefinition";
 import { useQuery } from "react-query";
-import request from "graphql-request";
-import { fetchPath } from "@/utils/FetchPath";
-import { getUsers } from "@/utils/definitions/queryDefinition";
-import { ArrowForwardIcon } from "@chakra-ui/icons";
 
 export const FormCheckEmail = () => {
-  const form = useForm<FormCheckMailValues>({
-    resolver: zodResolver(formCheckEmailValidation)
+  const form = useForm<CheckMailValueDefinition>({
+    resolver: zodResolver(formCheckEmailValidation),
   });
-  const { register, control, handleSubmit, formState } = form;
+  const { register, handleSubmit, formState, getValues } = form;
   const { errors } = formState;
 
-  const onSubmit = (data: FormCheckMailValues) => {
-    console.log("Form submitted", data); 
+  const onSubmit = () => {
+    refetch();
   };
 
-  const CheckEmailExist = useQuery({
-    queryKey: ["users"],
-    queryFn: async () => {
-      const users = await request(fetchPath, getUsers);
-      console.log(users);
-    },
+  const { data, refetch } = useQuery({
+    queryKey: "checkEmailExist",
+    queryFn: () => useCheckEmailExistQuery(getValues("email")),
+    enabled: false,
   });
 
   return (
@@ -38,12 +39,7 @@ export const FormCheckEmail = () => {
             placeholder="Email"
             type="email"
             focusBorderColor="black"
-            {...register("email", {
-              required: {
-                value: true,
-                message: "email is required.",
-              },
-            })}
+            {...register("email")}
           />
           <InputRightElement>
             <IconButton
@@ -59,7 +55,6 @@ export const FormCheckEmail = () => {
           {errors.email?.message}
         </Text>
       </form>
-      {/* <DevTool control={control} /> */}
     </>
   );
 };
