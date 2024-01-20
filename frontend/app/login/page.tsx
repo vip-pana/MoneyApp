@@ -2,7 +2,7 @@ import { Box, Divider, Flex, Text, VStack } from "@chakra-ui/react";
 import { Logo } from "@/components/base/Logo";
 import { ThirdPartAuthentications } from "@/components/authentication/ThirdPartAuthentications";
 import { SecondActions } from "@/components/login/SecondsActions";
-import { FormCheckEmail } from "@/components/login/FormCheckEmail";
+import { FormLogin } from "@/components/login/FormLogin";
 
 const Login = () => {
   return (
@@ -11,7 +11,7 @@ const Login = () => {
         <Logo />
       </Box>
       <VStack w="350px" mt={"20"}>
-        <FormCheckEmail />
+        <FormLogin />
         <SecondActions />
         <Flex align="center" w={"100%"} mb={"-10"}>
           <Divider />
