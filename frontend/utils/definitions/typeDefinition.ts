@@ -3,4 +3,5 @@
 
 type CheckMailValueDefinition = {
   email: string;
+  password: string;
 };
