@@ -13,7 +13,13 @@ export const getUsersQueryDocument = graphql(`
 `);
 
 export const checkEmailExistQueryDocument = graphql(`
-  query userExistByEmail($email: String!) {
+  query userExistByEmailQuery($email: String!) {
     userExistByEmail(email: $email)
   }
 `);
+
+// export const loginQueryDocument = graphql(`
+//     query GetTask {
+
+//     }
+// `);
