@@ -1,0 +1,19 @@
+:root{
+  /* color stuff variables*/
+  --bg: #151c2c;
+  --bgSoft: #182237;
+  --text: white;
+  --textSoft: #b7bac1;
+}
+
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body{
+  /* use of root color stuff variables */
+  background-color: var(--bg);
+  color: var(--text);
+}
