@@ -1,16 +1,15 @@
-import { Box, Divider, Flex, Text, VStack } from "@chakra-ui/react";
-import { Logo } from "@/components/base/Logo";
-import { ThirdPartAuthentications } from "@/components/authentication/ThirdPartAuthentications";
-import { SecondActions } from "@/components/login/SecondsActions";
-import { FormLogin } from "@/components/login/FormLogin";
+"use client";
+import { Divider, Flex, Text, VStack } from "@chakra-ui/react";
+import { ThirdPartAuthentications } from "./../components/authentication/ThirdPartAuthentications";
+import { SecondActions } from "./../components/login/secondsActions";
+import { FormLogin } from "./../components/login/formLogin";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/utils/reactQueryClient";
 
 const Login = () => {
   return (
-    <center>
-      <Box mt={"18vh"}>
-        <Logo />
-      </Box>
-      <VStack w="350px" mt={"20"}>
+    <>
+      <QueryClientProvider client={queryClient}>
         <FormLogin />
         <SecondActions />
         <Flex align="center" w={"100%"} mb={"-10"}>
@@ -21,8 +20,8 @@ const Login = () => {
           <Divider />
         </Flex>
         <ThirdPartAuthentications />
-      </VStack>
-    </center>
+      </QueryClientProvider>
+    </>
   );
 };
 
