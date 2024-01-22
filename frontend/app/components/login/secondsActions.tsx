@@ -9,7 +9,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import React from "react";
-import { SignUpModal } from "./SignUpModal";
+import { SignUpModal } from "./signUpModal";
 
 export const SecondActions = () => {
   const OverlayOne = () => (

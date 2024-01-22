@@ -9,3 +9,11 @@ export const formCheckEmailValidation = z.object({
     .min(1, "Email is empty, please insert email")
     .email("Email format is not valid"),
 });
+
+export const formLoginValidation = z.object({
+  email: z
+    .string()
+    .min(1, "Email is empty, please insert email")
+    .email("Email format is not valid"),
+  password: z.string().min(1, "Password is empty, please insert password"),
+});
