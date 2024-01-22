@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import { Inter } from "next/font/google";
+import "./ui/globals.css";
 import { Providers } from "@/components/base/Providers";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "MoneyApp",
@@ -13,7 +16,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body suppressHydrationWarning={true}>
+      <body className={inter.className}>
         <Providers>{children}</Providers>
       </body>
     </html>
