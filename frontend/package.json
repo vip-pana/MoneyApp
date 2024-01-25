@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "complete-dev": "concurrently -k \"next dev\" \"graphql-codegen --config codegen.ts --watch\"",
+    "fulldev": "concurrently -k \"next dev\" \"graphql-codegen --config codegen.ts --watch\"",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

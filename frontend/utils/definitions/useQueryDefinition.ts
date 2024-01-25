@@ -2,12 +2,7 @@ import request from "graphql-request";
 import { Dispatch, SetStateAction } from "react";
 import { UseFormSetValue } from "react-hook-form";
 import { queryUrl } from "../queryUrl";
-import {
-  LoginDocument,
-  LoginMutation,
-  UserExistByEmailDocument,
-  UserExistByEmailQuery,
-} from "@/gql/generated/graphql";
+import { LoginDocument, LoginMutation, UserExistByEmailDocument, UserExistByEmailQuery } from "@/gql/generated/graphql";
 
 // // for convention all methods created in this file will have at the start of the name the phrase "use" and on the end "Query"
 // // that's because all query have to use a query call, so they have to use the query method in queryDefinition.ts
@@ -18,13 +13,9 @@ export const useCheckEmailExistQuery = async (
   setEmailExist: Dispatch<SetStateAction<boolean>>,
   setEmailLoginFormValue: UseFormSetValue<LoginValueDefinition>
 ) => {
-  const emailExist = request<UserExistByEmailQuery>(
-    queryUrl,
-    UserExistByEmailDocument,
-    {
-      email: emailFormValue,
-    }
-  );
+  const emailExist = request<UserExistByEmailQuery>(queryUrl, UserExistByEmailDocument, {
+    email: emailFormValue,
+  });
   if ((await emailExist).userExistByEmail) {
     setEmailExist(true);
     setEmailLoginFormValue("email", emailFormValue);
@@ -33,13 +24,7 @@ export const useCheckEmailExistQuery = async (
   return emailExist;
 };
 
-export const useLoginQuery = async ({
-  email,
-  password,
-}: {
-  email: string;
-  password: string;
-}) => {
+export const UseLoginQuery = async ({ email, password }: { email: string; password: string }) => {
   const token = await request<LoginMutation>(queryUrl, LoginDocument, {
     user: {
       email: email,

@@ -1,9 +1,11 @@
 ﻿using AppAny.HotChocolate.FluentValidation;
+using Backend.API.Configuration.Models;
 using Backend.API.Validators.UserValidators;
 using Backend.Core.Entities;
 using Backend.Core.Enums;
 using Backend.Core.Repositories;
 using Backend.Utils.Authentication;
+using Microsoft.Extensions.Options;
 
 namespace Backend.API.Properties
 {
@@ -11,10 +13,12 @@ namespace Backend.API.Properties
     public class UserMutation
     {
         private readonly IConfiguration _configuration;
+        private readonly JwtConfiguration _jwtConfiguration;
 
-        public UserMutation(IConfiguration configuration)
+        public UserMutation(IConfiguration configuration, IOptions<JwtConfiguration> jwtConfiguration)
         {
             _configuration = configuration;
+            _jwtConfiguration = jwtConfiguration.Value;
         }
 
         public async Task<string?> Signup([UseFluentValidation, UseValidator<UserSigninValidator>] User user, Currency currency, [Service] IUserRepository userRepository, [Service] IAccountRepository accountRepository)
@@ -30,7 +34,7 @@ namespace Backend.API.Properties
 
             await userRepository.Signup(user: user);
 
-            string accessToken = AuthenticationUtils.GenerateAccessToken(jwtKey: _configuration.GetValue<string>("JwtKey") ?? "");
+            string accessToken = AuthenticationUtils.GenerateAccessToken(jwtKey: _jwtConfiguration.Key, jwtIssuer: _jwtConfiguration.Issuer, jwtAudience: _jwtConfiguration.Audience);
 
             return accessToken;
         }
@@ -40,7 +44,7 @@ namespace Backend.API.Properties
             var registeredUser = await userRepository.GetByEmailAsync(user.Email);
             string accessToken;
 
-            if (registeredUser == null)
+            if (registeredUser is null)
             {
                 throw new GraphQLException("User not registered.");
             }
@@ -51,7 +55,7 @@ namespace Backend.API.Properties
             }
             else
             {
-                accessToken = AuthenticationUtils.GenerateAccessToken(jwtKey: _configuration.GetValue<string>("JwtKey") ?? "");
+                accessToken = AuthenticationUtils.GenerateAccessToken(jwtKey: _jwtConfiguration.Key, jwtIssuer: _jwtConfiguration.Issuer, jwtAudience: _jwtConfiguration.Audience);
             }
 
             return accessToken;

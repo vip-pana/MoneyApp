@@ -15,10 +15,7 @@ namespace Backend.API
 
             var app = builder.Build();
 
-            if (corsPolicy != null)
-            {
-                app.UseCors(corsPolicy);
-            }
+            if (!string.IsNullOrWhiteSpace(corsPolicy)) app.UseCors(corsPolicy);
 
             app.UseWebSockets();
             app.MapGraphQL();

@@ -77,6 +77,6 @@ export const navigationItems = [
     type: "link",
     label: "Logout",
     icon: MdLogout,
-    path: "/",
+    path: "/login",
   },
 ];

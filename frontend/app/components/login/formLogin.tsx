@@ -2,10 +2,7 @@ import { useState } from "react";
 import CheckEmailForm from "./checkEmailForm";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  formLoginValidation,
-  formCheckEmailValidation,
-} from "@/utils/definitions/typeValidation";
+import { formLoginValidation, formCheckEmailValidation } from "@/utils/definitions/typeValidation";
 import {
   Button,
   FormControl,
@@ -19,7 +16,7 @@ import {
 import { ArrowForwardIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useQuery } from "@tanstack/react-query";
 import { graphql } from "@/gql/generated";
-import { useLoginQuery } from "@/utils/definitions/useQueryDefinition";
+import { UseLoginQuery } from "@/utils/definitions/useQueryDefinition";
 import { useRouter } from "next/navigation";
 
 export const FormLogin = () => {
@@ -34,13 +31,7 @@ export const FormLogin = () => {
   const loginForm = useForm<LoginValueDefinition>({
     resolver: zodResolver(formLoginValidation),
   });
-  const {
-    register,
-    handleSubmit,
-    formState,
-    setValue: setEmailLoginFormValue,
-    getValues,
-  } = loginForm;
+  const { register, handleSubmit, formState, setValue: setEmailLoginFormValue, getValues } = loginForm;
   const { errors } = formState;
 
   const loginQueryDocument = graphql(`
@@ -52,14 +43,14 @@ export const FormLogin = () => {
   const onSubmit = async () => {
     await refetch();
     if (localStorage.getItem("token") != null) {
-      router.replace("/");
+      router.replace("/dashboard");
     }
   };
 
   const { refetch } = useQuery({
     queryKey: ["login"],
     queryFn: () =>
-      useLoginQuery({
+      UseLoginQuery({
         email: getValues("email"),
         password: getValues("password"),
       }),
@@ -73,11 +64,7 @@ export const FormLogin = () => {
           <Stack spacing={"20px"}>
             <FormControl>
               <InputGroup>
-                <Input
-                  placeholder="Email"
-                  {...register("email")}
-                  isInvalid={errors.email?.message != null}
-                />
+                <Input placeholder="Email" {...register("email")} isInvalid={errors.email?.message != null} />
                 <InputRightElement>
                   <IconButton
                     aria-label="confirm email"
@@ -100,9 +87,7 @@ export const FormLogin = () => {
                 />
                 <InputRightElement>
                   <IconButton
-                    aria-label={
-                      isPasswordVisible ? "Hide password" : "Show password"
-                    }
+                    aria-label={isPasswordVisible ? "Hide password" : "Show password"}
                     variant={"ghost"}
                     colorScheme="white"
                     icon={isPasswordVisible ? <ViewOffIcon /> : <ViewIcon />}

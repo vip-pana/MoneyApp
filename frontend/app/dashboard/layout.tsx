@@ -3,12 +3,12 @@
 import { Box, Flex, HStack, IconButton, useMediaQuery } from "@chakra-ui/react";
 import Navbar from "../ui/dashboard/base/navbar/Navbar";
 import Sidebar from "../ui/dashboard/base/sidebar/sidebar";
-import React, { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { MdMenu } from "react-icons/md";
 import { FaPlus } from "react-icons/fa";
 
-const layout = ({ children }: { children: React.ReactNode }) => {
-  const [collapse, setCollapse] = React.useState(false);
+const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
+  const [collapse, setCollapse] = useState<boolean>(false);
 
   const [isLargerThan800] = useMediaQuery("(min-width: 800px)");
 
@@ -35,15 +35,7 @@ const layout = ({ children }: { children: React.ReactNode }) => {
       >
         <Sidebar collapse={collapse} />
       </Flex>
-      <Flex
-        as="main"
-        boxShadow="2xl"
-        w="full"
-        h="full"
-        flexDirection="column"
-        position="relative"
-        borderRadius="3xl"
-      >
+      <Flex as="main" boxShadow="2xl" w="full" h="full" flexDirection="column" position="relative" borderRadius="3xl">
         <IconButton
           aria-label="Menu Colapse"
           icon={<MdMenu />}
@@ -70,4 +62,4 @@ const layout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export default layout;
+export default DashboardLayout;

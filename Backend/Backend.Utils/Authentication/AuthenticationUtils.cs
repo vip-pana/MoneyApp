@@ -6,15 +6,15 @@ namespace Backend.Utils.Authentication
 {
     public static class AuthenticationUtils
     {
-        public static string GenerateAccessToken(string jwtKey)
+        public static string GenerateAccessToken(string jwtKey, string jwtIssuer, string jwtAudience)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
 
             var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-               "issuer",
-               "audience",
+               jwtIssuer,
+               jwtAudience,
                expires: DateTime.Now.AddHours(1),
                signingCredentials: signingCredentials);
 
