@@ -12,12 +12,10 @@ namespace Backend.API.Properties
     [ExtendObjectType("Mutation")]
     public class UserMutation
     {
-        private readonly IConfiguration _configuration;
         private readonly JwtConfiguration _jwtConfiguration;
 
-        public UserMutation(IConfiguration configuration, IOptions<JwtConfiguration> jwtConfiguration)
+        public UserMutation(IOptions<JwtConfiguration> jwtConfiguration)
         {
-            _configuration = configuration;
             _jwtConfiguration = jwtConfiguration.Value;
         }
 
