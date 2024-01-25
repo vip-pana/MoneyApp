@@ -18,20 +18,22 @@ import {
 } from "@chakra-ui/react";
 import { ArrowForwardIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useQuery } from "@tanstack/react-query";
+import { graphql } from "@/gql/generated";
 import { useLoginQuery } from "@/utils/definitions/useQueryDefinition";
+import { useRouter } from "next/navigation";
 
 export const FormLogin = () => {
+  const router = useRouter();
+
   const [emailExist, setEmailExist] = useState<boolean>(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
 
   const checkMailForm = useForm<CheckMailValueDefinition>({
     resolver: zodResolver(formCheckEmailValidation),
   });
-
   const loginForm = useForm<LoginValueDefinition>({
     resolver: zodResolver(formLoginValidation),
   });
-
   const {
     register,
     handleSubmit,
@@ -41,12 +43,21 @@ export const FormLogin = () => {
   } = loginForm;
   const { errors } = formState;
 
-  const onSubmit = () => {
-    refetch();
+  const loginQueryDocument = graphql(`
+    mutation login($user: UserInput!) {
+      login(user: $user)
+    }
+  `);
+
+  const onSubmit = async () => {
+    await refetch();
+    if (localStorage.getItem("token") != null) {
+      router.replace("/");
+    }
   };
 
-  const { data, refetch } = useQuery({
-    queryKey: ["user"],
+  const { refetch } = useQuery({
+    queryKey: ["login"],
     queryFn: () =>
       useLoginQuery({
         email: getValues("email"),
@@ -101,7 +112,6 @@ export const FormLogin = () => {
               </InputGroup>
               <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
             </FormControl>
-
             <Button type="submit" w={"100%"} mb={"-20px"}>
               Login
             </Button>

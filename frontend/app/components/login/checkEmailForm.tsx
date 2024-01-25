@@ -1,17 +1,17 @@
-import { useCheckEmailExistQuery } from "@/utils/definitions/useQueryDefinition";
 import { ArrowForwardIcon } from "@chakra-ui/icons";
 import {
   InputGroup,
   Input,
   InputRightElement,
   IconButton,
-  Text,
   FormControl,
   FormErrorMessage,
 } from "@chakra-ui/react";
 import { Dispatch, SetStateAction } from "react";
 import { UseFormReturn, UseFormSetValue } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
+import { graphql } from "@/gql/generated";
+import { useCheckEmailExistQuery } from "@/utils/definitions/useQueryDefinition";
 
 const CheckEmailForm = ({
   form,
@@ -24,6 +24,12 @@ const CheckEmailForm = ({
 }) => {
   const { register, handleSubmit, formState, getValues } = form;
   const { errors } = formState;
+
+  const checkEmailExistQueryDocument = graphql(`
+    query userExistByEmail($email: String!) {
+      userExistByEmail(email: $email)
+    }
+  `);
 
   const onSubmit = () => {
     refetch();

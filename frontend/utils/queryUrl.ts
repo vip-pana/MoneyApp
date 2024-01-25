@@ -1,1 +1,2 @@
-export const queryUrl = "http://localhost:5116/graphql";
+export const queryUrl = process.env
+  .NEXT_PUBLIC_GRAPHQL_BACKEND_ENDPOINT as string;
