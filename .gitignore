@@ -37,3 +37,7 @@ frontend/graphql/graphql.ts
 /frontend/graphql/gql.ts
 /frontend/graphql/graphql.ts
 /frontend/graphql/index.ts
+frontend/gql/generated/fragment-masking.ts
+frontend/gql/generated/gql.ts
+frontend/gql/generated/graphql.ts
+frontend/gql/generated/index.ts
