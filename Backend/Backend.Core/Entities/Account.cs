@@ -9,5 +9,8 @@ namespace Backend.Core.Entities
         public List<Category> Categories { get; set; }
         public List<Transaction> Transactions { get; set; }
         public List<User> SubUsers { get; set; }
+        public double IncomeAmount { get; set; }
+        public double ExpenseAmount { get; set; }
+
     }
 }

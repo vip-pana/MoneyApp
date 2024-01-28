@@ -4,5 +4,6 @@
     {
         EUR = 0,
         USD = 1,
+        UNDEFINED = 1000
     }
 }

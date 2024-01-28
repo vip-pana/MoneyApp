@@ -5,6 +5,6 @@ namespace Backend.Core.Repositories
 {
     public interface IAccountRepository : IBaseRepository<Account>
     {
-        Task<Account> GenerateNewAccount(User user, Currency currency);
+        Task<Account> GenerateNewDefaultAccount(User user, Currency currency);
     }
 }

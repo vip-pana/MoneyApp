@@ -8,7 +8,7 @@ namespace Backend.API.Configuration
         public void Install(IServiceCollection services, IConfiguration configuration)
         {
             services.AddFluentValidationAutoValidation();
-            services.AddTransient<UserSigninValidator>();
+            services.AddTransient<UserLoginValidator>();
             services.AddTransient<UserSignupValidator>();
         }
     }

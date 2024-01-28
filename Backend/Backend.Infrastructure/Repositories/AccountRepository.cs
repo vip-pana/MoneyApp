@@ -2,7 +2,6 @@
 using Backend.Core.Enums;
 using Backend.Core.Repositories;
 using Backend.Infrastructure.Data;
-using MongoDB.Driver;
 
 namespace Backend.Infrastructure.Repositories
 {
@@ -13,7 +12,7 @@ namespace Backend.Infrastructure.Repositories
         }
 
         #region GENERATE CATEGORIES
-        public async Task<Account> GenerateNewAccount(User user, Currency currency)
+        public async Task<Account> GenerateNewDefaultAccount(User user, Currency currency)
         {
             List<Category> categories = GenerateDefaultCategories();
 
@@ -24,6 +23,8 @@ namespace Backend.Infrastructure.Repositories
                 Categories = categories,
                 Transactions = new List<Transaction>(),
                 SubUsers = new List<User>(),
+                IncomeAmount = 0.00,
+                ExpenseAmount = 0.00,
             };
 
             await collection.InsertOneAsync(account);

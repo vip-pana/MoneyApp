@@ -17,7 +17,7 @@ namespace Backend.API.Properties
             _configuration = configuration;
         }
 
-        public async Task<string?> Signup([UseFluentValidation, UseValidator<UserSigninValidator>] User user, Currency currency, [Service] IUserRepository userRepository, [Service] IAccountRepository accountRepository)
+        public async Task<string?> Signup([UseFluentValidation, UseValidator<UserSignupValidator>] User user, Currency currency, [Service] IUserRepository userRepository, [Service] IAccountRepository accountRepository)
         {
             var registeredUsers = await userRepository.GetByEmailAsync(email: user.Email);
 
@@ -25,8 +25,9 @@ namespace Backend.API.Properties
             {
                 throw new GraphQLException("User already registered.");
             }
-            var defaultAccount = await accountRepository.GenerateNewAccount(user: user, currency: currency);
+            var defaultAccount = await accountRepository.GenerateNewDefaultAccount(user: user, currency: currency);
             user.Accounts = new List<Account>() { defaultAccount };
+            
 
             await userRepository.Signup(user: user);
 
@@ -35,7 +36,7 @@ namespace Backend.API.Properties
             return accessToken;
         }
 
-        public async Task<string?> Login([UseFluentValidation, UseValidator<UserSignupValidator>] User user, [Service] IUserRepository userRepository)
+        public async Task<string?> Login([UseFluentValidation, UseValidator<UserLoginValidator>] User user, [Service] IUserRepository userRepository)
         {
             var registeredUser = await userRepository.GetByEmailAsync(user.Email);
             string accessToken;

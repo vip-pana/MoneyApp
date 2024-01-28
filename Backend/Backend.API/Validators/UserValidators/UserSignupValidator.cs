@@ -7,16 +7,17 @@ namespace Backend.API.Validators.UserValidators
     {
         public UserSignupValidator()
         {
-            RuleFor(x => x.Name).Empty();
-            RuleFor(x => x.Surname).Empty();
-
-            RuleFor(x => x.Email).NotEmpty().WithMessage("Mail is required.")
-                .MinimumLength(3).EmailAddress().WithMessage("Please insert a correct email address.");
-            RuleFor(x => x.Password).NotEmpty().WithMessage("Password is required.")
-                .MinimumLength(8).WithMessage("The password must have at least 8 characters.")
-                .Matches("[A-Z]").WithMessage("The password must have at least one uppercase letter.")
-                .Matches("[a-z]").WithMessage("The password must have at least one lowercase letter.")
-                .Matches("[0-9]").WithMessage("The password must have at least one number.");
+            RuleFor(c => c.Name).NotEmpty().WithMessage("User email is required")
+                .MinimumLength(3).MaximumLength(50).WithMessage("User name must be between 3 and 50 chars.");
+            RuleFor(c => c.Surname).NotEmpty().WithMessage("User surname is required")
+                .MinimumLength(3).MaximumLength(50).WithMessage("User name must be between 3 and 50 chars.");
+            RuleFor(c => c.Email).NotEmpty().WithMessage("User email is required")
+                .MinimumLength(3).EmailAddress().WithMessage("User email not valid, please insert a correct email.");
+            RuleFor(c => c.Password).NotEmpty().WithMessage("The password is required.")
+            .MinimumLength(8).WithMessage("The password must have at least 8 characters.")
+            .Matches("[A-Z]").WithMessage("The password must have at least one uppercase letter.")
+            .Matches("[a-z]").WithMessage("The password must have at least one lowercase letter.")
+            .Matches("[0-9]").WithMessage("The password must have at least one number.");
         }
     }
 }
