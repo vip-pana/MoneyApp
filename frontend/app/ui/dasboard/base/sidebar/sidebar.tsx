@@ -1,15 +1,13 @@
-"use client";
-
-import Logo from "./logo/logo";
 import { Box } from "@chakra-ui/react";
+import AvatarBox from "./avatarBox";
+import SidebarLogo from "./sidebarLogo";
 import Navigation from "./navigation";
-import AvatarBox from "./avatarBox/avatarBox";
 
 const Sidebar = ({ collapse }: { collapse: boolean }) => {
   return (
     <>
       <Box w="full">
-        <Logo collapse={collapse} />
+        <SidebarLogo collapse={collapse} />
         <Navigation collapse={collapse} />
       </Box>
       <AvatarBox collapse={collapse} />

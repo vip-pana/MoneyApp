@@ -1,7 +1,7 @@
-import { z } from "zod";
-
 // for convention all methods created in this file will have at the end of the name the phrase "Validation"
 // here is the file where all validation will be created, all validation will pass through zod
+
+import { z } from "zod";
 
 export const formCheckEmailValidation = z.object({
   email: z
@@ -17,3 +17,23 @@ export const formLoginValidation = z.object({
     .email("Email format is not valid"),
   password: z.string().min(1, "Password is empty, please insert password"),
 });
+
+export const formSignupValidation = z
+  .object({
+    name: z.string().min(2).max(30),
+    surname: z.string().min(2).max(30),
+    email: z.string().email({ message: "Please insert Mail" }),
+    password: z
+      .string()
+      .min(8, { message: "Password must be a minimum of 8 characters" })
+      .max(16)
+      .regex(new RegExp(".*[A-Z].*"), "One uppercase character")
+      .regex(new RegExp(".*[a-z].*"), "One lowercase character")
+      .regex(new RegExp(".*\\d.*"), "One number"),
+    confirmPassword: z.string(),
+    currency: z.string().min(1, "Select a currency"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Password must be exactly the same.",
+    path: ["confirmPassword"],
+  });

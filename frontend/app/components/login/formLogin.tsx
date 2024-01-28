@@ -1,47 +1,45 @@
-import { useState } from "react";
-import CheckEmailForm from "./checkEmailForm";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  formLoginValidation,
-  formCheckEmailValidation,
-} from "@/utils/definitions/typeValidation";
+"use client";
+
 import {
   Button,
   FormControl,
-  FormErrorMessage,
   IconButton,
   Input,
   InputGroup,
   InputRightElement,
   Stack,
+  useToast,
 } from "@chakra-ui/react";
-import { ArrowForwardIcon, ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
-import { useQuery } from "@tanstack/react-query";
+import React from "react";
+import { LuEye, LuEyeOff, LuUnlock } from "react-icons/lu";
+import CheckEmailForm from "./checkEmailForm";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { formLoginValidation } from "@/utils/definitions/typeValidation";
 import { graphql } from "@/gql/generated";
+import { useUserStore } from "@/utils/zustand/userStore";
+import { useQuery } from "@tanstack/react-query";
 import { useLoginQuery } from "@/utils/definitions/useQueryDefinition";
 import { useRouter } from "next/navigation";
+import FormErrorHelperText from "@/app/ui/base/formErrorHelperText";
+import { sessionStorageEmail } from "@/utils/queryUrl";
 
-export const FormLogin = () => {
+const FormLogin = () => {
+  const { emailExist, setEmailExist, setEmail } = useUserStore();
+  const [passwordVisible, setPasswordVisible] = React.useState(false);
   const router = useRouter();
+  const toast = useToast();
 
-  const [emailExist, setEmailExist] = useState<boolean>(false);
-  const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
-
-  const checkMailForm = useForm<CheckMailValueDefinition>({
-    resolver: zodResolver(formCheckEmailValidation),
-  });
-  const loginForm = useForm<LoginValueDefinition>({
+  const form = useForm<LoginValueDefinition>({
     resolver: zodResolver(formLoginValidation),
   });
   const {
     register,
     handleSubmit,
-    formState,
-    setValue: setEmailLoginFormValue,
+    formState: { errors },
+    setValue,
     getValues,
-  } = loginForm;
-  const { errors } = formState;
+  } = form;
 
   const loginQueryDocument = graphql(`
     mutation login($user: UserInput!) {
@@ -50,13 +48,21 @@ export const FormLogin = () => {
   `);
 
   const onSubmit = async () => {
-    await refetch();
-    if (localStorage.getItem("token") != null) {
-      router.replace("/");
+    const { data, isError, error } = await refetch();
+    if (isError) {
+      toast({
+        title: error.name,
+        description: error.message,
+        status: "error",
+      });
+    } else if (data?.login) {
+      sessionStorage.setItem("token", data.login);
+      sessionStorage.setItem(sessionStorageEmail, getValues("email"));
+      router.push("/dashboard");
     }
   };
 
-  const { refetch } = useQuery({
+  const { refetch, isLoading } = useQuery({
     queryKey: ["login"],
     queryFn: () =>
       useLoginQuery({
@@ -76,54 +82,52 @@ export const FormLogin = () => {
                 <Input
                   placeholder="Email"
                   {...register("email")}
-                  isInvalid={errors.email?.message != null}
+                  onChange={() => setEmailExist(false)}
+                  disabled
                 />
                 <InputRightElement>
                   <IconButton
-                    aria-label="confirm email"
+                    aria-label={"unlock password"}
+                    icon={<LuUnlock />}
                     variant={"ghost"}
-                    colorScheme="white"
-                    type="submit"
-                    icon={<ArrowForwardIcon />}
+                    onClick={() => setEmailExist(false)}
+                    isLoading={isLoading}
                   />
                 </InputRightElement>
               </InputGroup>
-              <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
+              <FormErrorHelperText children={errors.email?.message} />
             </FormControl>
             <FormControl>
               <InputGroup>
                 <Input
                   placeholder="Password"
                   {...register("password")}
-                  type={isPasswordVisible ? "text" : "password"}
-                  isInvalid={errors.password?.message != null}
+                  type={passwordVisible ? "text" : "password"}
+                  disabled={isLoading}
                 />
                 <InputRightElement>
                   <IconButton
                     aria-label={
-                      isPasswordVisible ? "Hide password" : "Show password"
+                      passwordVisible ? "Hide password" : "Show password"
                     }
+                    icon={passwordVisible ? <LuEyeOff /> : <LuEye />}
                     variant={"ghost"}
-                    colorScheme="white"
-                    icon={isPasswordVisible ? <ViewOffIcon /> : <ViewIcon />}
-                    onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                    onClick={() => setPasswordVisible(!passwordVisible)}
+                    isLoading={isLoading}
                   />
                 </InputRightElement>
               </InputGroup>
-              <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
             </FormControl>
-            <Button type="submit" w={"100%"} mb={"-20px"}>
+            <Button type="submit" w={"100%"} mb={"-20px"} isLoading={isLoading}>
               Login
             </Button>
           </Stack>
         </form>
       ) : (
-        <CheckEmailForm
-          form={checkMailForm}
-          setEmailExist={setEmailExist}
-          setEmailLoginFormValue={setEmailLoginFormValue}
-        />
+        <CheckEmailForm setEmailLoginFormValue={setValue} />
       )}
     </>
   );
 };
+
+export default FormLogin;

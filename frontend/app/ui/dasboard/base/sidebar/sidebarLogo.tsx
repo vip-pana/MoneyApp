@@ -1,8 +1,7 @@
-import { Box, Flex, Icon, IconButton, Text } from "@chakra-ui/react";
-import { AiFillThunderbolt, AiOutlineSearch } from "react-icons/ai";
-import { LiaMoneyBillWaveSolid } from "react-icons/lia";
+import { Box, Flex, Icon, Text } from "@chakra-ui/react";
+import { LuDollarSign } from "react-icons/lu";
 
-const Logo = ({ collapse }: { collapse: boolean }) => {
+const SidebarLogo = ({ collapse }: { collapse: boolean }) => {
   return (
     <Flex
       w="full"
@@ -12,7 +11,7 @@ const Logo = ({ collapse }: { collapse: boolean }) => {
       gap={4}
     >
       <Box display="flex" alignItems="center" gap={2}>
-        <Icon as={LiaMoneyBillWaveSolid} fontSize={30} />
+        <Icon as={LuDollarSign} fontSize={30} />
         {collapse && (
           <Text fontWeight="bold" fontSize={16}>
             MoneyApp
@@ -23,4 +22,4 @@ const Logo = ({ collapse }: { collapse: boolean }) => {
   );
 };
 
-export default Logo;
+export default SidebarLogo;

@@ -1,28 +1,16 @@
 "use client";
 
 import {
-  HStack,
   Button,
+  HStack,
   Spacer,
   Tooltip,
-  ModalOverlay,
   useDisclosure,
 } from "@chakra-ui/react";
-import React from "react";
-import { SignUpModal } from "./signUpModal";
+import SignupModal from "./signupModal";
 
-export const SecondActions = () => {
-  const OverlayOne = () => (
-    <ModalOverlay
-      bg="blackAlpha.100"
-      backdropFilter="blur(10px) hue-rotate(90deg)"
-    />
-  );
-
+const SecondActions = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [overlay, setOverlay] = React.useState(<OverlayOne />);
-  const initialRef = React.useRef(null);
-  const finalRef = React.useRef(null);
 
   return (
     <>
@@ -32,7 +20,6 @@ export const SecondActions = () => {
           colorScheme="white"
           size="sm"
           onClick={() => {
-            setOverlay(<OverlayOne />);
             onOpen();
           }}
         >
@@ -51,14 +38,9 @@ export const SecondActions = () => {
           </Tooltip>
         </Button>
       </HStack>
-
-      <SignUpModal
-        isOpen={isOpen}
-        onClose={onClose}
-        overlay={overlay}
-        initialRef={initialRef}
-        finalRef={finalRef}
-      />
+      <SignupModal isOpen={isOpen} onClose={onClose} />
     </>
   );
 };
+
+export default SecondActions;

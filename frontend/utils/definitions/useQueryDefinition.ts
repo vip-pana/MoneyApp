@@ -1,36 +1,35 @@
-import request from "graphql-request";
-import { Dispatch, SetStateAction } from "react";
-import { UseFormSetValue } from "react-hook-form";
-import { queryUrl } from "../queryUrl";
-import {
-  LoginDocument,
-  LoginMutation,
-  UserExistByEmailDocument,
-  UserExistByEmailQuery,
-} from "@/gql/generated/graphql";
-
 // // for convention all methods created in this file will have at the start of the name the phrase "use" and on the end "Query"
 // // that's because all query have to use a query call, so they have to use the query method in queryDefinition.ts
 // // here you have to insert only the request but the call are to do on the component
 
+import { UseFormSetValue } from "react-hook-form";
+import request from "graphql-request";
+import { queryUrl } from "../queryUrl";
+import {
+  Currency,
+  LoginDocument,
+  LoginMutation,
+  SignupDocument,
+  SignupMutation,
+  UserByEmailDocument,
+  UserByEmailQuery,
+  UserExistByEmailDocument,
+  UserExistByEmailQuery,
+} from "@/gql/generated/graphql";
+
 export const useCheckEmailExistQuery = async (
   emailFormValue: string,
-  setEmailExist: Dispatch<SetStateAction<boolean>>,
+  setEmailExist: (value: boolean) => void,
   setEmailLoginFormValue: UseFormSetValue<LoginValueDefinition>
 ) => {
-  const emailExist = request<UserExistByEmailQuery>(
+  const res = request<UserExistByEmailQuery>(
     queryUrl,
     UserExistByEmailDocument,
     {
       email: emailFormValue,
     }
   );
-  if ((await emailExist).userExistByEmail) {
-    setEmailExist(true);
-    setEmailLoginFormValue("email", emailFormValue);
-  } else {
-  }
-  return emailExist;
+  return res;
 };
 
 export const useLoginQuery = async ({
@@ -40,14 +39,63 @@ export const useLoginQuery = async ({
   email: string;
   password: string;
 }) => {
-  const token = await request<LoginMutation>(queryUrl, LoginDocument, {
+  const res = await request<LoginMutation>(queryUrl, LoginDocument, {
     user: {
       email: email,
       password: password,
     },
   });
-  if (token.login != undefined && token.login != null) {
-    localStorage.setItem("token", token.login);
+  return res;
+};
+
+export const useSignupQuery = async ({
+  name,
+  surname,
+  email,
+  password,
+  currency,
+}: {
+  name: string;
+  surname: string;
+  email: string;
+  password: string;
+  currency: string;
+}) => {
+  // todo: capire come passare l'enum a graphql
+
+  const res = await request<SignupMutation>(queryUrl, SignupDocument, {
+    user: {
+      name: name,
+      surname: surname,
+      email: email,
+      password: password,
+    },
+    currency: Currency.Eur,
+  });
+  return res;
+};
+
+export const useUserByEmailQuery = async ({
+  email,
+  setName,
+  setSurname,
+  setEmail,
+  setCurrency,
+}: {
+  email: string;
+  setName: (value: string) => void;
+  setSurname: (value: string) => void;
+  setEmail: (value: string) => void;
+  setCurrency: (value: Currency) => void;
+}) => {
+  const res = await request<UserByEmailQuery>(queryUrl, UserByEmailDocument, {
+    email: email,
+  });
+  setName(res.userByEmail.name ?? "");
+  setSurname(res.userByEmail.surname ?? "");
+  setEmail(res.userByEmail.email ?? "");
+  if (res.userByEmail.accounts) {
+    setCurrency(res.userByEmail.accounts[0].currency ?? Currency.Undefined);
   }
-  return token;
+  return res;
 };

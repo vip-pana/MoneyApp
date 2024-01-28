@@ -1,46 +1,31 @@
-import { Box, Center, HStack, Heading, IconButton } from "@chakra-ui/react";
-import { IoChevronBack, IoChevronForwardSharp } from "react-icons/io5";
-import TransactionCard from "../ui/dashboard/transactionCard/transactionCard";
+"use client";
 
-const page = () => {
+import { Center, Heading, IconButton, useDisclosure } from "@chakra-ui/react";
+import CardsStat from "../components/dashboard/cardsStat";
+import { LuPlus } from "react-icons/lu";
+import AddTransactionModal from "../components/dashboard/addTransactionModal/addTransactionModal";
+
+const Dashboard = () => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
   return (
-    <Box>
+    <>
       <Center>
-        <Heading as="h2" size="md">
-          My transactions
-        </Heading>
+        <Heading size="md">My transactions</Heading>
       </Center>
-
-      <Center>
-        <HStack mt={"10px"}>
-          <IconButton
-            aria-label="Previous month"
-            icon={<IoChevronBack />}
-            variant={"ghost"}
-            size={"sm"}
-            // onClick={() => setCollapse(!collapse)}
-          />
-          <Heading as="h3" size="sm">
-            January
-          </Heading>
-          <IconButton
-            aria-label="Previous month"
-            icon={<IoChevronForwardSharp />}
-            variant={"ghost"}
-            size={"sm"}
-          />
-        </HStack>
-      </Center>
-      <HStack mt={"20px"} spacing={"50px"} w="100%">
-        <Box w={"100%"}>
-          <TransactionCard isIncome={true} />
-        </Box>
-        <Box w={"100%"}>
-          <TransactionCard isIncome={false} />
-        </Box>
-      </HStack>
-    </Box>
+      <CardsStat />
+      <IconButton
+        icon={<LuPlus />}
+        position={"absolute"}
+        size={"lg"}
+        rounded="100%"
+        bottom={"20px"}
+        right={"20px"}
+        aria-label="add transaction"
+        onClick={onOpen}
+      />
+      <AddTransactionModal isOpen={isOpen} onClose={onClose} />
+    </>
   );
 };
 
-export default page;
+export default Dashboard;

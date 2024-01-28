@@ -1,20 +1,23 @@
-import { Logo } from "@/app/ui/login/Logo";
 import { Box, Center, VStack } from "@chakra-ui/react";
-import React from "react";
+import Logo from "../ui/login/logo";
 
-const layout = ({ children }: { children: React.ReactNode }) => {
+const LoginLayout = ({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) => {
   return (
     <>
       <Center>
-        <Box mt={"18vh"}>
+        <Box mt={"20vh"}>
           <Logo />
         </Box>
       </Center>
       <Center>
-        <VStack mt={"20"}>{children}</VStack>
+        <VStack mt={"15vh"}>{children}</VStack>
       </Center>
     </>
   );
 };
 
-export default layout;
+export default LoginLayout;

@@ -1,12 +1,15 @@
+"use client";
+
+import { useUserStore } from "@/utils/zustand/userStore";
 import { Avatar, Flex, IconButton, Text, useColorMode } from "@chakra-ui/react";
-import {
-  MdDarkMode,
-  MdOutlineLightMode,
-  MdOutlineMoreHoriz,
-} from "react-icons/md";
+import { Link } from "@chakra-ui/next-js";
+import { LuMoon, LuSun } from "react-icons/lu";
 
 const AvatarBox = ({ collapse }: { collapse: boolean }) => {
   const { colorMode, toggleColorMode } = useColorMode();
+  const profilePath = "/dashboard/settings/profile";
+
+  const { email, name, surname } = useUserStore();
 
   return (
     <Flex
@@ -20,7 +23,9 @@ const AvatarBox = ({ collapse }: { collapse: boolean }) => {
       gap={2}
       flexDirection={collapse ? "row" : "column-reverse"}
     >
-      <Avatar name="John Doe" bg="teal.300" />
+      <Link href={profilePath}>
+        <Avatar name={`${name} ${surname}`} bg="teal.300" />
+      </Link>
       {collapse && (
         <Flex
           w="full"
@@ -29,18 +34,25 @@ const AvatarBox = ({ collapse }: { collapse: boolean }) => {
           justifyContent="center"
           alignItems="flex-start"
         >
-          <Text fontSize="sm" fontWeight="bold" pb="0" lineHeight={0}>
-            John Doe
-          </Text>
+          <Link
+            href={profilePath}
+            fontSize="sm"
+            fontWeight="bold"
+            pb="0"
+            lineHeight={0}
+          >
+            {`${name} ${surname}`}
+          </Link>
+
           <Text as="small" color="gray.500" fontSize={12} lineHeight={0}>
-            johndoe@gmail.com
+            {email}
           </Text>
         </Flex>
       )}
 
       <IconButton
         aria-label="Settings"
-        icon={colorMode === "light" ? <MdDarkMode /> : <MdOutlineLightMode />}
+        icon={colorMode === "light" ? <LuMoon /> : <LuSun />}
         onClick={toggleColorMode}
         borderRadius="full"
         color="gray.400"

@@ -1,29 +1,39 @@
-import { ArrowForwardIcon } from "@chakra-ui/icons";
+import { formCheckEmailValidation } from "@/utils/definitions/typeValidation";
 import {
-  InputGroup,
-  Input,
-  InputRightElement,
-  IconButton,
+  Button,
   FormControl,
-  FormErrorMessage,
+  IconButton,
+  Input,
+  InputGroup,
+  InputRightElement,
+  useToast,
 } from "@chakra-ui/react";
-import { Dispatch, SetStateAction } from "react";
-import { UseFormReturn, UseFormSetValue } from "react-hook-form";
-import { useQuery } from "@tanstack/react-query";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { LuChevronRight } from "react-icons/lu";
+import { UseFormSetValue, useForm } from "react-hook-form";
 import { graphql } from "@/gql/generated";
+import { useQuery } from "@tanstack/react-query";
 import { useCheckEmailExistQuery } from "@/utils/definitions/useQueryDefinition";
+import { useUserStore } from "@/utils/zustand/userStore";
+import FormErrorHelperText from "@/app/ui/base/formErrorHelperText";
 
 const CheckEmailForm = ({
-  form,
-  setEmailExist,
   setEmailLoginFormValue,
 }: {
-  form: UseFormReturn<CheckMailValueDefinition>;
-  setEmailExist: Dispatch<SetStateAction<boolean>>;
   setEmailLoginFormValue: UseFormSetValue<LoginValueDefinition>;
 }) => {
-  const { register, handleSubmit, formState, getValues } = form;
-  const { errors } = formState;
+  const form = useForm<CheckMailValueDefinition>({
+    resolver: zodResolver(formCheckEmailValidation),
+  });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    getValues,
+  } = form;
+
+  const toast = useToast();
+  const { setEmailExist } = useUserStore();
 
   const checkEmailExistQueryDocument = graphql(`
     query userExistByEmail($email: String!) {
@@ -31,11 +41,7 @@ const CheckEmailForm = ({
     }
   `);
 
-  const onSubmit = () => {
-    refetch();
-  };
-
-  const { refetch } = useQuery({
+  const { refetch, isLoading } = useQuery({
     queryKey: ["checkEmailExist"],
     queryFn: () =>
       useCheckEmailExistQuery(
@@ -46,28 +52,52 @@ const CheckEmailForm = ({
     enabled: false,
   });
 
+  const onSubmit = async () => {
+    const { data } = await refetch();
+
+    if (
+      data?.userExistByEmail == false ||
+      data?.userExistByEmail == undefined
+    ) {
+      toast({
+        title: "User not exist.",
+        description: "This email is not registered.",
+        status: "error",
+      });
+    } else {
+      setEmailLoginFormValue("email", getValues("email"));
+      setEmailExist(true);
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <FormControl>
-        <InputGroup>
-          <Input
-            placeholder="Email"
-            {...register("email")}
-            isInvalid={errors.email?.message != null}
-          />
-          <InputRightElement>
-            <IconButton
-              aria-label="confirm email"
-              variant={"ghost"}
-              colorScheme="white"
-              type="submit"
-              icon={<ArrowForwardIcon />}
+    <>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <FormControl>
+          <InputGroup>
+            <Input
+              {...register("email")}
+              placeholder="Email"
+              isInvalid={errors.email?.message != null}
+              disabled={isLoading}
             />
-          </InputRightElement>
-        </InputGroup>
-        <FormErrorMessage> {errors.email?.message}</FormErrorMessage>
-      </FormControl>
-    </form>
+            <InputRightElement>
+              <IconButton
+                aria-label="confirm email"
+                icon={<LuChevronRight />}
+                variant={"ghost"}
+                type="submit"
+                isLoading={isLoading}
+              />
+            </InputRightElement>
+          </InputGroup>
+          <FormErrorHelperText children={errors.email?.message} />
+        </FormControl>
+        <Button type="submit" w={"100%"} mb={"-20px"} isLoading={isLoading}>
+          Continue with Email
+        </Button>
+      </form>
+    </>
   );
 };
 

@@ -1,5 +1,6 @@
-"use client";
-
+import { graphql } from "@/gql/generated";
+import { formSignupValidation } from "@/utils/definitions/typeValidation";
+import { useSignupQuery } from "@/utils/definitions/useQueryDefinition";
 import {
   Button,
   FormControl,
@@ -15,113 +16,107 @@ import {
   ModalOverlay,
   Select,
   Stack,
+  useToast,
 } from "@chakra-ui/react";
-import React from "react";
-
-import { z } from "zod";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
+import { useQuery } from "@tanstack/react-query";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { LuEye, LuEyeOff } from "react-icons/lu";
+import { useUserStore } from "@/utils/zustand/userStore";
+import { useRouter } from "next/navigation";
+import { Currency } from "@/gql/generated/graphql";
+import FormErrorHelperText from "@/app/ui/base/formErrorHelperText";
+import { sessionStorageEmail } from "@/utils/queryUrl";
 
-export const SignUpModal = (props: {
+const SignupModal = ({
+  isOpen,
+  onClose,
+}: {
   onClose: () => void;
   isOpen: boolean;
-  overlay: React.JSX.Element;
-  initialRef: React.MutableRefObject<null>;
-  finalRef: React.MutableRefObject<null>;
 }) => {
-  const currency = ["eur", "usd"] as const;
-  type Currency = (typeof currency)[number];
-  const mappedCurrency: { [key in Currency]: string } = {
-    eur: "EUR €",
-    usd: "USD $",
-  };
-  const currencyStatusOption = Object.entries(mappedCurrency).map(
-    ([value, label]) => (
-      <option value={value} key={value}>
-        {label}
-      </option>
-    )
-  );
-
-  const signUpSchema = z
-    .object({
-      firstName: z.string().min(2).max(30),
-      lastName: z.string().min(2).max(30),
-      email: z.string().email({ message: "Please insert Mail" }),
-      password: z
-        .string()
-        .min(8, { message: "Password must be a minimum of 8 characters" })
-        .max(16),
-      confirmPassword: z.string().min(8).max(16),
-      currency: z.enum(currency, {
-        errorMap: () => ({ message: "Please select a Currency" }),
-      }),
-    })
-    .refine((data) => data.password === data.confirmPassword, {
-      message: "Passwords must match",
-      path: ["confirmPassword"],
-    });
-
-  type FormData = z.infer<typeof signUpSchema>;
-
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
-    watch,
-    reset,
-  } = useForm<FormData>({
-    resolver: zodResolver(signUpSchema),
+    formState: { errors },
+    getValues,
+  } = useForm<SignUpValueDefinition>({
+    resolver: zodResolver(formSignupValidation),
   });
 
-  const onSubmit = async (data: FormData) => {
-    // TODO: submit to server
-    // ...
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+  const [passwordVisible, setPasswordVisible] = React.useState(false);
+  const { setEmail } = useUserStore();
+  const router = useRouter();
+  const toast = useToast();
 
-    reset();
+  const onSubmit = async () => {
+    const { data, isError, error } = await refetch();
+    if (isError) {
+      toast({
+        title: error.name,
+        description: error.message,
+        status: "error",
+      });
+    }
+    if (data?.signup) {
+      sessionStorage.setItem("token", data.signup);
+      sessionStorage.setItem(sessionStorageEmail, getValues("email"));
+      router.push("/dashboard");
+    }
   };
 
-  const [showPassword, setShowPassword] = React.useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
-  const handleClickPassword = () => setShowPassword(!showPassword);
-  const handleClickConfirmPassword = () =>
-    setShowConfirmPassword(!showConfirmPassword);
+  const signupQueryDocument = graphql(`
+    mutation signup($user: UserInput!, $currency: Currency!) {
+      signup(user: $user, currency: $currency)
+    }
+  `);
+
+  const { refetch, isLoading } = useQuery({
+    queryKey: ["signup"],
+    queryFn: () =>
+      useSignupQuery({
+        name: getValues("name"),
+        surname: getValues("surname"),
+        email: getValues("email"),
+        password: getValues("password"),
+        currency: getValues("currency"),
+      }),
+    enabled: false,
+  });
 
   return (
     <>
       <Modal
         closeOnOverlayClick={false}
-        initialFocusRef={props.initialRef}
-        finalFocusRef={props.finalRef}
-        isOpen={props.isOpen}
-        onClose={props.onClose}
+        isOpen={isOpen}
+        onClose={onClose}
         isCentered
       >
-        {props.overlay}
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Sign Up</ModalHeader>
           <ModalCloseButton />
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <ModalBody pb={6}>
+          <ModalBody pb={6}>
+            <form onSubmit={handleSubmit(onSubmit)}>
               <Stack spacing={5}>
                 <FormControl>
                   <Input
-                    // ref={props.initialRef}
                     placeholder="First Name"
                     focusBorderColor="black"
-                    {...register("firstName")}
+                    {...register("name")}
+                    disabled={isLoading}
                   />
+                  <FormErrorHelperText children={errors.name?.message} />
                 </FormControl>
-
                 <FormControl>
                   <Input
                     placeholder="Last Name"
                     focusBorderColor="black"
-                    {...register("lastName")}
+                    {...register("surname")}
+                    disabled={isLoading}
                   />
+                  <FormErrorHelperText children={errors.surname?.message} />
                 </FormControl>
 
                 <FormControl>
@@ -130,21 +125,19 @@ export const SignUpModal = (props: {
                     type="mail"
                     focusBorderColor="black"
                     {...register("email")}
+                    disabled={isLoading}
                   />
-                  {errors.email && (
-                    <FormHelperText fontSize={10}>
-                      {`${errors.email.message}`}
-                    </FormHelperText>
-                  )}
+                  <FormErrorHelperText children={errors.email?.message} />
                 </FormControl>
 
                 <FormControl>
                   <InputGroup size="md">
                     <Input
                       pr="4.5rem"
-                      type={showPassword ? "text" : "password"}
+                      type={passwordVisible ? "text" : "password"}
                       placeholder="Password"
                       {...register("password")}
+                      disabled={isLoading}
                     />
                     <InputRightElement width="3rem">
                       <Button
@@ -152,26 +145,24 @@ export const SignUpModal = (props: {
                         size="sm"
                         variant={"ghost"}
                         colorScheme="white"
-                        onClick={handleClickPassword}
+                        onClick={() => setPasswordVisible(!passwordVisible)}
+                        disabled={isLoading}
                       >
-                        {showPassword ? <ViewOffIcon /> : <ViewIcon />}
+                        {passwordVisible ? <LuEyeOff /> : <LuEye />}
                       </Button>
                     </InputRightElement>
                   </InputGroup>
-                  {errors.password && (
-                    <FormHelperText fontSize={10}>
-                      {`${errors.password.message}`}
-                    </FormHelperText>
-                  )}
+                  <FormErrorHelperText children={errors.password?.message} />
                 </FormControl>
 
                 <FormControl>
                   <InputGroup size="md">
                     <Input
                       pr="4.5rem"
-                      type={showConfirmPassword ? "text" : "password"}
+                      type={passwordVisible ? "text" : "password"}
                       placeholder="Confirm Password"
                       {...register("confirmPassword")}
+                      disabled={isLoading}
                     />
                     <InputRightElement width="3rem">
                       <Button
@@ -179,48 +170,43 @@ export const SignUpModal = (props: {
                         size="sm"
                         variant={"ghost"}
                         colorScheme="white"
-                        onClick={handleClickConfirmPassword}
+                        onClick={() => setPasswordVisible(!passwordVisible)}
+                        disabled={isLoading}
                       >
-                        {showConfirmPassword ? <ViewOffIcon /> : <ViewIcon />}
+                        {passwordVisible ? <LuEyeOff /> : <LuEye />}
                       </Button>
                     </InputRightElement>
                   </InputGroup>
-                  {errors.confirmPassword && (
-                    <FormHelperText fontSize={10}>
-                      {`${errors.confirmPassword.message}`}
-                    </FormHelperText>
-                  )}
+                  <FormErrorHelperText
+                    children={errors.confirmPassword?.message}
+                  />
                 </FormControl>
-
                 <FormControl>
                   <Select
                     placeholder="Currency"
-                    focusBorderColor="black"
-                    id="currency"
-                    disabled={isSubmitting}
                     {...register("currency")}
+                    disabled={isLoading}
                   >
-                    {currencyStatusOption}
+                    {(
+                      Object.keys(Currency) as Array<keyof typeof Currency>
+                    ).map((value) => (
+                      <option key={value} value={value}>
+                        {value.toUpperCase()}
+                      </option>
+                    ))}
                   </Select>
-                  {errors.currency && (
-                    <FormHelperText fontSize={10}>
-                      {`${errors.currency.message}`}
-                    </FormHelperText>
-                  )}
+                  <FormErrorHelperText children={errors.currency?.message} />
                 </FormControl>
-                <Button
-                  colorScheme="gray"
-                  type="submit"
-                  disabled={isSubmitting}
-                >
+                <Button colorScheme="gray" type="submit" isLoading={isLoading}>
                   Sign Up
                 </Button>
-                {/* <pre>{JSON.stringify(watch(), null, 2)}</pre> */}
               </Stack>
-            </ModalBody>
-          </form>
+            </form>
+          </ModalBody>
         </ModalContent>
       </Modal>
     </>
   );
 };
+
+export default SignupModal;

@@ -1,73 +1,121 @@
 "use client";
 
-import { Box, Flex, HStack, IconButton, useMediaQuery } from "@chakra-ui/react";
-import Navbar from "../ui/dashboard/base/navbar/Navbar";
-import Sidebar from "../ui/dashboard/base/sidebar/sidebar";
-import React, { useEffect } from "react";
-import { MdMenu } from "react-icons/md";
-import { FaPlus } from "react-icons/fa";
+import {
+  Box,
+  Flex,
+  HStack,
+  IconButton,
+  useMediaQuery,
+  useToast,
+} from "@chakra-ui/react";
+import React from "react";
+import { LuAlignJustify } from "react-icons/lu";
+import Sidebar from "../ui/dasboard/base/sidebar/sidebar";
+import Navbar from "../ui/dasboard/base/navbar/navbar";
+import { useUserStore } from "@/utils/zustand/userStore";
+import { graphql } from "@/gql/generated";
+import { useQuery } from "@tanstack/react-query";
+import { useUserByEmailQuery } from "@/utils/definitions/useQueryDefinition";
+import { sessionStorageEmail } from "@/utils/queryUrl";
 
-const layout = ({ children }: { children: React.ReactNode }) => {
+const Dashboardlayout = ({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) => {
   const [collapse, setCollapse] = React.useState(false);
-
   const [isLargerThan800] = useMediaQuery("(min-width: 800px)");
+  const toast = useToast();
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!isLargerThan800) {
       setCollapse(false);
     }
   }, [isLargerThan800]);
 
+  const { setName, setSurname, setEmail, setCurrency } = useUserStore();
+
+  const userByEmailQueryDocument = graphql(`
+    query userByEmail($email: String!) {
+      userByEmail(email: $email) {
+        name
+        surname
+        email
+        accounts {
+          name
+          currency
+        }
+      }
+    }
+  `);
+
+  const { isLoading, isError, error } = useQuery({
+    queryKey: ["userData"],
+    queryFn: () =>
+      useUserByEmailQuery({
+        email: sessionStorage.getItem(sessionStorageEmail) ?? "",
+        setName: setName,
+        setSurname: setSurname,
+        setEmail: setEmail,
+        setCurrency: setCurrency,
+      }),
+  });
+
+  React.useEffect(() => {
+    if (isError) {
+      {
+        toast({
+          title: error.name,
+          description: error.message,
+          status: "error",
+        });
+      }
+    }
+  }, [isError, error]);
+
   return (
-    <HStack w="full" h="100vh" padding={10}>
-      <Flex
-        boxShadow="2xl"
-        as="aside"
-        w="full"
-        h="full"
-        maxW={collapse ? 350 : 100}
-        alignItems="start"
-        padding={6}
-        flexDirection="column"
-        justifyContent="space-between"
-        transition="ease-in-out .2s"
-        borderRadius="3xl"
-      >
-        <Sidebar collapse={collapse} />
-      </Flex>
-      <Flex
-        as="main"
-        boxShadow="2xl"
-        w="full"
-        h="full"
-        flexDirection="column"
-        position="relative"
-        borderRadius="3xl"
-      >
-        <IconButton
-          aria-label="Menu Colapse"
-          icon={<MdMenu />}
-          position="absolute"
-          top={6}
-          left={6}
-          onClick={() => setCollapse(!collapse)}
-        />
-        <Navbar />
-        <Box ml={"100px"} mt={"20px"} mr={"100px"}>
-          {children}
-        </Box>
-        <IconButton
-          icon={<FaPlus />}
-          position={"absolute"}
-          size={"lg"}
-          rounded="100%"
-          bottom={"20px"}
-          right={"20px"}
-          aria-label="add transaction"
-        />
-      </Flex>
-    </HStack>
+    <>
+      <HStack w="full" h="100vh" padding={10}>
+        <Flex
+          boxShadow="2xl"
+          as="aside"
+          w="full"
+          h="full"
+          maxW={collapse ? 350 : 100}
+          alignItems="start"
+          padding={6}
+          flexDirection="column"
+          justifyContent="space-between"
+          transition="ease-in-out .2s"
+          borderRadius="3xl"
+        >
+          <Sidebar collapse={collapse} />
+        </Flex>
+        <Flex
+          as="main"
+          boxShadow="2xl"
+          w="full"
+          h="full"
+          flexDirection="column"
+          position="relative"
+          borderRadius="3xl"
+        >
+          <IconButton
+            aria-label="Menu Colapse"
+            icon={<LuAlignJustify />}
+            position="absolute"
+            top={6}
+            left={6}
+            onClick={() => setCollapse(!collapse)}
+          />
+          <Navbar />
+          <Box ml={"100px"} mt={"20px"} mr={"100px"}>
+            {children}
+          </Box>
+        </Flex>
+      </HStack>
+    </>
   );
 };
 
-export default layout;
+export default Dashboardlayout;
