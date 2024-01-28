@@ -2,7 +2,7 @@
 {
     public enum OperationType
     {
-        Income = 1,
-        Expense = 0,
+        Income = 0,
+        Expense = 1,
     }
 }
