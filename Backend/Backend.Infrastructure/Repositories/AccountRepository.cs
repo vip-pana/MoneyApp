@@ -2,6 +2,7 @@
 using Backend.Core.Enums;
 using Backend.Core.Repositories;
 using Backend.Infrastructure.Data;
+using MongoDB.Driver;
 
 namespace Backend.Infrastructure.Repositories
 {
@@ -11,6 +12,7 @@ namespace Backend.Infrastructure.Repositories
         {
         }
 
+        #region GENERATE CATEGORIES
         public async Task<Account> GenerateNewAccount(User user, Currency currency)
         {
             List<Category> categories = GenerateDefaultCategories();
@@ -83,7 +85,7 @@ namespace Backend.Infrastructure.Repositories
                 "Pension",
             };
 
-            foreach(var name in plainCategoriesNames)
+            foreach (var name in plainCategoriesNames)
             {
                 categories.Add(new Category()
                 {
@@ -237,5 +239,7 @@ namespace Backend.Infrastructure.Repositories
 
             return categories;
         }
+
+        #endregion
     }
 }
