@@ -1,4 +1,5 @@
-﻿using AppAny.HotChocolate.FluentValidation;
+﻿using System.Security.Claims;
+using AppAny.HotChocolate.FluentValidation;
 using Backend.API.Configuration.Models;
 using Backend.API.Validators.UserValidators;
 using Backend.Core.Entities;
@@ -34,7 +35,18 @@ namespace Backend.API.Properties
 
             await userRepository.Signup(user: user);
 
-            string accessToken = AuthenticationUtils.GenerateAccessToken(jwtKey: _jwtConfiguration.Key, jwtIssuer: _jwtConfiguration.Issuer, jwtAudience: _jwtConfiguration.Audience);
+            var jwtParams = new JwtParams
+            {
+                JwtKey = _jwtConfiguration.Key,
+                JwtIssuer = _jwtConfiguration.Issuer,
+                JwtAudience = _jwtConfiguration.Audience,
+                Claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, user.Email),
+                    new Claim("JWTID", Guid.NewGuid().ToString()),
+                }
+            };
+            string accessToken = AuthenticationUtils.GenerateAccessToken(jwtParams: jwtParams);
 
             return accessToken;
         }
@@ -55,7 +67,18 @@ namespace Backend.API.Properties
             }
             else
             {
-                accessToken = AuthenticationUtils.GenerateAccessToken(jwtKey: _jwtConfiguration.Key, jwtIssuer: _jwtConfiguration.Issuer, jwtAudience: _jwtConfiguration.Audience);
+                var jwtParams = new JwtParams
+                {
+                    JwtKey = _jwtConfiguration.Key,
+                    JwtIssuer = _jwtConfiguration.Issuer,
+                    JwtAudience = _jwtConfiguration.Audience,
+                    Claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, user.Email),
+                        new Claim("JWTID", Guid.NewGuid().ToString()),
+                    }
+                };
+                accessToken = AuthenticationUtils.GenerateAccessToken(jwtParams: jwtParams);
             }
 
             return accessToken;
