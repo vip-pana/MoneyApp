@@ -1,21 +1,23 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Backend.Utils.Authentication
 {
     public static class AuthenticationUtils
     {
-        public static string GenerateAccessToken(string jwtKey)
+        public static string GenerateAccessToken(JwtParams jwtParams)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtParams.JwtKey));
 
             var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-               "issuer",
-               "audience",
+               jwtParams.JwtIssuer,
+               jwtParams.JwtAudience,
                expires: DateTime.Now.AddHours(1),
+               claims: jwtParams.Claims,
                signingCredentials: signingCredentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
@@ -30,5 +32,13 @@ namespace Backend.Utils.Authentication
         {
            return BCrypt.Net.BCrypt.Verify(inputPassword, hashedPassword);
         }
+    }
+
+    public class JwtParams
+    {
+        public required string JwtKey { get; set; }
+        public required string JwtIssuer { get; set; }
+        public required string JwtAudience { get; set; }
+        public required List<Claim> Claims { get; set; }
     }
 }
