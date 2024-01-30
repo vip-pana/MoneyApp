@@ -18,6 +18,8 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import RadioOperationTypeElement from "./radioOperationTypeElement";
+import { useState } from "react";
+import { getEnum } from "@/utils/getEnum";
 
 const AddTransactionModal = ({
   isOpen,
@@ -26,12 +28,15 @@ const AddTransactionModal = ({
   onClose: () => void;
   isOpen: boolean;
 }) => {
-  const { currency } = useUserStore();
+  const { currency, expenseCategories, incomeCategories } = useUserStore();
+  const [tmpSelectedCategory, setTmpSelectedCategory] = useState("");
 
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: "framework",
     defaultValue: "react",
-    onChange: console.log,
+    onChange: (value) => {
+      setTmpSelectedCategory(value);
+    },
   });
 
   const group = getRootProps();
@@ -79,7 +84,14 @@ const AddTransactionModal = ({
                 </Select>
               </FormControl>
               <FormControl>
-                <Input placeholder="Category" />
+                <Select placeholder={"Category"}>
+                  {incomeCategories.map((category) => (
+                    <option key={category.name}>{category.name}</option>
+                  ))}
+                  {expenseCategories.map((category) => (
+                    <option key={category.name}>{category.name}</option>
+                  ))}
+                </Select>
               </FormControl>
               <FormControl>
                 <Input placeholder="Description" />

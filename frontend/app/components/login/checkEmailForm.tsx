@@ -16,6 +16,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useCheckEmailExistQuery } from "@/utils/definitions/useQueryDefinition";
 import { useUserStore } from "@/utils/zustand/userStore";
 import FormErrorHelperText from "@/app/ui/base/formErrorHelperText";
+import { CheckMailValueDefinition, LoginValueDefinition } from "../../../utils/definitions/typeDefinition";
 
 const CheckEmailForm = ({
   setEmailLoginFormValue,
@@ -53,15 +54,11 @@ const CheckEmailForm = ({
   });
 
   const onSubmit = async () => {
-    const { data } = await refetch();
-
-    if (
-      data?.userExistByEmail == false ||
-      data?.userExistByEmail == undefined
-    ) {
+    const { data, isError, error } = await refetch();
+    if (isError || data?.userExistByEmail == false) {
       toast({
-        title: "User not exist.",
-        description: "This email is not registered.",
+        title: error?.name,
+        description: error?.message,
         status: "error",
       });
     } else {
@@ -71,33 +68,31 @@ const CheckEmailForm = ({
   };
 
   return (
-    <>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <FormControl>
-          <InputGroup>
-            <Input
-              {...register("email")}
-              placeholder="Email"
-              isInvalid={errors.email?.message != null}
-              disabled={isLoading}
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <FormControl>
+        <InputGroup>
+          <Input
+            {...register("email")}
+            placeholder="Email"
+            isInvalid={errors.email?.message != null}
+            disabled={isLoading}
+          />
+          <InputRightElement>
+            <IconButton
+              aria-label="confirm email"
+              icon={<LuChevronRight />}
+              variant={"ghost"}
+              type="submit"
+              isLoading={isLoading}
             />
-            <InputRightElement>
-              <IconButton
-                aria-label="confirm email"
-                icon={<LuChevronRight />}
-                variant={"ghost"}
-                type="submit"
-                isLoading={isLoading}
-              />
-            </InputRightElement>
-          </InputGroup>
-          <FormErrorHelperText children={errors.email?.message} />
-        </FormControl>
-        <Button type="submit" w={"100%"} mb={"-20px"} isLoading={isLoading}>
-          Continue with Email
-        </Button>
-      </form>
-    </>
+          </InputRightElement>
+        </InputGroup>
+              <FormErrorHelperText>{errors.email?.message}</FormErrorHelperText>
+      </FormControl>
+      <Button type="submit" w={"100%"} mb={"-20px"} isLoading={isLoading}>
+        Continue with Email
+      </Button>
+    </form>
   );
 };
 

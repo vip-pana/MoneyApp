@@ -1,10 +1,10 @@
-import FormLogin from "../components/login/formLogin";
+import FormLoginSections from "../components/login/formLoginSections";
 import SecondActions from "../components/login/secondActions";
 
 const Login = () => {
   return (
     <>
-      <FormLogin />
+      <FormLoginSections />
       <SecondActions />
     </>
   );

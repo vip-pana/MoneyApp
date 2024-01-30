@@ -1,6 +1,6 @@
 import { List, ListItem } from "@chakra-ui/react";
 import NavItem from "./navItem";
-import { navigationItems } from "@/utils/navigationItems";
+import { navigationItems } from "@/app/ui/dasboard/base/sidebar/navigation/navigationItems";
 
 const Navigation = ({ collapse }: { collapse: boolean }) => {
   return (

@@ -23,6 +23,15 @@ const Dashboardlayout = ({
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
+  const {
+    setName,
+    setSurname,
+    setEmail,
+    setCurrency,
+    setIncomeCategories,
+    setExpenseCategories,
+  } = useUserStore();
+
   const [collapse, setCollapse] = React.useState(false);
   const [isLargerThan800] = useMediaQuery("(min-width: 800px)");
   const toast = useToast();
@@ -33,8 +42,6 @@ const Dashboardlayout = ({
     }
   }, [isLargerThan800]);
 
-  const { setName, setSurname, setEmail, setCurrency } = useUserStore();
-
   const userByEmailQueryDocument = graphql(`
     query userByEmail($email: String!) {
       userByEmail(email: $email) {
@@ -44,12 +51,20 @@ const Dashboardlayout = ({
         accounts {
           name
           currency
+          categories {
+            name
+            type
+            subcategories {
+              name
+              type
+            }
+          }
         }
       }
     }
   `);
 
-  const { isLoading, isError, error } = useQuery({
+  const { isError, error } = useQuery({
     queryKey: ["userData"],
     queryFn: () =>
       useUserByEmailQuery({
@@ -58,6 +73,8 @@ const Dashboardlayout = ({
         setSurname: setSurname,
         setEmail: setEmail,
         setCurrency: setCurrency,
+        setIncomeCategories: setIncomeCategories,
+        setExpenseCategories: setExpenseCategories,
       }),
   });
 
@@ -74,47 +91,45 @@ const Dashboardlayout = ({
   }, [isError, error]);
 
   return (
-    <>
-      <HStack w="full" h="100vh" padding={10}>
-        <Flex
-          boxShadow="2xl"
-          as="aside"
-          w="full"
-          h="full"
-          maxW={collapse ? 350 : 100}
-          alignItems="start"
-          padding={6}
-          flexDirection="column"
-          justifyContent="space-between"
-          transition="ease-in-out .2s"
-          borderRadius="3xl"
-        >
-          <Sidebar collapse={collapse} />
-        </Flex>
-        <Flex
-          as="main"
-          boxShadow="2xl"
-          w="full"
-          h="full"
-          flexDirection="column"
-          position="relative"
-          borderRadius="3xl"
-        >
-          <IconButton
-            aria-label="Menu Colapse"
-            icon={<LuAlignJustify />}
-            position="absolute"
-            top={6}
-            left={6}
-            onClick={() => setCollapse(!collapse)}
-          />
-          <Navbar />
-          <Box ml={"100px"} mt={"20px"} mr={"100px"}>
-            {children}
-          </Box>
-        </Flex>
-      </HStack>
-    </>
+    <HStack w="full" h="100vh" padding={10}>
+      <Flex
+        boxShadow="2xl"
+        as="aside"
+        w="full"
+        h="full"
+        maxW={collapse ? 350 : 100}
+        alignItems="start"
+        padding={6}
+        flexDirection="column"
+        justifyContent="space-between"
+        transition="ease-in-out .2s"
+        borderRadius="3xl"
+      >
+        <Sidebar collapse={collapse} />
+      </Flex>
+      <Flex
+        as="main"
+        boxShadow="2xl"
+        w="full"
+        h="full"
+        flexDirection="column"
+        position="relative"
+        borderRadius="3xl"
+      >
+        <IconButton
+          aria-label="Menu Colapse"
+          icon={<LuAlignJustify />}
+          position="absolute"
+          top={6}
+          left={6}
+          onClick={() => setCollapse(!collapse)}
+        />
+        <Navbar />
+        <Box ml={"100px"} mt={"20px"} mr={"100px"}>
+          {children}
+        </Box>
+      </Flex>
+    </HStack>
   );
 };
 

@@ -9,6 +9,7 @@ import {
   Currency,
   LoginDocument,
   LoginMutation,
+  OperationType,
   SignupDocument,
   SignupMutation,
   UserByEmailDocument,
@@ -16,6 +17,7 @@ import {
   UserExistByEmailDocument,
   UserExistByEmailQuery,
 } from "@/gql/generated/graphql";
+import { LoginValueDefinition, UserCategory } from "./typeDefinition";
 
 export const useCheckEmailExistQuery = async (
   emailFormValue: string,
@@ -70,7 +72,7 @@ export const useSignupQuery = async ({
       email: email,
       password: password,
     },
-    currency: Currency.Eur,
+    currency: currency,
   });
   return res;
 };
@@ -81,12 +83,16 @@ export const useUserByEmailQuery = async ({
   setSurname,
   setEmail,
   setCurrency,
+  setIncomeCategories,
+  setExpenseCategories,
 }: {
   email: string;
   setName: (value: string) => void;
   setSurname: (value: string) => void;
   setEmail: (value: string) => void;
   setCurrency: (value: Currency) => void;
+  setIncomeCategories: (categories: UserCategory[]) => void;
+  setExpenseCategories: (categories: UserCategory[]) => void;
 }) => {
   const res = await request<UserByEmailQuery>(queryUrl, UserByEmailDocument, {
     email: email,
@@ -96,6 +102,16 @@ export const useUserByEmailQuery = async ({
   setEmail(res.userByEmail.email ?? "");
   if (res.userByEmail.accounts) {
     setCurrency(res.userByEmail.accounts[0].currency ?? Currency.Undefined);
+    setIncomeCategories(
+      res.userByEmail.accounts[0].categories.filter(
+        (category) => category.type === OperationType.Income
+      )
+    );
+    setExpenseCategories(
+      res.userByEmail.accounts[0].categories.filter(
+        (category) => category.type === OperationType.Expense
+      )
+    );
   }
   return res;
 };

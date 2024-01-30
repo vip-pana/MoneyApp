@@ -16,6 +16,10 @@ type User = {
   setIncomeAmount: (value: number) => void;
   expenseAmount: number;
   setExpenseAmount: (value: number) => void;
+  incomeCategories: UserCategory[];
+  setIncomeCategories: (categories: UserCategory[]) => void;
+  expenseCategories: UserCategory[];
+  setExpenseCategories: (categories: UserCategory[]) => void;
 };
 
 export const useUserStore = create<User>((set) => ({
@@ -34,4 +38,10 @@ export const useUserStore = create<User>((set) => ({
   expenseAmount: 0,
   setExpenseAmount: (value: number) =>
     set((state) => ({ expenseAmount: value })),
+  incomeCategories: [],
+  setIncomeCategories: (categories: UserCategory[]) =>
+    set((state) => ({ incomeCategories: categories })),
+  expenseCategories: [],
+  setExpenseCategories: (categories: UserCategory[]) =>
+    set((state) => ({ incomeCategories: categories })),
 }));
