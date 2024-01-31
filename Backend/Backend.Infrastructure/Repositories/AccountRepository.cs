@@ -43,6 +43,8 @@ namespace Backend.Infrastructure.Repositories
 
         private List<Category> GenerateIncomeCategories(List<Category> categories)
         {
+            var operationType = OperationType.Income;
+
             // Finance & Investments
             var financeAndInvestmentsNames = new List<string>
             {
@@ -52,12 +54,12 @@ namespace Backend.Infrastructure.Repositories
                 "Tax",
                 "Purchases",
             };
-            List<Category> financeAndInvestmentsCategories = GenerateCategories(financeAndInvestmentsNames, OperationType.Income);
+            List<Category> financeAndInvestmentsCategories = GenerateCategories(financeAndInvestmentsNames, operationType);
 
             categories.Add(new Category()
             {
                 Name = "Finance & Investments",
-                Type = OperationType.Income,
+                Type = operationType,
                 Subcategories = financeAndInvestmentsCategories
             });
 
@@ -67,12 +69,12 @@ namespace Backend.Infrastructure.Repositories
                 "Tax",
                 "Purchases",
             };
-            List<Category> refundsCategories = GenerateCategories(refundsNames, OperationType.Income);
+            List<Category> refundsCategories = GenerateCategories(refundsNames, operationType);
 
             categories.Add(new Category()
             {
                 Name = "Refunds",
-                Type = OperationType.Income,
+                Type = operationType,
                 Subcategories = refundsCategories
             });
 
@@ -91,7 +93,7 @@ namespace Backend.Infrastructure.Repositories
                 categories.Add(new Category()
                 {
                     Name = name,
-                    Type = OperationType.Income,
+                    Type = operationType,
                 });
             }
 
@@ -100,18 +102,20 @@ namespace Backend.Infrastructure.Repositories
 
         private List<Category> GenerateExpenseCategories(List<Category> categories)
         {
+            var operationType = OperationType.Expense;
+
             // foodAndDrinksNames categories
             var foodAndDrinksNames = new List<string>
             {
                 "Restaurant, Fast-food",
                 "Bar, Cafe",
             };
-            List<Category> foodAndDrinksCategories = GenerateCategories(foodAndDrinksNames, OperationType.Income);
+            List<Category> foodAndDrinksCategories = GenerateCategories(foodAndDrinksNames, operationType);
 
             categories.Add(new Category()
             {
                 Name = "Food & Drinks",
-                Type = OperationType.Expense,
+                Type = operationType,
                 Subcategories = foodAndDrinksCategories
             });
 
@@ -127,12 +131,12 @@ namespace Backend.Infrastructure.Repositories
                 "Drug store",
                 "Gifts",
             };
-            List<Category> shoppingCategories = GenerateCategories(shoppingNames, OperationType.Income);
+            List<Category> shoppingCategories = GenerateCategories(shoppingNames, operationType);
 
             categories.Add(new Category()
             {
                 Name = "Shopping",
-                Type = OperationType.Expense,
+                Type = operationType,
                 Subcategories = shoppingCategories
             });
 
@@ -146,12 +150,12 @@ namespace Backend.Infrastructure.Repositories
                 "Maintenance, repairs",
                 "Property insurance",
             };
-            List<Category> housingCategories = GenerateCategories(housingNames, OperationType.Income);
+            List<Category> housingCategories = GenerateCategories(housingNames, operationType);
 
             categories.Add(new Category()
             {
                 Name = "Housing",
-                Type = OperationType.Expense,
+                Type = operationType,
                 Subcategories = housingCategories
             });
 
@@ -168,12 +172,12 @@ namespace Backend.Infrastructure.Repositories
                 "Vehicle insurance",
                 "Leasing",
             };
-            List<Category> trasportationCategories = GenerateCategories(trasportationNames, OperationType.Income);
+            List<Category> trasportationCategories = GenerateCategories(trasportationNames, operationType);
 
             categories.Add(new Category()
             {
                 Name = "Vehicle, Travel & Transportation",
-                Type = OperationType.Expense,
+                Type = operationType,
                 Subcategories = trasportationCategories
             });
 
@@ -190,12 +194,12 @@ namespace Backend.Infrastructure.Repositories
                 "Vehicle insurance",
                 "Leasing",
             };
-            List<Category> lifeAndEntertainmentCategories = GenerateCategories(lifeAndEntertainmentNames, OperationType.Income);
+            List<Category> lifeAndEntertainmentCategories = GenerateCategories(lifeAndEntertainmentNames, operationType);
 
             categories.Add(new Category()
             {
                 Name = "Life & entertainment",
-                Type = OperationType.Expense,
+                Type = operationType,
                 Subcategories = lifeAndEntertainmentCategories
             });
 
@@ -209,12 +213,12 @@ namespace Backend.Infrastructure.Repositories
                 "Fees",
                 "Financial investments",
             };
-            List<Category> financeAndInvestmentsCategories = GenerateCategories(financeAndInvestmentsNames, OperationType.Income);
+            List<Category> financeAndInvestmentsCategories = GenerateCategories(financeAndInvestmentsNames, operationType);
 
             categories.Add(new Category()
             {
                 Name = "Finance & Investments",
-                Type = OperationType.Expense,
+                Type = operationType,
                 Subcategories = financeAndInvestmentsCategories
             });
 
@@ -222,7 +226,7 @@ namespace Backend.Infrastructure.Repositories
             categories.Add(new Category()
             {
                 Name = "Other",
-                Type = OperationType.Expense,
+                Type = operationType,
             });
 
             return categories;
