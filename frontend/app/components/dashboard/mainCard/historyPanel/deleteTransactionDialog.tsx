@@ -1,5 +1,9 @@
+"use client";
+
 import { graphql } from "@/gql/generated";
 import { TransactionInput } from "@/gql/generated/graphql";
+import { useDeleteTransactionQuery } from "@/utils/definitions/useQueryDefinition";
+import { useUserStore } from "@/utils/zustand/userStore";
 import {
   AlertDialogOverlay,
   AlertDialogContent,
@@ -9,7 +13,9 @@ import {
   Button,
   AlertDialog,
   Text,
+  useToast,
 } from "@chakra-ui/react";
+import { useQuery } from "@tanstack/react-query";
 import React from "react";
 
 const DeleteTransactionDialog = ({
@@ -21,9 +27,61 @@ const DeleteTransactionDialog = ({
   onClose: () => void;
   selectedTransaction: TransactionInput | undefined;
 }) => {
+  const { email, selectedAccountId, setTransactions } = useUserStore();
   const cancelRef = React.useRef<HTMLButtonElement>(null);
+  const toast = useToast();
 
-  const deleteTransactionQueryDocument = graphql(``);
+  const deleteTransactionQueryDocument = graphql(`
+    mutation deleteTransaction($user: UserInput!, $transaction: TransactionInput!, $accountId: String!) {
+      deleteTransaction(user: $user, transaction: $transaction, accountId: $accountId) {
+        accounts {
+          transactions {
+            id
+            amount
+            description
+            dateTime
+            description
+            transactionType
+            category {
+              name
+              categoryType
+            }
+          }
+        }
+      }
+    }
+  `);
+
+  const { refetch, isLoading } = useQuery({
+    queryKey: ["deleteTransaction"],
+    queryFn: () =>
+      useDeleteTransactionQuery({
+        email: email,
+        transactionId: selectedTransaction?.id ?? "",
+        accountId: selectedAccountId,
+      }),
+    enabled: false,
+  });
+
+  const onSubmit = async () => {
+    const { data, isError, error } = await refetch();
+    if (isError) {
+      toast({
+        title: error.name,
+        description: error.message,
+        status: "error",
+      });
+    } else {
+      toast({
+        title: "Transaction saved!",
+        status: "success",
+      });
+      if (data?.deleteTransaction.accounts) {
+        setTransactions(data?.deleteTransaction.accounts[0].transactions);
+      }
+      onClose();
+    }
+  };
 
   return (
     <>
@@ -42,7 +100,7 @@ const DeleteTransactionDialog = ({
 
             <AlertDialogFooter>
               <Button onClick={onClose}>Cancel</Button>
-              <Button colorScheme="red" onClick={onClose} ml={3}>
+              <Button colorScheme="red" onClick={onSubmit} isLoading={isLoading} ml={3}>
                 Delete
               </Button>
             </AlertDialogFooter>

@@ -35,7 +35,7 @@ const HistoryPanel = () => {
             <Tr>
               <Th>Amount</Th>
               <Th>Category</Th>
-              <Th>Datetime</Th>
+              <Th>Description</Th>
               <Th>Actions</Th>
             </Tr>
           </Thead>
@@ -45,8 +45,8 @@ const HistoryPanel = () => {
                 <Td>
                   {transaction.amount} {transaction.currency}
                 </Td>
-                <Td>{transaction.category.name}</Td>
-                <Td>{transaction.dateTime.split("T")[0] as string}</Td>
+                <Td>{transaction.category?.name}</Td>
+                <Td>{transaction.description}</Td>
                 <Td>
                   <HStack>
                     <IconButton aria-label={"info"} icon={<LuInfo />} isRound variant={"outline"} size={"sm"} />

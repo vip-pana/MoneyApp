@@ -55,23 +55,27 @@ namespace Backend.Infrastructure.Repositories
         {
             var totalIncomeAmount = user.Accounts.Find(account => account.Id == accountId).Transactions.Where(transaction => transaction.TransactionType == Core.Enums.OperationType.Income).Sum(transaction => transaction.Amount);
 
-            user.Accounts.Find(account => account.Id == accountId).IncomeAmount = totalIncomeAmount != 0 ? Math.Round(totalIncomeAmount, 2) : 0;
+            user.Accounts.Find(account => account.Id == accountId).IncomeAmount = totalIncomeAmount != 0 ? Math.Round(totalIncomeAmount.Value, 2) : 0;
 
             var totalExpenseAmount = user.Accounts.Find(account => account.Id == accountId).Transactions.Where(transaction => transaction.TransactionType == Core.Enums.OperationType.Expense).Sum(transaction => transaction.Amount);
 
-            user.Accounts.Find(account => account.Id == accountId).ExpenseAmount = totalIncomeAmount != 0 ? Math.Round(totalExpenseAmount, 2) : 0;
+            user.Accounts.Find(account => account.Id == accountId).ExpenseAmount = totalIncomeAmount != 0 ? Math.Round(totalExpenseAmount.Value, 2) : 0;
 
             return user;
         }
 
-        public async Task<User> DeleteTransactionOnUserAccount(Transaction transaction, User user, string accountId)
+        public async Task<User> DeleteTransactionOnUserAccount(string transactionId, User user, string accountId)
         {
-            var isRemoved = user.Accounts.Find(account => account.Id == accountId).Transactions.Remove(transaction);
+            var transactionToRemove = user.Accounts.Find(account => account.Id == accountId).Transactions.Where(transaction => transaction.Id == transactionId).FirstOrDefault();
 
-            if (!isRemoved)
+            if (transactionToRemove == null)
             {
                 throw new Exception("Transaction not exist in account");
             }
+            
+            user.Accounts.Find(account => account.Id == accountId).Transactions.Remove(transactionToRemove);
+
+            user = ReCalculateAccountAmounts(user, accountId);
 
             var filter = Builders<User>.Filter.Eq(_ => _.Id, user.Id);
             await collection.ReplaceOneAsync(filter, user);

@@ -32,7 +32,7 @@ namespace Backend.API.Mutations
                 throw new GraphQLException("User not registered.");
             }
 
-            User res = await userRepository.DeleteTransactionOnUserAccount(transaction: transaction, user: registeredUser, accountId);
+            User res = await userRepository.DeleteTransactionOnUserAccount(transactionId: transaction.Id, user: registeredUser, accountId);
 
             return res;
         }

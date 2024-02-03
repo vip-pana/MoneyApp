@@ -9,6 +9,8 @@ import {
   AddTransactionDocument,
   AddTransactionMutation,
   Currency,
+  DeleteTransactionDocument,
+  DeleteTransactionMutation,
   LoginDocument,
   LoginMutation,
   OperationType,
@@ -143,6 +145,27 @@ export const useAddTransactionQuery = async ({
       description: transaction.description,
       transactionType: transaction.operationType,
     },
+  });
+  return res;
+};
+
+export const useDeleteTransactionQuery = async ({
+  email,
+  transactionId,
+  accountId,
+}: {
+  email: string;
+  transactionId: string;
+  accountId: string;
+}) => {
+  const res = await request<DeleteTransactionMutation>(queryUrl, DeleteTransactionDocument, {
+    user: {
+      email: email,
+    },
+    transaction: {
+      id: transactionId,
+    },
+    accountId: accountId,
   });
   return res;
 };

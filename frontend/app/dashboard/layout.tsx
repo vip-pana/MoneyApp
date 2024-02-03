@@ -52,6 +52,7 @@ const Dashboardlayout = ({
           incomeAmount
           expenseAmount
           transactions {
+            id
             amount
             transactionType
             currency

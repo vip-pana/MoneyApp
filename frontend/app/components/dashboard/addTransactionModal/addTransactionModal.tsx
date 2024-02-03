@@ -41,10 +41,11 @@ const AddTransactionModal = ({ isOpen, onClose }: { onClose: () => void; isOpen:
     formState: { errors },
     getValues,
     setValue,
+    resetField,
   } = form;
   const toast = useToast();
 
-  const { email, selectedAccountId, expenseCategories, incomeCategories } = useUserStore();
+  const { email, selectedAccountId, expenseCategories, incomeCategories, setTransactions } = useUserStore();
   const [category, setCategory] = useState<string>("");
 
   const { getRootProps, getRadioProps } = useRadioGroup({
@@ -64,6 +65,13 @@ const AddTransactionModal = ({ isOpen, onClose }: { onClose: () => void; isOpen:
             id
             amount
             description
+            dateTime
+            description
+            transactionType
+            category {
+              name
+              categoryType
+            }
           }
         }
       }
@@ -101,8 +109,21 @@ const AddTransactionModal = ({ isOpen, onClose }: { onClose: () => void; isOpen:
         title: "Transaction saved!",
         status: "success",
       });
+      resetAllFormFields();
+      if (data?.addTransaction.accounts) {
+        setTransactions(data?.addTransaction.accounts[0].transactions);
+      }
       onClose();
     }
+  };
+
+  const resetAllFormFields = () => {
+    resetField("amount");
+    resetField("currency");
+    resetField("date");
+    resetField("description");
+    resetField("operationType");
+    resetField("selectedCategory");
   };
 
   const group = getRootProps();
