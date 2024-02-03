@@ -1,13 +1,5 @@
 import { formCheckEmailValidation } from "@/utils/definitions/typeValidation";
-import {
-  Button,
-  FormControl,
-  IconButton,
-  Input,
-  InputGroup,
-  InputRightElement,
-  useToast,
-} from "@chakra-ui/react";
+import { Button, FormControl, IconButton, Input, InputGroup, InputRightElement, useToast } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LuChevronRight } from "react-icons/lu";
 import { UseFormSetValue, useForm } from "react-hook-form";
@@ -44,12 +36,7 @@ const CheckEmailForm = ({
 
   const { refetch, isLoading } = useQuery({
     queryKey: ["checkEmailExist"],
-    queryFn: () =>
-      useCheckEmailExistQuery(
-        getValues("email"),
-        setEmailExist,
-        setEmailLoginFormValue
-      ),
+    queryFn: () => useCheckEmailExistQuery(getValues("email").toLowerCase(), setEmailExist, setEmailLoginFormValue),
     enabled: false,
   });
 
@@ -62,7 +49,7 @@ const CheckEmailForm = ({
         status: "error",
       });
     } else {
-      setEmailLoginFormValue("email", getValues("email"));
+      setEmailLoginFormValue("email", getValues("email").toLowerCase());
       setEmailExist(true);
     }
   };
@@ -87,7 +74,7 @@ const CheckEmailForm = ({
             />
           </InputRightElement>
         </InputGroup>
-              <FormErrorHelperText>{errors.email?.message}</FormErrorHelperText>
+        <FormErrorHelperText>{errors.email?.message}</FormErrorHelperText>
       </FormControl>
       <Button type="submit" w={"100%"} mb={"-20px"} isLoading={isLoading}>
         Continue with Email

@@ -22,9 +22,9 @@ namespace Backend.API.Properties
 
         public async Task<string?> Signup([UseFluentValidation, UseValidator<UserSignupValidator>] User user, Currency currency, [Service] IUserRepository userRepository, [Service] IAccountRepository accountRepository)
         {
-            var registeredUsers = await userRepository.GetByEmailAsync(email: user.Email);
+            var registeredUser = await userRepository.GetByEmailAsync(email: user.Email);
 
-            if (registeredUsers != null)
+            if (registeredUser != null)
             {
                 throw new GraphQLException("User already registered.");
             }

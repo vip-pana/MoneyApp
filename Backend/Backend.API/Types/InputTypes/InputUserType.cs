@@ -4,7 +4,7 @@ namespace Backend.API.Types.InputTypes
 {
     public class InputUserType : InputObjectType<User>
     {
-        protected override void Configure( IInputObjectTypeDescriptor<User> descriptor)
+        protected override void Configure(IInputObjectTypeDescriptor<User> descriptor)
         {
             // Method intentionally left empty.
         }

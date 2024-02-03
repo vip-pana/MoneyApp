@@ -22,11 +22,7 @@ import { UseFormReturn } from "react-hook-form";
 import { LuUnlock, LuEyeOff, LuEye } from "react-icons/lu";
 import { LoginValueDefinition } from "../../../utils/definitions/typeDefinition";
 
-const LoginForm = ({
-  form,
-}: {
-  form: UseFormReturn<LoginValueDefinition, any, undefined>;
-}) => {
+const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any, undefined> }) => {
   const router = useRouter();
   const toast = useToast();
 
@@ -66,7 +62,7 @@ const LoginForm = ({
     queryKey: ["login"],
     queryFn: () =>
       useLoginQuery({
-        email: getValues("email"),
+        email: getValues("email").toLowerCase(),
         password: getValues("password"),
       }),
     enabled: false,
@@ -77,12 +73,7 @@ const LoginForm = ({
       <Stack spacing={"20px"}>
         <FormControl>
           <InputGroup>
-            <Input
-              placeholder="Email"
-              {...register("email")}
-              onChange={() => setEmailExist(false)}
-              disabled
-            />
+            <Input placeholder="Email" {...register("email")} onChange={() => setEmailExist(false)} disabled />
             <InputRightElement>
               <IconButton
                 aria-label={"unlock password"}
@@ -93,7 +84,7 @@ const LoginForm = ({
               />
             </InputRightElement>
           </InputGroup>
-                  <FormErrorHelperText>{errors.email?.message}</FormErrorHelperText>
+          <FormErrorHelperText>{errors.email?.message}</FormErrorHelperText>
         </FormControl>
         <FormControl>
           <InputGroup>

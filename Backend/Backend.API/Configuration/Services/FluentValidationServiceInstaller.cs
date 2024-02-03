@@ -1,4 +1,5 @@
-﻿using Backend.API.Validators.UserValidators;
+﻿using Backend.API.Validators.TransactionValidators;
+using Backend.API.Validators.UserValidators;
 using FluentValidation.AspNetCore;
 
 namespace Backend.API.Configuration
@@ -10,6 +11,7 @@ namespace Backend.API.Configuration
             services.AddFluentValidationAutoValidation();
             services.AddTransient<UserLoginValidator>();
             services.AddTransient<UserSignupValidator>();
+            services.AddTransient<AddTransactionValidator>();
         }
     }
 }

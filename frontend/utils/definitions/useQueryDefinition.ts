@@ -6,41 +6,34 @@ import { UseFormSetValue } from "react-hook-form";
 import request from "graphql-request";
 import { queryUrl } from "../queryUrl";
 import {
+  AddTransactionDocument,
+  AddTransactionMutation,
   Currency,
   LoginDocument,
   LoginMutation,
   OperationType,
   SignupDocument,
   SignupMutation,
+  TransactionInput,
   UserByEmailDocument,
   UserByEmailQuery,
   UserExistByEmailDocument,
   UserExistByEmailQuery,
 } from "@/gql/generated/graphql";
-import { LoginValueDefinition, UserCategory } from "./typeDefinition";
+import { AddTransactionModalFormValueDefinition, LoginValueDefinition, UserCategory } from "./typeDefinition";
 
 export const useCheckEmailExistQuery = async (
   emailFormValue: string,
   setEmailExist: (value: boolean) => void,
   setEmailLoginFormValue: UseFormSetValue<LoginValueDefinition>
 ) => {
-  const res = request<UserExistByEmailQuery>(
-    queryUrl,
-    UserExistByEmailDocument,
-    {
-      email: emailFormValue,
-    }
-  );
+  const res = request<UserExistByEmailQuery>(queryUrl, UserExistByEmailDocument, {
+    email: emailFormValue,
+  });
   return res;
 };
 
-export const useLoginQuery = async ({
-  email,
-  password,
-}: {
-  email: string;
-  password: string;
-}) => {
+export const useLoginQuery = async ({ email, password }: { email: string; password: string }) => {
   const res = await request<LoginMutation>(queryUrl, LoginDocument, {
     user: {
       email: email,
@@ -63,8 +56,6 @@ export const useSignupQuery = async ({
   password: string;
   currency: string;
 }) => {
-  // todo: capire come passare l'enum a graphql
-
   const res = await request<SignupMutation>(queryUrl, SignupDocument, {
     user: {
       name: name,
@@ -114,18 +105,44 @@ export const useUserByEmailQuery = async ({
     }
     setCurrency(res.userByEmail.accounts[0].currency ?? Currency.Undefined);
     setIncomeCategories(
-      res.userByEmail.accounts[0].categories.filter(
-        (category) => category.type === OperationType.Income
-      )
+      res.userByEmail.accounts[0].categories.filter((category) => category.categoryType === OperationType.Income)
     );
     setExpenseCategories(
-      res.userByEmail.accounts[0].categories.filter(
-        (category) => category.type === OperationType.Expense
-      )
+      res.userByEmail.accounts[0].categories.filter((category) => category.categoryType === OperationType.Expense)
     );
     setIncomeAmount(res.userByEmail.accounts[0].incomeAmount);
     setExpenseAmount(res.userByEmail.accounts[0].expenseAmount);
     setTransactions(res.userByEmail.accounts[0].transactions);
   }
+
+  return res;
+};
+
+export const useAddTransactionQuery = async ({
+  email,
+  transaction,
+  accountId: accountId,
+}: {
+  email: string;
+  transaction: AddTransactionModalFormValueDefinition;
+  accountId: string;
+}) => {
+  const res = await request<AddTransactionMutation>(queryUrl, AddTransactionDocument, {
+    accountId: accountId,
+    user: {
+      email: email,
+    },
+    transaction: {
+      amount: parseFloat(transaction.amount.toString()),
+      currency: transaction.currency,
+      category: {
+        name: transaction.selectedCategory,
+        categoryType: transaction.operationType,
+      },
+      dateTime: transaction.date,
+      description: transaction.description,
+      transactionType: transaction.operationType,
+    },
+  });
   return res;
 };

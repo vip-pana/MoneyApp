@@ -14,6 +14,7 @@ namespace Backend.API.Configuration
         {
             services
                 .AddGraphQLServer()
+                .AddAuthorization()
                 .AddQueryType(d => d.Name("Query")) // Queries section
                     .AddTypeExtension<AccountQuery>()
                     .AddTypeExtension<CategoryProductQuery>()
@@ -26,6 +27,7 @@ namespace Backend.API.Configuration
                     .AddTypeExtension<CategoryProductMutation>()
                     .AddTypeExtension<CategoryMutation>()
                     .AddTypeExtension<UserMutation>()
+                    .AddTypeExtension<TransactionMutation>()
                 .AddSubscriptionType(d => d.Name("Subscription")) // Subscriptions section
                     .AddTypeExtension<ProductSubscriptions>()
                 .AddType<CategoryProductResolver>()

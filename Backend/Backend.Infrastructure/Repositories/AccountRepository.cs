@@ -59,7 +59,7 @@ namespace Backend.Infrastructure.Repositories
             categories.Add(new Category()
             {
                 Name = "Finance & Investments",
-                Type = operationType,
+                CategoryType = operationType,
                 Subcategories = financeAndInvestmentsCategories
             });
 
@@ -74,7 +74,7 @@ namespace Backend.Infrastructure.Repositories
             categories.Add(new Category()
             {
                 Name = "Refunds",
-                Type = operationType,
+                CategoryType = operationType,
                 Subcategories = refundsCategories
             });
 
@@ -93,7 +93,7 @@ namespace Backend.Infrastructure.Repositories
                 categories.Add(new Category()
                 {
                     Name = name,
-                    Type = operationType,
+                    CategoryType = operationType,
                 });
             }
 
@@ -115,7 +115,7 @@ namespace Backend.Infrastructure.Repositories
             categories.Add(new Category()
             {
                 Name = "Food & Drinks",
-                Type = operationType,
+                CategoryType = operationType,
                 Subcategories = foodAndDrinksCategories
             });
 
@@ -136,7 +136,7 @@ namespace Backend.Infrastructure.Repositories
             categories.Add(new Category()
             {
                 Name = "Shopping",
-                Type = operationType,
+                CategoryType = operationType,
                 Subcategories = shoppingCategories
             });
 
@@ -155,7 +155,7 @@ namespace Backend.Infrastructure.Repositories
             categories.Add(new Category()
             {
                 Name = "Housing",
-                Type = operationType,
+                CategoryType = operationType,
                 Subcategories = housingCategories
             });
 
@@ -177,7 +177,7 @@ namespace Backend.Infrastructure.Repositories
             categories.Add(new Category()
             {
                 Name = "Vehicle, Travel & Transportation",
-                Type = operationType,
+                CategoryType = operationType,
                 Subcategories = trasportationCategories
             });
 
@@ -199,7 +199,7 @@ namespace Backend.Infrastructure.Repositories
             categories.Add(new Category()
             {
                 Name = "Life & entertainment",
-                Type = operationType,
+                CategoryType = operationType,
                 Subcategories = lifeAndEntertainmentCategories
             });
 
@@ -218,7 +218,7 @@ namespace Backend.Infrastructure.Repositories
             categories.Add(new Category()
             {
                 Name = "Finance & Investments",
-                Type = operationType,
+                CategoryType = operationType,
                 Subcategories = financeAndInvestmentsCategories
             });
 
@@ -226,7 +226,7 @@ namespace Backend.Infrastructure.Repositories
             categories.Add(new Category()
             {
                 Name = "Other",
-                Type = operationType,
+                CategoryType = operationType,
             });
 
             return categories;
@@ -238,7 +238,7 @@ namespace Backend.Infrastructure.Repositories
 
             foreach (string name in names)
             {
-                Category category = new() { Name = name, Type = type };
+                Category category = new() { Name = name, CategoryType = type };
                 categories.Add(category);
             }
 

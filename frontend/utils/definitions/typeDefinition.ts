@@ -1,7 +1,7 @@
 // for convention all methods created in this file will have at the end of the name the phrase "ValueDefinition"
 // here is the file where all type definition will be created
 
-import { OperationType } from "@/gql/generated/graphql";
+import { Currency, OperationType } from "@/gql/generated/graphql";
 
 export type CheckMailValueDefinition = {
   email: string;
@@ -23,13 +23,14 @@ export type SignUpValueDefinition = {
 
 export type UserCategory = {
   name: string;
-  type: string;
+  categoryType: string;
   subCategory?: UserCategory;
 };
 
-export type addTransactionModalFormValueDefinition = {
+export type AddTransactionModalFormValueDefinition = {
   amount: number;
   operationType: OperationType;
+  currency: Currency;
   selectedCategory: string;
   description: string;
   date: Date;

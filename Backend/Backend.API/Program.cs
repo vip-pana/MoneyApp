@@ -18,6 +18,8 @@ namespace Backend.API
             if (!string.IsNullOrWhiteSpace(corsPolicy)) app.UseCors(corsPolicy);
 
             app.UseWebSockets();
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.MapGraphQL();
 
             app.Run();

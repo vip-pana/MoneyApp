@@ -4,17 +4,11 @@
 import { z } from "zod";
 
 export const formCheckEmailValidation = z.object({
-  email: z
-    .string()
-    .min(1, "Email is empty, please insert email")
-    .email("Email format is not valid"),
+  email: z.string().min(1, "Email is empty, please insert email").email("Email format is not valid"),
 });
 
 export const formLoginValidation = z.object({
-  email: z
-    .string()
-    .min(1, "Email is empty, please insert email")
-    .email("Email format is not valid"),
+  email: z.string().min(1, "Email is empty, please insert email").email("Email format is not valid"),
   password: z.string().min(1, "Password is empty, please insert password"),
 });
 
@@ -37,3 +31,12 @@ export const formSignupValidation = z
     message: "Password must be exactly the same.",
     path: ["confirmPassword"],
   });
+
+export const formAddTransactionModalValidation = z.object({
+  amount: z.string().min(1, "Please insert a number"),
+  operationType: z.string().min(1),
+  currency: z.string().min(1, "Please select one currency"),
+  selectedCategory: z.string().min(1, "Please select one category"),
+  description: z.string().min(1, "Please insert a description"),
+  date: z.coerce.date(),
+});

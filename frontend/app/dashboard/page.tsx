@@ -1,9 +1,10 @@
 "use client";
 
-import { Center, Heading, IconButton, useDisclosure } from "@chakra-ui/react";
+import { Box, Center, Heading, IconButton, useDisclosure } from "@chakra-ui/react";
 import CardsStat from "../components/dashboard/cardsStat";
 import { LuPlus } from "react-icons/lu";
 import AddTransactionModal from "../components/dashboard/addTransactionModal/addTransactionModal";
+import MainCard from "../components/dashboard/mainCard/mainCard";
 
 const Dashboard = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -13,6 +14,9 @@ const Dashboard = () => {
         <Heading size="md">My transactions</Heading>
       </Center>
       <CardsStat />
+      <Box mt={"20px"}>
+        <MainCard />
+      </Box>
       <IconButton
         icon={<LuPlus />}
         position={"absolute"}

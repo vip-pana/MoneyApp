@@ -1,13 +1,7 @@
 "use client";
 
-import {
-  Button,
-  HStack,
-  Spacer,
-  Tooltip,
-  useDisclosure,
-} from "@chakra-ui/react";
-import SignupModal from "./signupModal";
+import { Button, HStack, Spacer, Tooltip, useDisclosure } from "@chakra-ui/react";
+import SignupModal from "./signUpModal";
 
 const SecondActions = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -28,12 +22,7 @@ const SecondActions = () => {
 
         <Spacer />
         <Button variant={"ghost"} colorScheme="white" size="sm">
-          <Tooltip
-            hasArrow
-            label="Please, first insert email."
-            aria-label="insert first email tooltip"
-            placement="top"
-          >
+          <Tooltip hasArrow label="Please, first insert email." aria-label="insert first email tooltip" placement="top">
             Forgot password?
           </Tooltip>
         </Button>
