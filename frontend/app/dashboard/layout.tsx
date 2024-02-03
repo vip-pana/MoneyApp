@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Box,
-  Flex,
-  HStack,
-  IconButton,
-  useMediaQuery,
-  useToast,
-} from "@chakra-ui/react";
+import { Box, Flex, HStack, IconButton, useMediaQuery, useToast } from "@chakra-ui/react";
 import React from "react";
 import { LuAlignJustify } from "react-icons/lu";
 import Sidebar from "../ui/dasboard/base/sidebar/sidebar";
@@ -30,6 +23,10 @@ const Dashboardlayout = ({
     setCurrency,
     setIncomeCategories,
     setExpenseCategories,
+    setIncomeAmount,
+    setExpenseAmount,
+    setTransactions,
+    setSelectedAccountId,
   } = useUserStore();
 
   const [collapse, setCollapse] = React.useState(false);
@@ -49,14 +46,29 @@ const Dashboardlayout = ({
         surname
         email
         accounts {
+          id
           name
           currency
+          incomeAmount
+          expenseAmount
+          transactions {
+            amount
+            transactionType
+            currency
+            dateTime
+            description
+            transactionType
+            category {
+              name
+              categoryType
+            }
+          }
           categories {
             name
-            type
+            categoryType
             subcategories {
               name
-              type
+              categoryType
             }
           }
         }
@@ -75,6 +87,10 @@ const Dashboardlayout = ({
         setCurrency: setCurrency,
         setIncomeCategories: setIncomeCategories,
         setExpenseCategories: setExpenseCategories,
+        setIncomeAmount: setIncomeAmount,
+        setExpenseAmount: setExpenseAmount,
+        setTransactions: setTransactions,
+        setSelectedAccountId: setSelectedAccountId,
       }),
   });
 
@@ -107,15 +123,7 @@ const Dashboardlayout = ({
       >
         <Sidebar collapse={collapse} />
       </Flex>
-      <Flex
-        as="main"
-        boxShadow="2xl"
-        w="full"
-        h="full"
-        flexDirection="column"
-        position="relative"
-        borderRadius="3xl"
-      >
+      <Flex as="main" boxShadow="2xl" w="full" h="full" flexDirection="column" position="relative" borderRadius="3xl">
         <IconButton
           aria-label="Menu Colapse"
           icon={<LuAlignJustify />}

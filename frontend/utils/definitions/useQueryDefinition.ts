@@ -85,6 +85,10 @@ export const useUserByEmailQuery = async ({
   setCurrency,
   setIncomeCategories,
   setExpenseCategories,
+  setIncomeAmount,
+  setExpenseAmount,
+  setTransactions,
+  setSelectedAccountId,
 }: {
   email: string;
   setName: (value: string) => void;
@@ -93,6 +97,10 @@ export const useUserByEmailQuery = async ({
   setCurrency: (value: Currency) => void;
   setIncomeCategories: (categories: UserCategory[]) => void;
   setExpenseCategories: (categories: UserCategory[]) => void;
+  setIncomeAmount: (value: number) => void;
+  setExpenseAmount: (value: number) => void;
+  setTransactions: (value: TransactionInput[]) => void;
+  setSelectedAccountId: (value: string) => void;
 }) => {
   const res = await request<UserByEmailQuery>(queryUrl, UserByEmailDocument, {
     email: email,
@@ -101,6 +109,9 @@ export const useUserByEmailQuery = async ({
   setSurname(res.userByEmail.surname ?? "");
   setEmail(res.userByEmail.email ?? "");
   if (res.userByEmail.accounts) {
+    if (res.userByEmail.accounts[0].id) {
+      setSelectedAccountId(res.userByEmail.accounts[0].id);
+    }
     setCurrency(res.userByEmail.accounts[0].currency ?? Currency.Undefined);
     setIncomeCategories(
       res.userByEmail.accounts[0].categories.filter(
@@ -112,6 +123,9 @@ export const useUserByEmailQuery = async ({
         (category) => category.type === OperationType.Expense
       )
     );
+    setIncomeAmount(res.userByEmail.accounts[0].incomeAmount);
+    setExpenseAmount(res.userByEmail.accounts[0].expenseAmount);
+    setTransactions(res.userByEmail.accounts[0].transactions);
   }
   return res;
 };

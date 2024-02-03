@@ -1,25 +1,40 @@
-import { Currency } from "@/gql/generated/graphql";
+import { Currency, TransactionInput } from "@/gql/generated/graphql";
 import { create } from "zustand";
+import { UserCategory } from "../definitions/typeDefinition";
 
 type User = {
   emailExist: boolean;
   setEmailExist: (value: boolean) => void;
+
   email: string;
   setEmail: (value: string) => void;
+
   name: string;
   setName: (value: string) => void;
+
   surname: string;
   setSurname: (value: string) => void;
+
   currency: Currency;
   setCurrency: (value: Currency) => void;
+
   incomeAmount: number;
   setIncomeAmount: (value: number) => void;
+
   expenseAmount: number;
   setExpenseAmount: (value: number) => void;
+
   incomeCategories: UserCategory[];
   setIncomeCategories: (categories: UserCategory[]) => void;
+
   expenseCategories: UserCategory[];
   setExpenseCategories: (categories: UserCategory[]) => void;
+
+  transactions: TransactionInput[];
+  setTransactions: (value: TransactionInput[]) => void;
+
+  selectedAccountId: string;
+  setSelectedAccountId: (value: string) => void;
 };
 
 export const useUserStore = create<User>((set) => ({
@@ -36,12 +51,15 @@ export const useUserStore = create<User>((set) => ({
   incomeAmount: 0,
   setIncomeAmount: (value: number) => set((state) => ({ incomeAmount: value })),
   expenseAmount: 0,
-  setExpenseAmount: (value: number) =>
-    set((state) => ({ expenseAmount: value })),
+  setExpenseAmount: (value: number) => set((state) => ({ expenseAmount: value })),
   incomeCategories: [],
-  setIncomeCategories: (categories: UserCategory[]) =>
-    set((state) => ({ incomeCategories: categories })),
+  setIncomeCategories: (categories: UserCategory[]) => set((state) => ({ incomeCategories: categories })),
   expenseCategories: [],
-  setExpenseCategories: (categories: UserCategory[]) =>
-    set((state) => ({ incomeCategories: categories })),
+  setExpenseCategories: (categories: UserCategory[]) => set((state) => ({ expenseCategories: categories })),
+  currentAccount: "",
+  setCurrentAccount: (value: string) => set((state) => ({ currentAccount: value })),
+  transactions: [],
+  setTransactions: (values: TransactionInput[]) => set((state) => ({ transactions: values })),
+  selectedAccountId: "",
+  setSelectedAccountId: (value: string) => set((state) => ({ selectedAccountId: value })),
 }));
