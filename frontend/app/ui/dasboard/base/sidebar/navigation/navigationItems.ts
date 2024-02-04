@@ -1,4 +1,4 @@
-import { LuLayoutDashboard, LuLogOut, LuSettings } from "react-icons/lu";
+import { LuFileDiff, LuLayoutDashboard, LuLogOut, LuSettings } from "react-icons/lu";
 
 export const navigationItems = [
   {
@@ -6,6 +6,12 @@ export const navigationItems = [
     label: "Dashboard",
     icon: LuLayoutDashboard,
     path: "/dashboard",
+  },
+  {
+    type: "link",
+    label: "Transactions History",
+    icon: LuFileDiff,
+    path: "/dashboard/transactions",
   },
   {
     type: "header",

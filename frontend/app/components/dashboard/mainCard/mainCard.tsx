@@ -1,5 +1,5 @@
 import { Card, CardBody, Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react";
-import HistoryPanel from "./historyPanel/historyPanel";
+import TodayTransactionsPanel from "./todayTransactionsPanel/todayTransactionsPanel";
 
 const MainCard = () => {
   return (
@@ -7,16 +7,16 @@ const MainCard = () => {
       <CardBody>
         <Tabs isFitted variant="soft-rounded" size={"md"}>
           <TabList>
-            <Tab>Chart</Tab>
             <Tab>History</Tab>
+            <Tab>Chart</Tab>
           </TabList>
 
           <TabPanels>
             <TabPanel>
-              <p>one!</p>
+              <TodayTransactionsPanel />
             </TabPanel>
             <TabPanel>
-              <HistoryPanel />
+              <p>one!</p>
             </TabPanel>
           </TabPanels>
         </Tabs>

@@ -12,9 +12,9 @@ const RadioOperationTypeElement = (props: any) => {
         {...checkBox}
         cursor="pointer"
         borderRadius={"lg"}
-        borderColor={props.isIncome ? "teal.600" : "red.600"}
         borderWidth={"1px"}
         boxShadow={"md"}
+        borderColor={props.isIncome ? "teal.600" : "red.600"}
         _checked={{
           bg: props.isIncome ? "teal.600" : "red.600",
           color: "white",
