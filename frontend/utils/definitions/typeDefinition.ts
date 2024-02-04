@@ -28,10 +28,10 @@ export type UserCategory = {
 };
 
 export type TransactionModalFormValueDefinition = {
-  amount: number;
+  amount: number | string;
   operationType: OperationType;
   currency: Currency;
   selectedCategory: string;
   description: string;
-  date: Date;
+  date: Date | string;
 };

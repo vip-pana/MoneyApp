@@ -30,6 +30,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getEnum } from "@/utils/getEnum";
 import { Currency, OperationType, TransactionInput } from "@/gql/generated/graphql";
 import { useAddTransactionQuery } from "@/utils/definitions/useQueryDefinition";
+import { format } from "date-fns";
 
 const EditTransactionModal = ({
   isOpen,
@@ -61,15 +62,25 @@ const EditTransactionModal = ({
     getValues,
     setValue,
     resetField,
+    clearErrors,
   } = form;
   const toast = useToast();
 
   useEffect(() => {
-    setValue("amount", selectedTransaction?.amount ?? 0);
+    setValue("amount", (selectedTransaction?.amount ?? 0).toString());
     setValue("currency", selectedTransaction?.currency ?? currency);
     setValue("description", selectedTransaction?.description ?? "");
     setValue("selectedCategory", selectedTransaction?.category?.name ?? "");
-    // setValue("date", new Date(selectedTransaction?.dateTime));
+
+    const operationTypeValue = getDefaultValueRadioGroup();
+    setValue("operationType", selectedTransaction?.transactionType ?? OperationType.Expense);
+    setSelectedOperationType(operationTypeValue);
+
+    if (selectedTransaction?.dateTime) {
+      const date = new Date(selectedTransaction?.dateTime ?? "");
+      const formattedDate = format(date, "yyyy-MM-dd");
+      setValue("date", formattedDate);
+    }
   });
 
   const editTransactionQueryDocument = graphql(``);
@@ -124,6 +135,21 @@ const EditTransactionModal = ({
     resetField("selectedCategory");
   };
 
+  const formatDateTimeValue = (dateToFormat: string): string => {
+    const date = new Date(dateToFormat);
+
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+
+    return `${year}-${month}-${day}T00:00:00`;
+  };
+
+  const getDefaultValueRadioGroup = (): string => {
+    // TO-DO: sistemare radio element selezione iniziale che va a membro di segugio
+    return selectedTransaction?.transactionType == OperationType.Expense ? "Expense" : "Income";
+  };
+
   const [selectedOperationType, setSelectedOperationType] = useState<string>("");
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: "Operation Type",
@@ -132,11 +158,17 @@ const EditTransactionModal = ({
       setValue("selectedCategory", "");
       setSelectedOperationType(value);
     },
+    defaultValue: getDefaultValueRadioGroup(),
   });
   const group = getRootProps();
 
+  const clearErrorsAndClose = () => {
+    clearErrors();
+    return onClose();
+  };
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={clearErrorsAndClose}>
       <ModalOverlay />
       <ModalContent>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -174,7 +206,7 @@ const EditTransactionModal = ({
                       const radio = getRadioProps({ value });
                       return (
                         <RadioOperationTypeElement key={value} {...radio} isIncome={value === "Income"}>
-                          {value}
+                          {OperationType[value]}
                         </RadioOperationTypeElement>
                       );
                     })}

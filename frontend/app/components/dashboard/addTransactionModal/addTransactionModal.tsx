@@ -29,7 +29,8 @@ import { getEnum } from "@/utils/getEnum";
 import { graphql } from "@/gql/generated";
 import { useQuery } from "@tanstack/react-query";
 import { useAddTransactionQuery } from "@/utils/definitions/useQueryDefinition";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { format } from "date-fns";
 
 const AddTransactionModal = ({ isOpen, onClose }: { onClose: () => void; isOpen: boolean }) => {
   const form = useForm<TransactionModalFormValueDefinition>({
@@ -42,8 +43,15 @@ const AddTransactionModal = ({ isOpen, onClose }: { onClose: () => void; isOpen:
     getValues,
     setValue,
     resetField,
+    clearErrors,
   } = form;
   const toast = useToast();
+
+  useEffect(() => {
+    const date = new Date();
+    const formattedDate = format(date, "yyyy-MM-dd");
+    setValue("date", formattedDate);
+  });
 
   const {
     email,
@@ -140,8 +148,13 @@ const AddTransactionModal = ({ isOpen, onClose }: { onClose: () => void; isOpen:
     resetField("selectedCategory");
   };
 
+  const clearErrorsAndClose = () => {
+    clearErrors();
+    return onClose();
+  };
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={clearErrorsAndClose}>
       <ModalOverlay />
       <ModalContent>
         <form onSubmit={handleSubmit(onSubmit)}>

@@ -33,7 +33,15 @@ export const formSignupValidation = z
   });
 
 export const formAddTransactionModalValidation = z.object({
-  amount: z.string().min(1, "Please insert a number"),
+  amount: z.string().refine(
+    (value) => {
+      const numericValue = parseFloat(value);
+      return !isNaN(numericValue) && numericValue >= 0.01;
+    },
+    {
+      message: "Amount must be at least 0.01",
+    }
+  ),
   operationType: z.string().min(1),
   currency: z.string().min(1, "Please select one currency"),
   selectedCategory: z.string().min(1, "Please select one category"),
