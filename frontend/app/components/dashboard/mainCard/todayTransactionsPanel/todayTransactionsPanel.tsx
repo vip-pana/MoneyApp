@@ -2,23 +2,25 @@
 import { useUserStore } from "@/utils/zustand/userStore";
 import {
   HStack,
-  Icon,
   IconButton,
+  Stat,
+  StatArrow,
   Table,
   TableContainer,
   Tbody,
   Td,
+  Text,
   Th,
   Thead,
   Tr,
   useDisclosure,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
-import { LuInfo, LuTrash } from "react-icons/lu";
+import React, { useEffect, useState } from "react";
+import { LuTrash } from "react-icons/lu";
 import DeleteTransactionDialog from "./deleteTransactionDialog";
-import { TransactionInput } from "@/gql/generated/graphql";
+import { OperationType, TransactionInput } from "@/gql/generated/graphql";
 
-const HistoryPanel = () => {
+const TodayTransactionsPanel = () => {
   const { transactions } = useUserStore();
   const {
     isOpen: isOpenDeleteTransactionDialog,
@@ -27,6 +29,23 @@ const HistoryPanel = () => {
   } = useDisclosure();
 
   const [selectedTransaction, setSelectedTransaction] = useState<TransactionInput>();
+  const [today, setToday] = useState<Date>(new Date());
+
+  useEffect(() => {
+    const tmp = today;
+    tmp.setMinutes(tmp.getMinutes() + tmp.getTimezoneOffset());
+
+    tmp.setUTCHours(0, 0, 0, 0);
+    setToday(tmp);
+  }, []);
+
+  const filterHours = (transaction: TransactionInput) => {
+    const transactionDate = new Date(transaction.dateTime);
+    transactionDate.setMinutes(transactionDate.getMinutes() + transactionDate.getTimezoneOffset());
+    transactionDate.setUTCHours(0, 0, 0, 0);
+
+    return transactionDate.getTime() === today.getTime();
+  };
   return (
     <>
       <TableContainer overflowY={"auto"} maxH={"200px"}>
@@ -40,16 +59,22 @@ const HistoryPanel = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {transactions.map((transaction, index) => (
+            {transactions.filter(filterHours).map((transaction, index) => (
               <Tr key={index}>
                 <Td>
-                  {transaction.amount} {transaction.currency}
+                  <Stat>
+                    <Text>
+                      <StatArrow
+                        type={transaction.transactionType === OperationType.Income ? "increase" : "decrease"}
+                      />
+                      {transaction.amount} {transaction.currency}
+                    </Text>
+                  </Stat>
                 </Td>
                 <Td>{transaction.category?.name}</Td>
                 <Td>{transaction.description}</Td>
                 <Td>
                   <HStack>
-                    <IconButton aria-label={"info"} icon={<LuInfo />} isRound variant={"outline"} size={"sm"} />
                     <IconButton
                       aria-label={"info"}
                       icon={<LuTrash />}
@@ -78,4 +103,4 @@ const HistoryPanel = () => {
   );
 };
 
-export default HistoryPanel;
+export default TodayTransactionsPanel;

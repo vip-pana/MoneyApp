@@ -27,7 +27,7 @@ const DeleteTransactionDialog = ({
   onClose: () => void;
   selectedTransaction: TransactionInput | undefined;
 }) => {
-  const { email, selectedAccountId, setTransactions } = useUserStore();
+  const { email, selectedAccountId, setTransactions, setExpenseAmount, setIncomeAmount } = useUserStore();
   const cancelRef = React.useRef<HTMLButtonElement>(null);
   const toast = useToast();
 
@@ -35,6 +35,8 @@ const DeleteTransactionDialog = ({
     mutation deleteTransaction($user: UserInput!, $transaction: TransactionInput!, $accountId: String!) {
       deleteTransaction(user: $user, transaction: $transaction, accountId: $accountId) {
         accounts {
+          incomeAmount
+          expenseAmount
           transactions {
             id
             amount
@@ -73,11 +75,13 @@ const DeleteTransactionDialog = ({
       });
     } else {
       toast({
-        title: "Transaction saved!",
+        title: "Transaction deleted!",
         status: "success",
       });
       if (data?.deleteTransaction.accounts) {
         setTransactions(data?.deleteTransaction.accounts[0].transactions);
+        setIncomeAmount(data.deleteTransaction.accounts[0].incomeAmount);
+        setExpenseAmount(data.deleteTransaction.accounts[0].expenseAmount);
       }
       onClose();
     }
