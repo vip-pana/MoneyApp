@@ -1,8 +1,10 @@
 "use client";
 import { useUserStore } from "@/utils/zustand/userStore";
 import {
+  Checkbox,
   HStack,
   IconButton,
+  ListItem,
   Stat,
   StatArrow,
   Table,
@@ -13,13 +15,14 @@ import {
   Th,
   Thead,
   Tr,
+  UnorderedList,
   useDisclosure,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { LuFileEdit, LuTrash } from "react-icons/lu";
 import DeleteTransactionDialog from "../../base/deleteTransactionDialog";
 import { OperationType, TransactionInput } from "@/gql/generated/graphql";
-import EditTransactionModal from "./editTransactionModal/editTransactionModal";
+import UpdateTransactionModal from "./updateTransactionModal/updateTransactionModal";
 
 const TransactionsGrid = () => {
   const { transactions } = useUserStore();
@@ -35,13 +38,14 @@ const TransactionsGrid = () => {
   } = useDisclosure();
 
   const [selectedTransaction, setSelectedTransaction] = useState<TransactionInput>();
-
+  const [selectedTransactionList, setSelectedTransactionList] = useState<TransactionInput[]>([]);
   return (
     <>
       <TableContainer overflowY={"auto"} maxH={"400px"}>
         <Table variant={"striped"} size={"sm"}>
           <Thead>
             <Tr>
+              <Th>Select</Th>
               <Th>Amount</Th>
               <Th>Category</Th>
               <Th>Description</Th>
@@ -52,6 +56,17 @@ const TransactionsGrid = () => {
           <Tbody>
             {transactions.map((transaction, index) => (
               <Tr key={index}>
+                <Td>
+                  <Checkbox
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedTransactionList([...selectedTransactionList, transaction]);
+                      } else {
+                        setSelectedTransactionList(selectedTransactionList.filter((el) => el == transaction));
+                      }
+                    }}
+                  />
+                </Td>
                 <Td>
                   <Stat>
                     <Text>
@@ -98,7 +113,7 @@ const TransactionsGrid = () => {
           </Tbody>
         </Table>
       </TableContainer>
-      <EditTransactionModal
+      <UpdateTransactionModal
         isOpen={isOpenEditTransactionModal}
         onClose={onCloseEditTransactionModal}
         selectedTransaction={selectedTransaction}

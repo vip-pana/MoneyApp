@@ -17,6 +17,8 @@ import {
   SignupDocument,
   SignupMutation,
   TransactionInput,
+  UpdateTransactionDocument,
+  UpdateTransactionMutation,
   UserByEmailDocument,
   UserByEmailQuery,
   UserExistByEmailDocument,
@@ -164,6 +166,38 @@ export const useDeleteTransactionQuery = async ({
     },
     transaction: {
       id: transactionId,
+    },
+    accountId: accountId,
+  });
+  return res;
+};
+
+export const useUpdateTransactionQuery = async ({
+  email,
+  transaction,
+  accountId,
+  transactionId,
+}: {
+  email: string;
+  transaction: TransactionModalFormValueDefinition;
+  accountId: string;
+  transactionId: string;
+}) => {
+  const res = await request<UpdateTransactionMutation>(queryUrl, UpdateTransactionDocument, {
+    user: {
+      email: email,
+    },
+    transaction: {
+      id: transactionId,
+      amount: parseFloat(transaction.amount.toString()),
+      currency: transaction.currency,
+      category: {
+        name: transaction.selectedCategory,
+        categoryType: transaction.operationType,
+      },
+      dateTime: transaction.date,
+      description: transaction.description,
+      transactionType: transaction.operationType,
     },
     accountId: accountId,
   });

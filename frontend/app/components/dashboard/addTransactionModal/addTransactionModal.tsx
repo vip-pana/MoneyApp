@@ -25,7 +25,7 @@ import { TransactionModalFormValueDefinition } from "@/utils/definitions/typeDef
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formAddTransactionModalValidation } from "@/utils/definitions/typeValidation";
 import FormErrorHelperText from "@/app/ui/base/formErrorHelperText";
-import { getEnum } from "@/utils/getEnum";
+import { formatEnum, getEnum } from "@/utils/enumUtils";
 import { graphql } from "@/gql/generated";
 import { useQuery } from "@tanstack/react-query";
 import { useAddTransactionQuery } from "@/utils/definitions/useQueryDefinition";
@@ -42,8 +42,8 @@ const AddTransactionModal = ({ isOpen, onClose }: { onClose: () => void; isOpen:
     formState: { errors },
     getValues,
     setValue,
-    resetField,
     clearErrors,
+    reset,
   } = form;
   const toast = useToast();
 
@@ -51,7 +51,7 @@ const AddTransactionModal = ({ isOpen, onClose }: { onClose: () => void; isOpen:
     const date = new Date();
     const formattedDate = format(date, "yyyy-MM-dd");
     setValue("date", formattedDate);
-  });
+  }, []);
 
   const {
     email,
@@ -117,12 +117,6 @@ const AddTransactionModal = ({ isOpen, onClose }: { onClose: () => void; isOpen:
     enabled: false,
   });
 
-  const formatEnum = (enumToFormat: string) => {
-    let value = enumToFormat.toLowerCase();
-    value = value.charAt(0).toUpperCase() + value.slice(1);
-    return value;
-  };
-
   const onSubmit = async () => {
     console.log(getEnum(getValues("currency"), Currency));
     const { data, isError, error } = await refetch();
@@ -137,7 +131,7 @@ const AddTransactionModal = ({ isOpen, onClose }: { onClose: () => void; isOpen:
         title: "Transaction saved!",
         status: "success",
       });
-      resetAllFormFields();
+      reset();
       if (data?.addTransaction.accounts) {
         setTransactions(data?.addTransaction.accounts[0].transactions);
         setExpenseAmount(data?.addTransaction.accounts[0].expenseAmount);
@@ -145,15 +139,6 @@ const AddTransactionModal = ({ isOpen, onClose }: { onClose: () => void; isOpen:
       }
       onClose();
     }
-  };
-
-  const resetAllFormFields = () => {
-    resetField("amount");
-    resetField("currency");
-    resetField("date");
-    resetField("description");
-    resetField("operationType");
-    resetField("selectedCategory");
   };
 
   const clearErrorsAndClose = () => {
