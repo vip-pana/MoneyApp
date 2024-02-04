@@ -42,6 +42,7 @@ const DeleteTransactionDialog = ({
             amount
             description
             dateTime
+            currency
             description
             transactionType
             category {

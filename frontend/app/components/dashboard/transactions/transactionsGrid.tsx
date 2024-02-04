@@ -17,7 +17,7 @@ import {
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { LuFileEdit, LuTrash } from "react-icons/lu";
-import DeleteTransactionDialog from "../mainCard/todayTransactionsPanel/deleteTransactionDialog";
+import DeleteTransactionDialog from "../../base/deleteTransactionDialog";
 import { OperationType, TransactionInput } from "@/gql/generated/graphql";
 import EditTransactionModal from "./editTransactionModal/editTransactionModal";
 
