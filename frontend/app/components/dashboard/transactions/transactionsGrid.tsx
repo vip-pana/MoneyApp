@@ -4,7 +4,6 @@ import {
   Checkbox,
   HStack,
   IconButton,
-  ListItem,
   Stat,
   StatArrow,
   Table,
@@ -15,7 +14,6 @@ import {
   Th,
   Thead,
   Tr,
-  UnorderedList,
   useDisclosure,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
