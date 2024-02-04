@@ -22,7 +22,7 @@ import {
   UserExistByEmailDocument,
   UserExistByEmailQuery,
 } from "@/gql/generated/graphql";
-import { AddTransactionModalFormValueDefinition, LoginValueDefinition, UserCategory } from "./typeDefinition";
+import { TransactionModalFormValueDefinition, LoginValueDefinition, UserCategory } from "./typeDefinition";
 
 export const useCheckEmailExistQuery = async (
   emailFormValue: string,
@@ -126,7 +126,7 @@ export const useAddTransactionQuery = async ({
   accountId: accountId,
 }: {
   email: string;
-  transaction: AddTransactionModalFormValueDefinition;
+  transaction: TransactionModalFormValueDefinition;
   accountId: string;
 }) => {
   const res = await request<AddTransactionMutation>(queryUrl, AddTransactionDocument, {

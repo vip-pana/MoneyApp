@@ -1,8 +1,8 @@
 "use client";
 
-import { Box, Flex, HStack, IconButton, useMediaQuery, useToast } from "@chakra-ui/react";
+import { Box, Flex, HStack, IconButton, useDisclosure, useMediaQuery, useToast } from "@chakra-ui/react";
 import React from "react";
-import { LuAlignJustify } from "react-icons/lu";
+import { LuAlignJustify, LuPlus } from "react-icons/lu";
 import Sidebar from "../ui/dasboard/base/sidebar/sidebar";
 import Navbar from "../ui/dasboard/base/navbar/navbar";
 import { useUserStore } from "@/utils/zustand/userStore";
@@ -10,6 +10,7 @@ import { graphql } from "@/gql/generated";
 import { useQuery } from "@tanstack/react-query";
 import { useUserByEmailQuery } from "@/utils/definitions/useQueryDefinition";
 import { sessionStorageEmail } from "@/utils/queryUrl";
+import AddTransactionModal from "../components/dashboard/addTransactionModal/addTransactionModal";
 
 const Dashboardlayout = ({
   children,
@@ -32,6 +33,11 @@ const Dashboardlayout = ({
   const [collapse, setCollapse] = React.useState(false);
   const [isLargerThan800] = useMediaQuery("(min-width: 800px)");
   const toast = useToast();
+  const {
+    isOpen: isOpenAddTransactionModal,
+    onOpen: onOpenAddTransactionModal,
+    onClose: onCloseAddTransactionModal,
+  } = useDisclosure();
 
   React.useEffect(() => {
     if (!isLargerThan800) {
@@ -138,6 +144,17 @@ const Dashboardlayout = ({
           {children}
         </Box>
       </Flex>
+      <IconButton
+        icon={<LuPlus />}
+        position={"absolute"}
+        size={"lg"}
+        rounded="100%"
+        bottom={"50px"}
+        right={"50px"}
+        aria-label="add transaction"
+        onClick={onOpenAddTransactionModal}
+      />
+      <AddTransactionModal isOpen={isOpenAddTransactionModal} onClose={onCloseAddTransactionModal} />
     </HStack>
   );
 };

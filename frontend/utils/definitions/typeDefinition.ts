@@ -27,7 +27,7 @@ export type UserCategory = {
   subCategory?: UserCategory;
 };
 
-export type AddTransactionModalFormValueDefinition = {
+export type TransactionModalFormValueDefinition = {
   amount: number;
   operationType: OperationType;
   currency: Currency;
