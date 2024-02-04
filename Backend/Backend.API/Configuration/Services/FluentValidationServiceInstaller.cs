@@ -12,7 +12,7 @@ namespace Backend.API.Configuration
             services.AddFluentValidationAutoValidation();
             services.AddTransient<UserLoginValidator>();
             services.AddTransient<UserSignupValidator>();
-            services.AddTransient<AddTransactionValidator>();
+            services.AddTransient<TransactionValidator>();
             services.AddTransient<DeleteTransactionValidator>();
         }
     }

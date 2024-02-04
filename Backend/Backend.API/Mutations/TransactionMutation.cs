@@ -9,7 +9,7 @@ namespace Backend.API.Mutations
     [ExtendObjectType("Mutation")]
     public class TransactionMutation
     {
-        public async Task<User> AddTransaction([UseFluentValidation, UseValidator<AddTransactionValidator>] Transaction transaction, User user, string accountId, [Service] IUserRepository userRepository, [Service] ITransactionRepository transactionRepository)
+        public async Task<User> AddTransaction([UseFluentValidation, UseValidator<TransactionValidator>] Transaction transaction, User user, string accountId, [Service] IUserRepository userRepository)
         {
             var registeredUser = await userRepository.GetByEmailAsync(email: user.Email);
 
@@ -23,7 +23,7 @@ namespace Backend.API.Mutations
             return res;
         }
 
-        public async Task<User> deleteTransaction([UseFluentValidation, UseValidator<DeleteTransactionValidator>] Transaction transaction, User user, string accountId, [Service] IUserRepository userRepository, [Service] ITransactionRepository transactionRepository)
+        public async Task<User> deleteTransaction([UseFluentValidation, UseValidator<DeleteTransactionValidator>] Transaction transaction, User user, string accountId, [Service] IUserRepository userRepository)
         {
             var registeredUser = await userRepository.GetByEmailAsync(email: user.Email);
 
@@ -33,6 +33,20 @@ namespace Backend.API.Mutations
             }
 
             User res = await userRepository.DeleteTransactionOnUserAccount(transactionId: transaction.Id, user: registeredUser, accountId);
+
+            return res;
+        }
+
+        public async Task<User> updateTransaction([UseFluentValidation, UseValidator<TransactionValidator>] Transaction transaction, User user, string accountId, [Service] IUserRepository userRepository, [Service] ITransactionRepository transactionRepository)
+        {
+            var registeredUser = await userRepository.GetByEmailAsync(email: user.Email);
+
+            if (registeredUser is null)
+            {
+                throw new GraphQLException("User not registered.");
+            }
+
+            User res = await userRepository.UpdateTransactionOnUserAccount(transaction: transaction, user: registeredUser, accountId: accountId);
 
             return res;
         }

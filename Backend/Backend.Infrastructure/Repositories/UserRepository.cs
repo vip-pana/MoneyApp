@@ -82,5 +82,20 @@ namespace Backend.Infrastructure.Repositories
 
             return user;
         }
+
+        public async Task<User> UpdateTransactionOnUserAccount(Transaction transaction, User user, string accountId)
+        {
+            var transactionToRemove = user.Accounts.Find(account => account.Id == accountId).Transactions.Where(t => t.Id == transaction.Id).FirstOrDefault();
+
+            user.Accounts.Find(account => account.Id == accountId).Transactions.Remove(transactionToRemove);
+
+            user.Accounts.Find(account => account.Id == accountId).Transactions.Add(transaction);
+            user = ReCalculateAccountAmounts(user, accountId);
+
+            var filter = Builders<User>.Filter.Eq(_ => _.Id, user.Id);
+            await collection.ReplaceOneAsync(filter, user);
+
+            return user;
+        }
     }
 }
