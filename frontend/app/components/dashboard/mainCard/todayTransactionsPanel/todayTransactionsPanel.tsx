@@ -17,7 +17,7 @@ import {
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { LuTrash } from "react-icons/lu";
-import DeleteTransactionDialog from "./deleteTransactionDialog";
+import DeleteTransactionDialog from "../../../base/deleteTransactionDialog";
 import { OperationType, TransactionInput } from "@/gql/generated/graphql";
 
 const TodayTransactionsPanel = () => {
