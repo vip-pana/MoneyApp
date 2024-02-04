@@ -27,7 +27,7 @@ import { useRouter } from "next/navigation";
 import { Currency } from "@/gql/generated/graphql";
 import FormErrorHelperText from "@/app/ui/base/formErrorHelperText";
 import { sessionStorageEmail } from "@/utils/queryUrl";
-import { getEnum as getValueAsEnum } from "@/utils/getEnum";
+import { getEnum as getValueAsEnum } from "@/utils/enumUtils";
 import { SignUpValueDefinition } from "../../../utils/definitions/typeDefinition";
 
 const SignupModal = ({ isOpen, onClose }: { onClose: () => void; isOpen: boolean }) => {

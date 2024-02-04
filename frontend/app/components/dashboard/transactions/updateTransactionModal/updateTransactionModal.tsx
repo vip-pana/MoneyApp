@@ -27,12 +27,12 @@ import { useUserStore } from "@/utils/zustand/userStore";
 import FormErrorHelperText from "@/app/ui/base/formErrorHelperText";
 import RadioOperationTypeElement from "../../addTransactionModal/radioOperationTypeElement";
 import { useQuery } from "@tanstack/react-query";
-import { getEnum } from "@/utils/getEnum";
+import { getEnum } from "@/utils/enumUtils";
 import { Currency, OperationType, TransactionInput } from "@/gql/generated/graphql";
-import { useAddTransactionQuery } from "@/utils/definitions/useQueryDefinition";
+import { useUpdateTransactionQuery } from "@/utils/definitions/useQueryDefinition";
 import { format } from "date-fns";
 
-const EditTransactionModal = ({
+const UpdateTransactionModal = ({
   isOpen,
   onClose,
   selectedTransaction,
@@ -61,12 +61,16 @@ const EditTransactionModal = ({
     formState: { errors },
     getValues,
     setValue,
-    resetField,
     clearErrors,
+    reset,
   } = form;
   const toast = useToast();
 
   useEffect(() => {
+    setValuesBySelectedTransaction();
+  }, []);
+
+  const setValuesBySelectedTransaction = () => {
     setValue("amount", (selectedTransaction?.amount ?? 0).toString());
     setValue("currency", selectedTransaction?.currency ?? currency);
     setValue("description", selectedTransaction?.description ?? "");
@@ -81,9 +85,31 @@ const EditTransactionModal = ({
       const formattedDate = format(date, "yyyy-MM-dd");
       setValue("date", formattedDate);
     }
-  });
+  };
 
-  const editTransactionQueryDocument = graphql(``);
+  const updateTransactionQueryDocument = graphql(`
+    mutation updateTransaction($user: UserInput!, $transaction: TransactionInput!, $accountId: String!) {
+      updateTransaction(user: $user, transaction: $transaction, accountId: $accountId) {
+        accounts {
+          incomeAmount
+          expenseAmount
+          transactions {
+            id
+            amount
+            description
+            dateTime
+            currency
+            description
+            transactionType
+            category {
+              name
+              categoryType
+            }
+          }
+        }
+      }
+    }
+  `);
 
   const onSubmit = async () => {
     const { data, isError, error } = await refetch();
@@ -98,52 +124,34 @@ const EditTransactionModal = ({
         title: "Transaction updated!",
         status: "success",
       });
-      resetAllFormFields();
-      if (data?.addTransaction.accounts) {
-        setTransactions(data?.addTransaction.accounts[0].transactions);
-        setExpenseAmount(data?.addTransaction.accounts[0].expenseAmount);
-        setIncomeAmount(data?.addTransaction.accounts[0].incomeAmount);
+      reset();
+      if (data?.updateTransaction.accounts) {
+        setTransactions(data?.updateTransaction.accounts[0].transactions);
+        setExpenseAmount(data?.updateTransaction.accounts[0].expenseAmount);
+        setIncomeAmount(data?.updateTransaction.accounts[0].incomeAmount);
       }
       onClose();
     }
   };
 
   const { refetch, isLoading } = useQuery({
-    queryKey: ["addTransaction"],
+    queryKey: ["updateTransaction"],
     queryFn: () =>
-      useAddTransactionQuery({
+      useUpdateTransactionQuery({
+        accountId: selectedAccountId,
         email: email,
         transaction: {
           amount: getValues("amount"),
-          currency: getEnum(getValues("currency"), Currency),
           date: getValues("date"),
           description: getValues("description"),
           selectedCategory: getValues("selectedCategory"),
           operationType: getEnum(selectedOperationType, OperationType),
+          currency: getEnum(getValues("currency"), Currency),
         },
-        accountId: selectedAccountId,
+        transactionId: selectedTransaction?.id ?? "",
       }),
     enabled: false,
   });
-
-  const resetAllFormFields = () => {
-    resetField("amount");
-    resetField("currency");
-    resetField("date");
-    resetField("description");
-    resetField("operationType");
-    resetField("selectedCategory");
-  };
-
-  const formatDateTimeValue = (dateToFormat: string): string => {
-    const date = new Date(dateToFormat);
-
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const day = date.getDate().toString().padStart(2, "0");
-
-    return `${year}-${month}-${day}T00:00:00`;
-  };
 
   const getDefaultValueRadioGroup = (): string => {
     // TO-DO: sistemare radio element selezione iniziale che va a membro di segugio
@@ -162,13 +170,13 @@ const EditTransactionModal = ({
   });
   const group = getRootProps();
 
-  const clearErrorsAndClose = () => {
+  const clearErrorsAndClose = (onClose: () => void) => {
     clearErrors();
     return onClose();
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={clearErrorsAndClose}>
+    <Modal isOpen={isOpen} onClose={() => clearErrorsAndClose(onClose)}>
       <ModalOverlay />
       <ModalContent>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -253,4 +261,4 @@ const EditTransactionModal = ({
   );
 };
 
-export default EditTransactionModal;
+export default UpdateTransactionModal;
