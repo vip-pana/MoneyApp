@@ -86,6 +86,7 @@ const AddTransactionModal = ({ isOpen, onClose }: { onClose: () => void; isOpen:
             amount
             description
             dateTime
+            currency
             description
             transactionType
             category {
@@ -105,7 +106,7 @@ const AddTransactionModal = ({ isOpen, onClose }: { onClose: () => void; isOpen:
         email: email,
         transaction: {
           amount: getValues("amount"),
-          currency: getEnum(getValues("currency"), Currency),
+          currency: getEnum(formatEnum(getValues("currency")), Currency),
           date: getValues("date"),
           description: getValues("description"),
           selectedCategory: getValues("selectedCategory"),
@@ -116,7 +117,14 @@ const AddTransactionModal = ({ isOpen, onClose }: { onClose: () => void; isOpen:
     enabled: false,
   });
 
+  const formatEnum = (enumToFormat: string) => {
+    let value = enumToFormat.toLowerCase();
+    value = value.charAt(0).toUpperCase() + value.slice(1);
+    return value;
+  };
+
   const onSubmit = async () => {
+    console.log(getEnum(getValues("currency"), Currency));
     const { data, isError, error } = await refetch();
     if (isError) {
       toast({
