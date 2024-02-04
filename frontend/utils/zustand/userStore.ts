@@ -56,8 +56,6 @@ export const useUserStore = create<User>((set) => ({
   setIncomeCategories: (categories: UserCategory[]) => set((state) => ({ incomeCategories: categories })),
   expenseCategories: [],
   setExpenseCategories: (categories: UserCategory[]) => set((state) => ({ expenseCategories: categories })),
-  currentAccount: "",
-  setCurrentAccount: (value: string) => set((state) => ({ currentAccount: value })),
   transactions: [],
   setTransactions: (values: TransactionInput[]) => set((state) => ({ transactions: values })),
   selectedAccountId: "",
