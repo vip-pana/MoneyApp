@@ -59,7 +59,7 @@ namespace Backend.Infrastructure.Repositories
 
             var totalExpenseAmount = user.Accounts.Find(account => account.Id == accountId).Transactions.Where(transaction => transaction.TransactionType == Core.Enums.OperationType.Expense).Sum(transaction => transaction.Amount);
 
-            user.Accounts.Find(account => account.Id == accountId).ExpenseAmount = totalIncomeAmount != 0 ? Math.Round(totalExpenseAmount.Value, 2) : 0;
+            user.Accounts.Find(account => account.Id == accountId).ExpenseAmount = totalExpenseAmount != 0 ? Math.Round(totalExpenseAmount.Value, 2) : 0;
 
             return user;
         }
