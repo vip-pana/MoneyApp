@@ -188,7 +188,7 @@ const TransactionModal = ({
           description: getValues("description"),
           selectedCategory: getValues("selectedCategory"),
           operationType: getEnumValue(selectedOperationType, OperationType),
-          currency: getEnumValue(getValues("currency"), Currency),
+          currency: getEnumValue(formatEnumValue(getValues("currency")), Currency),
         },
         transactionId: selectedTransaction?.id ?? "",
       }),
