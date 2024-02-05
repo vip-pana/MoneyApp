@@ -23,7 +23,7 @@ import { OperationType, TransactionInput } from "@/gql/generated/graphql";
 import TransactionModal from "../../base/transactionModal/transactionModal";
 import { format } from "date-fns";
 
-const TransactionsGrid = () => {
+const TransactionsTable = () => {
   const { transactions } = useUserStore();
   const {
     isOpen: isOpenDeleteTransactionDialog,
@@ -133,4 +133,4 @@ const TransactionsGrid = () => {
   );
 };
 
-export default TransactionsGrid;
+export default TransactionsTable;
