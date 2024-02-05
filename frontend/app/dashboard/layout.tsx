@@ -10,7 +10,7 @@ import { graphql } from "@/gql/generated";
 import { useQuery } from "@tanstack/react-query";
 import { useUserByEmailQuery } from "@/utils/definitions/useQueryDefinition";
 import { sessionStorageEmail } from "@/utils/queryUrl";
-import AddTransactionModal from "../components/dashboard/addTransactionModal/addTransactionModal";
+import TransactionModal from "../components/base/transactionModal/transactionModal";
 
 const Dashboardlayout = ({
   children,
@@ -154,7 +154,7 @@ const Dashboardlayout = ({
         aria-label="add transaction"
         onClick={onOpenAddTransactionModal}
       />
-      <AddTransactionModal isOpen={isOpenAddTransactionModal} onClose={onCloseAddTransactionModal} />
+      <TransactionModal isOpen={isOpenAddTransactionModal} onClose={onCloseAddTransactionModal} />
     </HStack>
   );
 };

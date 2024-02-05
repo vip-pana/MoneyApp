@@ -20,7 +20,7 @@ import React, { useState } from "react";
 import { LuFileEdit, LuTrash } from "react-icons/lu";
 import DeleteTransactionDialog from "../../base/deleteTransactionDialog";
 import { OperationType, TransactionInput } from "@/gql/generated/graphql";
-import UpdateTransactionModal from "./updateTransactionModal/updateTransactionModal";
+import TransactionModal from "../../base/transactionModal/transactionModal";
 
 const TransactionsGrid = () => {
   const { transactions } = useUserStore();
@@ -111,11 +111,12 @@ const TransactionsGrid = () => {
           </Tbody>
         </Table>
       </TableContainer>
-      <UpdateTransactionModal
+      <TransactionModal
         isOpen={isOpenEditTransactionModal}
         onClose={onCloseEditTransactionModal}
         selectedTransaction={selectedTransaction}
       />
+
       <DeleteTransactionDialog
         isOpen={isOpenDeleteTransactionDialog}
         onClose={onCloseDeleteTransactionDialog}

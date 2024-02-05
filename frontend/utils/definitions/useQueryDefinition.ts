@@ -24,13 +24,9 @@ import {
   UserExistByEmailDocument,
   UserExistByEmailQuery,
 } from "@/gql/generated/graphql";
-import { TransactionModalFormValueDefinition, LoginValueDefinition, UserCategory } from "./typeDefinition";
+import { TransactionModalFormValueDefinition, UserCategory } from "./typeDefinition";
 
-export const useCheckEmailExistQuery = async (
-  emailFormValue: string,
-  setEmailExist: (value: boolean) => void,
-  setEmailLoginFormValue: UseFormSetValue<LoginValueDefinition>
-) => {
+export const useCheckEmailExistQuery = async (emailFormValue: string) => {
   const res = request<UserExistByEmailQuery>(queryUrl, UserExistByEmailDocument, {
     email: emailFormValue,
   });

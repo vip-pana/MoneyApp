@@ -7,7 +7,7 @@ const MainCard = () => {
       <CardBody>
         <Tabs isFitted variant="soft-rounded" size={"md"}>
           <TabList>
-            <Tab>History</Tab>
+            <Tab>Today transactions</Tab>
             <Tab>Chart</Tab>
           </TabList>
 
@@ -15,9 +15,7 @@ const MainCard = () => {
             <TabPanel>
               <TodayTransactionsPanel />
             </TabPanel>
-            <TabPanel>
-              <p>one!</p>
-            </TabPanel>
+            <TabPanel></TabPanel>
           </TabPanels>
         </Tabs>
       </CardBody>
