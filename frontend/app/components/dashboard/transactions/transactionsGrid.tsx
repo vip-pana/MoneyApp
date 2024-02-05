@@ -21,6 +21,7 @@ import { LuFileEdit, LuTrash } from "react-icons/lu";
 import DeleteTransactionDialog from "../../base/deleteTransactionDialog";
 import { OperationType, TransactionInput } from "@/gql/generated/graphql";
 import TransactionModal from "../../base/transactionModal/transactionModal";
+import { format } from "date-fns";
 
 const TransactionsGrid = () => {
   const { transactions } = useUserStore();
@@ -37,6 +38,12 @@ const TransactionsGrid = () => {
 
   const [selectedTransaction, setSelectedTransaction] = useState<TransactionInput>();
   const [selectedTransactionList, setSelectedTransactionList] = useState<TransactionInput[]>([]);
+
+  const formatDate = (dateTime: string): string => {
+    const date = new Date(dateTime);
+    const formattedDate = format(date, "yyyy-MM-dd");
+    return formattedDate;
+  };
   return (
     <>
       <TableContainer overflowY={"auto"} maxH={"400px"}>
@@ -77,7 +84,7 @@ const TransactionsGrid = () => {
                 </Td>
                 <Td>{transaction.category?.name}</Td>
                 <Td>{transaction.description}</Td>
-                <Td>{transaction.dateTime}</Td>
+                <Td>{formatDate(transaction.dateTime)}</Td>
                 <Td>
                   <HStack>
                     <IconButton
