@@ -29,6 +29,7 @@ const TodayTransactionsPanel = () => {
   } = useDisclosure();
 
   const [selectedTransaction, setSelectedTransaction] = useState<TransactionInput>();
+  const [todayTransactions, setTodayTransactions] = useState<TransactionInput[]>([]);
   const [today, setToday] = useState<Date>(new Date());
 
   useEffect(() => {
@@ -37,6 +38,7 @@ const TodayTransactionsPanel = () => {
 
     tmp.setUTCHours(0, 0, 0, 0);
     setToday(tmp);
+    setTodayTransactions(transactions.filter(filterHours));
   }, []);
 
   const filterHours = (transaction: TransactionInput) => {
@@ -59,7 +61,7 @@ const TodayTransactionsPanel = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {transactions.filter(filterHours).map((transaction, index) => (
+            {todayTransactions.map((transaction, index) => (
               <Tr key={index}>
                 <Td>
                   <Stat>
