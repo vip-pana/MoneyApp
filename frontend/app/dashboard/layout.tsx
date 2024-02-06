@@ -1,16 +1,16 @@
 "use client";
 
 import { Box, Flex, HStack, IconButton, useDisclosure, useMediaQuery, useToast } from "@chakra-ui/react";
-import React from "react";
 import { LuAlignJustify, LuPlus } from "react-icons/lu";
 import Sidebar from "../ui/dasboard/base/sidebar/sidebar";
 import Navbar from "../ui/dasboard/base/navbar/navbar";
 import { useUserStore } from "@/utils/zustand/userStore";
 import { graphql } from "@/gql/generated";
 import { useQuery } from "@tanstack/react-query";
-import { useUserByEmailQuery } from "@/utils/definitions/useQueryDefinition";
+import { UseUserByEmailQuery } from "@/utils/definitions/useQueryDefinition";
 import { sessionStorageEmail } from "@/utils/queryUrl";
 import TransactionModal from "../components/base/transactionModal/transactionModal";
+import { useEffect, useState } from "react";
 
 const Dashboardlayout = ({
   children,
@@ -30,7 +30,7 @@ const Dashboardlayout = ({
     setSelectedAccountId,
   } = useUserStore();
 
-  const [collapse, setCollapse] = React.useState(false);
+  const [collapse, setCollapse] = useState(false);
   const [isLargerThan800] = useMediaQuery("(min-width: 800px)");
   const toast = useToast();
   const {
@@ -39,7 +39,7 @@ const Dashboardlayout = ({
     onClose: onCloseAddTransactionModal,
   } = useDisclosure();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isLargerThan800) {
       setCollapse(false);
     }
@@ -86,7 +86,7 @@ const Dashboardlayout = ({
   const { isError, error } = useQuery({
     queryKey: ["userData"],
     queryFn: () =>
-      useUserByEmailQuery({
+      UseUserByEmailQuery({
         email: sessionStorage.getItem(sessionStorageEmail) ?? "",
         setName: setName,
         setSurname: setSurname,
@@ -101,7 +101,7 @@ const Dashboardlayout = ({
       }),
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isError) {
       {
         toast({

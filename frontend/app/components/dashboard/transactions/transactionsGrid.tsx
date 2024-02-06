@@ -1,4 +1,5 @@
 "use client";
+
 import { useUserStore } from "@/utils/zustand/userStore";
 import {
   Checkbox,
@@ -16,7 +17,7 @@ import {
   Tr,
   useDisclosure,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import { useState } from "react";
 import { LuFileEdit, LuTrash } from "react-icons/lu";
 import DeleteTransactionDialog from "../../base/deleteTransactionDialog";
 import { OperationType, TransactionInput } from "@/gql/generated/graphql";

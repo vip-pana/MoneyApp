@@ -2,7 +2,7 @@
 
 import { graphql } from "@/gql/generated";
 import { TransactionInput } from "@/gql/generated/graphql";
-import { useDeleteTransactionQuery } from "@/utils/definitions/useQueryDefinition";
+import { useDeleteTransactionQuery as UseDeleteTransactionQuery } from "@/utils/definitions/useQueryDefinition";
 import { useUserStore } from "@/utils/zustand/userStore";
 import {
   AlertDialogOverlay,
@@ -58,7 +58,7 @@ const DeleteTransactionDialog = ({
   const { refetch, isLoading } = useQuery({
     queryKey: ["deleteTransaction"],
     queryFn: () =>
-      useDeleteTransactionQuery({
+      UseDeleteTransactionQuery({
         email: email,
         transactionId: selectedTransaction?.id ?? "",
         accountId: selectedAccountId,
@@ -100,7 +100,7 @@ const DeleteTransactionDialog = ({
             <AlertDialogBody>
               <Text>Amount: {selectedTransaction?.amount}</Text>
               <Text>Description: {selectedTransaction?.description}</Text>
-              Are you sure? You can't undo this action afterwards.
+              Are you sure? You can&apos;t undo this action afterwards.
             </AlertDialogBody>
 
             <AlertDialogFooter>
