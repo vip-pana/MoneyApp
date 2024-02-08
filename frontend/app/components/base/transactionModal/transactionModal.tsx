@@ -28,9 +28,9 @@ import { formatEnumValueByString, getEnumValue } from "@/utils/enumUtils";
 import { graphql } from "@/gql/generated";
 import { useQuery } from "@tanstack/react-query";
 import { useAddTransactionQuery, useUpdateTransactionQuery } from "@/utils/definitions/useQueryDefinition";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
-import { Select } from "chakra-react-select";
+import { GroupBase, Select, SelectInstance } from "chakra-react-select";
 
 const TransactionModal = ({
   isOpen,
@@ -64,7 +64,7 @@ const TransactionModal = ({
       const formattedDate = format(date, "yyyy-MM-dd");
       setValue("date", formattedDate);
     }
-  });
+  }, [selectedTransaction]);
 
   const setSelectedCategoryBySelectedTransaction = () => {
     let res: UserCategory | undefined;
@@ -114,12 +114,16 @@ const TransactionModal = ({
   } = useUserStore();
   const [selectedOperationType, setSelectedOperationType] = useState<string>("");
   const [selectedCategory, setSelecteCategory] = useState<UserCategory>();
+  const selectInputRef = useRef<SelectInstance<UserCategory, false, GroupBase<UserCategory>>>();
 
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: "Operation Type",
     onChange: (value) => {
       setValue("operationType", getEnumValue(value, OperationType));
       setValue("selectedCategory", "");
+      if (selectInputRef.current) {
+        selectInputRef.current.clearValue();
+      }
       setSelectedOperationType(value);
     },
     defaultValue: getDefaultValueRadioGroup(),
@@ -226,6 +230,7 @@ const TransactionModal = ({
   };
 
   const onSubmitUpdateTransaction = async () => {
+    console.log(form.getValues());
     const { data, isError, error } = await updateTransactionRefetch();
     if (isError) {
       showToast(undefined, error);
@@ -340,28 +345,24 @@ const TransactionModal = ({
                   <Controller
                     control={form.control}
                     name="selectedCategory"
-                    // defaultValue={
-                    //   selectedOperationType === "Expense"
-                    //     ? expenseCategories.find((c) => c == selectedTransaction?.category)?.name
-                    //     : incomeCategories.find((c) => c == selectedTransaction?.category)?.name
-                    // }
                     render={() => (
                       <Select
+                        ref={
+                          selectInputRef as React.RefObject<
+                            SelectInstance<UserCategory, false, GroupBase<UserCategory>>
+                          >
+                        }
                         defaultValue={selectedCategory}
-                        // defaultValue={
-                        //   selectedOperationType === "Expense"
-                        //     ? expenseCategories.find((c) => c == selectedTransaction?.category)
-                        //     : incomeCategories.find((c) => c == selectedTransaction?.category)
-                        // }
                         isDisabled={addTransactionIsLoading || updateTransactionIsLoading}
                         placeholder={"Select Category..."}
                         getOptionLabel={(category) => category.name}
                         getOptionValue={(category) => category.name}
                         options={selectedOperationType === "Expense" ? expenseCategories : incomeCategories}
                         onChange={(selectedCategory) => {
-                          console.log("first");
                           setValue("selectedCategory", selectedCategory?.name ?? "");
                         }}
+                        // value={}
+                        // defaultInputValue={selectedCategory?.name}
                       />
                     )}
                   />
