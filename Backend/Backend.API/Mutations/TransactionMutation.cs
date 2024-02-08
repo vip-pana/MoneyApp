@@ -23,7 +23,7 @@ namespace Backend.API.Mutations
             return res;
         }
 
-        public async Task<User> deleteTransaction([UseFluentValidation, UseValidator<DeleteTransactionValidator>] Transaction transaction, User user, string accountId, [Service] IUserRepository userRepository)
+        public async Task<User> DeleteTransaction([UseFluentValidation, UseValidator<DeleteTransactionValidator>] Transaction transaction, User user, string accountId, [Service] IUserRepository userRepository)
         {
             var registeredUser = await userRepository.GetByEmailAsync(email: user.Email);
 
@@ -37,7 +37,7 @@ namespace Backend.API.Mutations
             return res;
         }
 
-        public async Task<User> updateTransaction([UseFluentValidation, UseValidator<TransactionValidator>] Transaction transaction, User user, string accountId, [Service] IUserRepository userRepository, [Service] ITransactionRepository transactionRepository)
+        public async Task<User> UpdateTransaction([UseFluentValidation, UseValidator<TransactionValidator>] Transaction transaction, User user, string accountId, [Service] IUserRepository userRepository, [Service] ITransactionRepository transactionRepository)
         {
             var registeredUser = await userRepository.GetByEmailAsync(email: user.Email);
 
