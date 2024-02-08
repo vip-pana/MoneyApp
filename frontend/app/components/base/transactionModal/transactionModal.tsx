@@ -14,23 +14,23 @@ import {
   HStack,
   useRadioGroup,
   Center,
-  Select,
   VStack,
   Text,
   useToast,
 } from "@chakra-ui/react";
 import RadioOperationTypeElement from "./radioOperationTypeElement";
-import { useForm } from "react-hook-form";
-import { TransactionModalFormValueDefinition } from "@/utils/definitions/typeDefinition";
+import { Controller, useForm } from "react-hook-form";
+import { TransactionModalFormValueDefinition, UserCategory } from "@/utils/definitions/typeDefinition";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formAddTransactionModalValidation } from "@/utils/definitions/typeValidation";
 import FormErrorHelperText from "@/app/ui/base/formErrorHelperText";
-import { formatEnumValue, getEnumValue } from "@/utils/enumUtils";
+import { formatEnumValueByString, getEnumValue } from "@/utils/enumUtils";
 import { graphql } from "@/gql/generated";
 import { useQuery } from "@tanstack/react-query";
 import { useAddTransactionQuery, useUpdateTransactionQuery } from "@/utils/definitions/useQueryDefinition";
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
+import { Select } from "chakra-react-select";
 
 const TransactionModal = ({
   isOpen,
@@ -58,12 +58,27 @@ const TransactionModal = ({
   useEffect(() => {
     if (selectedTransaction != null && selectedTransaction != undefined) {
       setValuesBySelectedTransaction();
+      setSelectedCategoryBySelectedTransaction();
     } else {
       const date = new Date();
       const formattedDate = format(date, "yyyy-MM-dd");
       setValue("date", formattedDate);
     }
   });
+
+  const setSelectedCategoryBySelectedTransaction = () => {
+    let res: UserCategory | undefined;
+    if (selectedTransaction != null && selectedTransaction != undefined) {
+      if (selectedTransaction.transactionType == OperationType.Income) {
+        res = incomeCategories.find((c) => c.name == selectedTransaction?.category?.name);
+      } else {
+        res = expenseCategories.find((c) => c.name == selectedTransaction?.category?.name);
+      }
+    }
+    if (res != undefined) {
+      setSelecteCategory(res);
+    }
+  };
 
   const setValuesBySelectedTransaction = () => {
     setValue("amount", (selectedTransaction?.amount ?? 0).toString());
@@ -98,6 +113,7 @@ const TransactionModal = ({
     setExpenseAmount,
   } = useUserStore();
   const [selectedOperationType, setSelectedOperationType] = useState<string>("");
+  const [selectedCategory, setSelecteCategory] = useState<UserCategory>();
 
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: "Operation Type",
@@ -169,7 +185,7 @@ const TransactionModal = ({
           description: getValues("description"),
           selectedCategory: getValues("selectedCategory"),
           operationType: getEnumValue(selectedOperationType, OperationType),
-          currency: getEnumValue(formatEnumValue(getValues("currency")), Currency),
+          currency: getEnumValue(formatEnumValueByString(getValues("currency")), Currency),
         },
         accountId: selectedAccountId,
       }),
@@ -188,7 +204,7 @@ const TransactionModal = ({
           description: getValues("description"),
           selectedCategory: getValues("selectedCategory"),
           operationType: getEnumValue(selectedOperationType, OperationType),
-          currency: getEnumValue(formatEnumValue(getValues("currency")), Currency),
+          currency: getEnumValue(formatEnumValueByString(getValues("currency")), Currency),
         },
         transactionId: selectedTransaction?.id ?? "",
       }),
@@ -249,6 +265,11 @@ const TransactionModal = ({
     return onClose();
   };
 
+  const currencyOptions = Object.keys(Currency).map((key) => ({
+    value: Currency[key as keyof typeof Currency],
+    label: Currency[key as keyof typeof Currency].toUpperCase(),
+  }));
+
   return (
     <Modal isOpen={isOpen} onClose={clearErrorsAndClose}>
       <ModalOverlay />
@@ -278,18 +299,22 @@ const TransactionModal = ({
                   <FormErrorHelperText>{errors.amount?.message}</FormErrorHelperText>
                 </FormControl>
                 <FormControl>
-                  <Select
-                    placeholder={"Currency"}
-                    disabled={addTransactionIsLoading || updateTransactionIsLoading}
-                    {...register("currency")}
-                    defaultValue={currency.toString()}
-                  >
-                    {(Object.keys(Currency) as Array<keyof typeof Currency>).map((value) => (
-                      <option key={value} value={Currency[value]}>
-                        {Currency[value].toUpperCase()}
-                      </option>
-                    ))}
-                  </Select>
+                  <Controller
+                    control={form.control}
+                    name="currency"
+                    defaultValue={currencyOptions.find((c) => c.value == currency)?.value}
+                    render={() => (
+                      <Select
+                        defaultValue={currencyOptions.find((c) => c.value == currency)}
+                        options={currencyOptions}
+                        isDisabled={addTransactionIsLoading || updateTransactionIsLoading}
+                        placeholder="Currency..."
+                        onChange={(selectedCurrency) => {
+                          setValue("currency", selectedCurrency?.value ?? Currency.Undefined);
+                        }}
+                      />
+                    )}
+                  />
                   <FormErrorHelperText>{errors.currency?.message}</FormErrorHelperText>
                 </FormControl>
               </HStack>
@@ -311,27 +336,36 @@ const TransactionModal = ({
                 </FormErrorHelperText>
               </FormControl>
               <FormControl>
-                {selectedOperationType === "Expense" ? (
-                  <Select
-                    disabled={addTransactionIsLoading || updateTransactionIsLoading}
-                    placeholder={"Category"}
-                    {...register("selectedCategory")}
-                  >
-                    {expenseCategories?.map((category) => (
-                      <option key={category.name}>{category.name}</option>
-                    ))}
-                  </Select>
-                ) : (
-                  <Select
-                    disabled={addTransactionIsLoading || updateTransactionIsLoading}
-                    placeholder={"Category"}
-                    {...register("selectedCategory")}
-                  >
-                    {incomeCategories?.map((category) => (
-                      <option key={category.name}>{category.name}</option>
-                    ))}
-                  </Select>
-                )}
+                <FormControl>
+                  <Controller
+                    control={form.control}
+                    name="selectedCategory"
+                    // defaultValue={
+                    //   selectedOperationType === "Expense"
+                    //     ? expenseCategories.find((c) => c == selectedTransaction?.category)?.name
+                    //     : incomeCategories.find((c) => c == selectedTransaction?.category)?.name
+                    // }
+                    render={() => (
+                      <Select
+                        defaultValue={selectedCategory}
+                        // defaultValue={
+                        //   selectedOperationType === "Expense"
+                        //     ? expenseCategories.find((c) => c == selectedTransaction?.category)
+                        //     : incomeCategories.find((c) => c == selectedTransaction?.category)
+                        // }
+                        isDisabled={addTransactionIsLoading || updateTransactionIsLoading}
+                        placeholder={"Select Category..."}
+                        getOptionLabel={(category) => category.name}
+                        getOptionValue={(category) => category.name}
+                        options={selectedOperationType === "Expense" ? expenseCategories : incomeCategories}
+                        onChange={(selectedCategory) => {
+                          console.log("first");
+                          setValue("selectedCategory", selectedCategory?.name ?? "");
+                        }}
+                      />
+                    )}
+                  />
+                </FormControl>
                 <FormErrorHelperText>{errors.selectedCategory?.message}</FormErrorHelperText>
               </FormControl>
               <FormControl>
@@ -346,7 +380,6 @@ const TransactionModal = ({
                 <Input
                   disabled={addTransactionIsLoading || updateTransactionIsLoading}
                   type="date"
-                  placeholder="Date"
                   {...register("date")}
                 />
                 <FormErrorHelperText>{errors.date?.message}</FormErrorHelperText>
