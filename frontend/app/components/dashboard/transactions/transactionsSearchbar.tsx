@@ -14,11 +14,11 @@ import {
   Text,
   useCheckbox,
 } from "@chakra-ui/react";
+import React from "react";
 import { LuSearch } from "react-icons/lu";
 
 const TransactionsSearchbar = () => {
   const { state, getCheckboxProps, getInputProps, getLabelProps, htmlProps } = useCheckbox();
-
   return (
     <Card>
       <CardBody>

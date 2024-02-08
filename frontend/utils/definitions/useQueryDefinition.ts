@@ -2,6 +2,7 @@
 // // that's because all query have to use a query call, so they have to use the query method in queryDefinition.ts
 // // here you have to insert only the request but the call are to do on the component
 
+import { UseFormSetValue } from "react-hook-form";
 import request from "graphql-request";
 import { queryUrl } from "../queryUrl";
 import {
@@ -67,7 +68,7 @@ export const useSignupQuery = async ({
   return res;
 };
 
-export const UseUserByEmailQuery = async ({
+export const useUserByEmailQuery = async ({
   email,
   setName,
   setSurname,

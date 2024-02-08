@@ -2,7 +2,7 @@
 
 import FormErrorHelperText from "@/app/ui/base/formErrorHelperText";
 import { graphql } from "@/gql/generated";
-import { useLoginQuery as UseLoginQuery } from "@/utils/definitions/useQueryDefinition";
+import { useLoginQuery } from "@/utils/definitions/useQueryDefinition";
 import { sessionStorageEmail } from "@/utils/queryUrl";
 import { useUserStore } from "@/utils/zustand/userStore";
 import {
@@ -61,7 +61,7 @@ const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any, un
   const { refetch, isLoading } = useQuery({
     queryKey: ["login"],
     queryFn: () =>
-      UseLoginQuery({
+      useLoginQuery({
         email: getValues("email").toLowerCase(),
         password: getValues("password"),
       }),

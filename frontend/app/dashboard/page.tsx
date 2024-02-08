@@ -1,4 +1,6 @@
-import { Box, Center, Heading } from "@chakra-ui/react";
+"use client";
+
+import { Box, Center, Heading, IconButton, useDisclosure } from "@chakra-ui/react";
 import CardsStat from "../components/dashboard/cardsStat";
 import MainCard from "../components/dashboard/mainCard/mainCard";
 

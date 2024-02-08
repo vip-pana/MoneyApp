@@ -28,10 +28,7 @@ import FormErrorHelperText from "@/app/ui/base/formErrorHelperText";
 import { formatEnumValue, getEnumValue } from "@/utils/enumUtils";
 import { graphql } from "@/gql/generated";
 import { useQuery } from "@tanstack/react-query";
-import {
-  useAddTransactionQuery as UseAddTransactionQuery,
-  useUpdateTransactionQuery as UseUpdateTransactionQuery,
-} from "@/utils/definitions/useQueryDefinition";
+import { useAddTransactionQuery, useUpdateTransactionQuery } from "@/utils/definitions/useQueryDefinition";
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
 
@@ -164,7 +161,7 @@ const TransactionModal = ({
   const { refetch: addTransactionRefetch, isLoading: addTransactionIsLoading } = useQuery({
     queryKey: ["addTransaction"],
     queryFn: () =>
-      UseAddTransactionQuery({
+      useAddTransactionQuery({
         email: email,
         transaction: {
           amount: getValues("amount"),
@@ -182,7 +179,7 @@ const TransactionModal = ({
   const { refetch: updateTransactionRefetch, isLoading: updateTransactionIsLoading } = useQuery({
     queryKey: ["updateTransaction"],
     queryFn: () =>
-      UseUpdateTransactionQuery({
+      useUpdateTransactionQuery({
         accountId: selectedAccountId,
         email: email,
         transaction: {
