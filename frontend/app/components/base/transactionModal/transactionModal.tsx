@@ -47,6 +47,7 @@ const TransactionModal = ({
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
     getValues,
     setValue,
@@ -230,7 +231,6 @@ const TransactionModal = ({
   };
 
   const onSubmitUpdateTransaction = async () => {
-    console.log(form.getValues());
     const { data, isError, error } = await updateTransactionRefetch();
     if (isError) {
       showToast(undefined, error);
@@ -305,7 +305,7 @@ const TransactionModal = ({
                 </FormControl>
                 <FormControl>
                   <Controller
-                    control={form.control}
+                    control={control}
                     name="currency"
                     defaultValue={currencyOptions.find((c) => c.value == currency)?.value}
                     render={() => (
@@ -343,7 +343,7 @@ const TransactionModal = ({
               <FormControl>
                 <FormControl>
                   <Controller
-                    control={form.control}
+                    control={control}
                     name="selectedCategory"
                     render={() => (
                       <Select
