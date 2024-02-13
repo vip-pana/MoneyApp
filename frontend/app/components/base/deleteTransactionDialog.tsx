@@ -89,30 +89,26 @@ const DeleteTransactionDialog = ({
   };
 
   return (
-    <>
-      <AlertDialog isOpen={isOpen} onClose={onClose} leastDestructiveRef={cancelRef}>
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Delete Transaction
-            </AlertDialogHeader>
+    <AlertDialog isOpen={isOpen} onClose={onClose} leastDestructiveRef={cancelRef}>
+      <AlertDialogOverlay>
+        <AlertDialogContent>
+          <AlertDialogHeader>Delete Transaction</AlertDialogHeader>
 
-            <AlertDialogBody>
-              <Text>Amount: {selectedTransaction?.amount}</Text>
-              <Text>Description: {selectedTransaction?.description}</Text>
-              Are you sure? You can't undo this action afterwards.
-            </AlertDialogBody>
+          <AlertDialogBody>
+            <Text>Amount: {selectedTransaction?.amount}</Text>
+            <Text>Description: {selectedTransaction?.description}</Text>
+            Are you sure? You can't undo this action afterwards.
+          </AlertDialogBody>
 
-            <AlertDialogFooter>
-              <Button onClick={onClose}>Cancel</Button>
-              <Button colorScheme="red" onClick={onSubmit} isLoading={isLoading} ml={3}>
-                Delete
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
-    </>
+          <AlertDialogFooter>
+            <Button onClick={onClose}>Cancel</Button>
+            <Button colorScheme="red" onClick={onSubmit} isLoading={isLoading} ml={3}>
+              Delete
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialogOverlay>
+    </AlertDialog>
   );
 };
 
