@@ -2,16 +2,13 @@
 using Backend.Core.Repositories;
 using Backend.Infrastructure.Data;
 using Backend.Utils.Authentication;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace Backend.Infrastructure.Repositories
 {
-    public class UserRepository : BaseRepository<User>, IUserRepository
+    public class UserRepository(IDbContext context) : BaseRepository<User>(context), IUserRepository
     {
-        public UserRepository(IDbContext context) : base(context)
-        {
-        }
-
         public async Task<User> Signup(User user)
         {
             user.Password = AuthenticationUtils.HashPassword(password: user.Password);
@@ -28,10 +25,8 @@ namespace Backend.Infrastructure.Repositories
 
         public async Task<User> AddTransactionOnUserAccount(Transaction transaction, User user, string accountId)
         {
-            Transaction trasformedTransaction = new Transaction();
-            trasformedTransaction = TransformTransaction(trasformedTransaction, transaction);
-
-            user.Accounts.Find(account => account.Id == accountId)?.Transactions.Add(trasformedTransaction);
+            transaction.Id = ObjectId.GenerateNewId().ToString();
+            user.Accounts.Find(account => account.Id == accountId)?.Transactions.Add(transaction);
             user = ReCalculateAccountAmounts(user, accountId);
 
             var filter = Builders<User>.Filter.Eq(_ => _.Id, user.Id);
@@ -40,18 +35,7 @@ namespace Backend.Infrastructure.Repositories
             return user;
         }
 
-        private Transaction TransformTransaction(Transaction trasformedTransaction, Transaction transaction)
-        {
-            trasformedTransaction.Description = transaction.Description;
-            trasformedTransaction.Amount = transaction.Amount;
-            trasformedTransaction.TransactionType = transaction.TransactionType;
-            trasformedTransaction.Currency = transaction.Currency;
-            trasformedTransaction.Category = transaction.Category;
-            trasformedTransaction.DateTime = transaction.DateTime;
-            return trasformedTransaction;
-        }
-
-        private User ReCalculateAccountAmounts(User user, string accountId)
+        private static User ReCalculateAccountAmounts(User user, string accountId)
         {
             var totalIncomeAmount = user.Accounts.Find(account => account.Id == accountId).Transactions.Where(transaction => transaction.TransactionType == Core.Enums.OperationType.Income).Sum(transaction => transaction.Amount);
 
@@ -66,13 +50,13 @@ namespace Backend.Infrastructure.Repositories
 
         public async Task<User> DeleteTransactionOnUserAccount(string transactionId, User user, string accountId)
         {
-            var transactionToRemove = user.Accounts.Find(account => account.Id == accountId).Transactions.Where(transaction => transaction.Id == transactionId).FirstOrDefault();
+            var transactionToRemove = user.Accounts.Find(account => account.Id == accountId).Transactions.FirstOrDefault(transaction => transaction.Id == transactionId);
 
             if (transactionToRemove == null)
             {
                 throw new Exception("Transaction not exist in account");
             }
-            
+
             user.Accounts.Find(account => account.Id == accountId).Transactions.Remove(transactionToRemove);
 
             user = ReCalculateAccountAmounts(user, accountId);
@@ -85,7 +69,7 @@ namespace Backend.Infrastructure.Repositories
 
         public async Task<User> UpdateTransactionOnUserAccount(Transaction transaction, User user, string accountId)
         {
-            var transactionToRemove = user.Accounts.Find(account => account.Id == accountId).Transactions.Where(t => t.Id == transaction.Id).FirstOrDefault();
+            var transactionToRemove = GetTransactionById(transaction, user, accountId);
 
             user.Accounts.Find(account => account.Id == accountId).Transactions.Remove(transactionToRemove);
 
@@ -96,6 +80,11 @@ namespace Backend.Infrastructure.Repositories
             await collection.ReplaceOneAsync(filter, user);
 
             return user;
+        }
+
+        public Transaction GetTransactionById(Transaction transaction, User user, string accountId)
+        {
+            return user.Accounts.Find(account => account.Id == accountId).Transactions.FirstOrDefault(t => t.Id == transaction.Id);
         }
     }
 }

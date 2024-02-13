@@ -1,5 +1,4 @@
 ﻿using Backend.Core.Enums;
-using MongoDB.Bson;
 
 namespace Backend.Core.Entities
 {
@@ -11,10 +10,5 @@ namespace Backend.Core.Entities
         public Currency? Currency { get; set; }
         public Category? Category { get; set; }
         public DateTime? DateTime { get; set; }
-
-        public Transaction()
-        {
-            Id = ObjectId.GenerateNewId().ToString();
-        }
     }
 }

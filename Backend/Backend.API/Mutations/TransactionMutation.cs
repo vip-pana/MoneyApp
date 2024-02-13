@@ -11,12 +11,7 @@ namespace Backend.API.Mutations
     {
         public async Task<User> AddTransaction([UseFluentValidation, UseValidator<TransactionValidator>] Transaction transaction, User user, string accountId, [Service] IUserRepository userRepository)
         {
-            var registeredUser = await userRepository.GetByEmailAsync(email: user.Email);
-
-            if (registeredUser is null)
-            {
-                throw new GraphQLException("User not registered.");
-            }
+            var registeredUser = await userRepository.GetByEmailAsync(email: user.Email) ?? throw new GraphQLException("User not registered.");
 
             var res = await userRepository.AddTransactionOnUserAccount(transaction: transaction, user: registeredUser, accountId);
 
@@ -37,16 +32,27 @@ namespace Backend.API.Mutations
             return res;
         }
 
-        public async Task<User> UpdateTransaction([UseFluentValidation, UseValidator<TransactionValidator>] Transaction transaction, User user, string accountId, [Service] IUserRepository userRepository, [Service] ITransactionRepository transactionRepository)
+        public async Task<User> AddOrUpdateTransaction([UseFluentValidation, UseValidator<TransactionValidator>] Transaction transaction, User user, string accountId, [Service] IUserRepository userRepository)
         {
-            var registeredUser = await userRepository.GetByEmailAsync(email: user.Email);
+            User? res;
+            var registeredUser = await userRepository.GetByEmailAsync(email: user.Email) ?? throw new GraphQLException("User not registered.");
 
-            if (registeredUser is null)
+            if (transaction.Id != null)
             {
-                throw new GraphQLException("User not registered.");
+                var transactionExist = userRepository.GetTransactionById(transaction: transaction, user: registeredUser, accountId: accountId) != null;
+                if (transactionExist)
+                {
+                    res = await userRepository.UpdateTransactionOnUserAccount(transaction: transaction, user: registeredUser, accountId: accountId);
+                }
+                else
+                {
+                    throw new GraphQLException("Transaction id not exist");
+                }
             }
-
-            User res = await userRepository.UpdateTransactionOnUserAccount(transaction: transaction, user: registeredUser, accountId: accountId);
+            else
+            {
+                res = await userRepository.AddTransactionOnUserAccount(transaction: transaction, user: registeredUser, accountId);
+            }
 
             return res;
         }
