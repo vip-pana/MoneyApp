@@ -2,12 +2,11 @@
 // // that's because all query have to use a query call, so they have to use the query method in queryDefinition.ts
 // // here you have to insert only the request but the call are to do on the component
 
-import { UseFormSetValue } from "react-hook-form";
 import request from "graphql-request";
 import { queryUrl } from "../queryUrl";
 import {
-  AddTransactionDocument,
-  AddTransactionMutation,
+  AddOrUpdateTransactionDocument,
+  AddOrUpdateTransactionMutation,
   Currency,
   DeleteTransactionDocument,
   DeleteTransactionMutation,
@@ -17,8 +16,6 @@ import {
   SignupDocument,
   SignupMutation,
   TransactionInput,
-  UpdateTransactionDocument,
-  UpdateTransactionMutation,
   UserByEmailDocument,
   UserByEmailQuery,
   UserExistByEmailDocument,
@@ -127,7 +124,7 @@ export const useAddTransactionQuery = async ({
   transaction: TransactionModalFormValueDefinition;
   accountId: string;
 }) => {
-  const res = await request<AddTransactionMutation>(queryUrl, AddTransactionDocument, {
+  const res = await request<AddOrUpdateTransactionMutation>(queryUrl, AddOrUpdateTransactionDocument, {
     accountId: accountId,
     user: {
       email: email,
@@ -179,7 +176,8 @@ export const useUpdateTransactionQuery = async ({
   accountId: string;
   transactionId: string;
 }) => {
-  const res = await request<UpdateTransactionMutation>(queryUrl, UpdateTransactionDocument, {
+  const res = await request<AddOrUpdateTransactionMutation>(queryUrl, AddOrUpdateTransactionDocument, {
+    accountId: accountId,
     user: {
       email: email,
     },
@@ -195,7 +193,6 @@ export const useUpdateTransactionQuery = async ({
       description: transaction.description,
       transactionType: transaction.operationType,
     },
-    accountId: accountId,
   });
   return res;
 };
