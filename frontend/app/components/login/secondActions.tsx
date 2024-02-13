@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, HStack, Spacer, Tooltip, useDisclosure } from "@chakra-ui/react";
-import SignupModal from "./signUpModal";
+import SignupModal from "./signUpModal/signUpModal";
 
 const SecondActions = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();

@@ -36,7 +36,7 @@ const CheckEmailForm = ({
 
   const { refetch, isLoading } = useQuery({
     queryKey: ["checkEmailExist"],
-    queryFn: () => useCheckEmailExistQuery(getValues("email").toLowerCase(), setEmailExist, setEmailLoginFormValue),
+    queryFn: () => useCheckEmailExistQuery(getValues("email").toLowerCase()),
     enabled: false,
   });
 
