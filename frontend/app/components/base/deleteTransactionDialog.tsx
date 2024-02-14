@@ -13,10 +13,10 @@ import {
   Button,
   AlertDialog,
   Text,
-  useToast,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
+import { toast } from "sonner";
 
 const DeleteTransactionDialog = ({
   isOpen,
@@ -29,7 +29,6 @@ const DeleteTransactionDialog = ({
 }) => {
   const { email, selectedAccountId, setTransactions, setExpenseAmount, setIncomeAmount } = useUserStore();
   const cancelRef = React.useRef<HTMLButtonElement>(null);
-  const toast = useToast();
 
   const deleteTransactionQueryDocument = graphql(`
     mutation deleteTransaction($user: UserInput!, $transaction: TransactionInput!, $accountId: String!) {
@@ -69,16 +68,11 @@ const DeleteTransactionDialog = ({
   const onSubmit = async () => {
     const { data, isError, error } = await refetch();
     if (isError) {
-      toast({
-        title: error.name,
+      toast.error(error.name, {
         description: error.message,
-        status: "error",
       });
     } else {
-      toast({
-        title: "Transaction deleted!",
-        status: "success",
-      });
+      toast.success("Transaction deleted!");
       if (data?.deleteTransaction.accounts) {
         setTransactions(data?.deleteTransaction.accounts[0].transactions);
         setIncomeAmount(data.deleteTransaction.accounts[0].incomeAmount);

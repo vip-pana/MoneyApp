@@ -11,7 +11,6 @@ import {
   ModalFooter,
   Button,
   Input,
-  useToast,
   Text,
 } from "@chakra-ui/react";
 import { Select, SelectInstance, GroupBase } from "chakra-react-select";
@@ -23,6 +22,7 @@ import { useUserStore } from "@/utils/zustand/userStore";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
+import { toast } from "sonner";
 
 const TransactionModalForm = ({
   selectedTransaction,
@@ -53,8 +53,6 @@ const TransactionModalForm = ({
     setValue,
     reset,
   } = form;
-
-  const toast = useToast();
 
   const [selectedOperationType, setSelectedOperationType] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<UserCategory>();
@@ -175,29 +173,16 @@ const TransactionModalForm = ({
   const onSubmitAddOrUpdateTransaction = async () => {
     const { data, isError, error } = await addOrUpdateTransactionRefetch();
     if (isError) {
-      showToast(undefined, error);
+      toast.error(error.name, {
+        description: error.message,
+      });
     } else {
-      showToast(selectedTransaction?.id ? "Transaction updated!" : "Transaction added!");
+      toast.success(selectedTransaction?.id ? "Transaction updated!" : "Transaction added!");
       if (data?.addOrUpdateTransaction.accounts) {
         updateTransactionsData(data?.addOrUpdateTransaction.accounts);
       }
       reset();
       clearErrorsAndClose();
-    }
-  };
-
-  const showToast = (title?: string, error?: Error) => {
-    if (error) {
-      toast({
-        title: error.name,
-        description: error.message,
-        status: "error",
-      });
-    } else {
-      toast({
-        title: title,
-        status: "success",
-      });
     }
   };
 

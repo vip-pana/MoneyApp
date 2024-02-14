@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Flex, HStack, IconButton, useDisclosure, useMediaQuery, useToast } from "@chakra-ui/react";
+import { Box, Flex, HStack, IconButton, useDisclosure, useMediaQuery } from "@chakra-ui/react";
 import React from "react";
 import { LuAlignJustify, LuPlus } from "react-icons/lu";
 import Sidebar from "../ui/dasboard/base/sidebar/sidebar";
@@ -11,6 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useUserByEmailQuery } from "@/utils/definitions/useQueryDefinition";
 import { sessionStorageEmail } from "@/utils/queryUrl";
 import TransactionModal from "../components/base/transactionModal/transactionModal";
+import { toast } from "sonner";
 
 const Dashboardlayout = ({
   children,
@@ -32,7 +33,6 @@ const Dashboardlayout = ({
 
   const [collapse, setCollapse] = React.useState(false);
   const [isLargerThan800] = useMediaQuery("(min-width: 800px)");
-  const toast = useToast();
   const {
     isOpen: isOpenAddTransactionModal,
     onOpen: onOpenAddTransactionModal,
@@ -104,10 +104,8 @@ const Dashboardlayout = ({
   React.useEffect(() => {
     if (isError) {
       {
-        toast({
-          title: error.name,
+        toast.error(error.name, {
           description: error.message,
-          status: "error",
         });
       }
     }

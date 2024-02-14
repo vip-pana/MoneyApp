@@ -9,14 +9,7 @@ const SecondActions = () => {
   return (
     <>
       <HStack w={"100%"} mt={"50"} mb={"-10"} spacing={20}>
-        <Button
-          variant={"ghost"}
-          colorScheme="white"
-          size="sm"
-          onClick={() => {
-            onOpen();
-          }}
-        >
+        <Button variant={"ghost"} colorScheme="white" size="sm" onClick={() => onOpen()}>
           Sign Up
         </Button>
 

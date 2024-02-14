@@ -6,13 +6,14 @@ import { formSignupValidation } from "@/utils/definitions/typeValidation";
 import { useSignupQuery } from "@/utils/definitions/useQueryDefinition";
 import { getEnumValue } from "@/utils/enumUtils";
 import { sessionStorageEmail } from "@/utils/queryUrl";
-import { Stack, FormControl, InputGroup, InputRightElement, Button, Input, useToast, Select } from "@chakra-ui/react";
+import { Stack, FormControl, InputGroup, InputRightElement, Button, Input, Select } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { LuEyeOff, LuEye } from "react-icons/lu";
+import { toast } from "sonner";
 
 const SignUpModalForm = () => {
   const {
@@ -26,15 +27,12 @@ const SignUpModalForm = () => {
 
   const [passwordVisible, setPasswordVisible] = React.useState(false);
   const router = useRouter();
-  const toast = useToast();
 
   const onSubmit = async () => {
     const { data, isError, error } = await refetch();
     if (isError) {
-      toast({
-        title: error.name,
+      toast.error(error.name, {
         description: error.message,
-        status: "error",
       });
     }
     if (data?.signup) {
