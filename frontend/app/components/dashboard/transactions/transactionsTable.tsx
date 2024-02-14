@@ -46,7 +46,7 @@ const TransactionsTable = () => {
   };
   return (
     <>
-      <TableContainer overflowY={"auto"} maxH={"400px"}>
+      <TableContainer overflowY={"auto"} maxH={"300px"}>
         <Table variant={"striped"} size={"sm"}>
           <Thead>
             <Tr>

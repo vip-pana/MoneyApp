@@ -48,3 +48,10 @@ export const formAddTransactionModalValidation = z.object({
   description: z.string().min(1, "Please insert a description"),
   date: z.coerce.date(),
 });
+
+export const formTransactionsSearchValidation = z.object({
+  dateStart: z.coerce.date(),
+  dateEnd: z.coerce.date(),
+  category: z.string(),
+  currency: z.string(),
+});

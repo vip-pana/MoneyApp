@@ -35,7 +35,6 @@ const TransactionModal = ({
         <TransactionModalForm
           clearErrorsAndClose={clearErrorsAndClose}
           form={form}
-          onClose={onClose}
           selectedTransaction={selectedTransaction}
         />
       </ModalContent>

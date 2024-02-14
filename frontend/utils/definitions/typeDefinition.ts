@@ -35,3 +35,11 @@ export type TransactionModalFormValueDefinition = {
   description: string;
   date: Date | string;
 };
+
+export type TransactionsSearchValueDefinition = {
+  dateRangeOption: string;
+  dateStart: Date | string;
+  dateEnd: Date | string;
+  selectedCategories: UserCategory[];
+  currencies: string[];
+};
