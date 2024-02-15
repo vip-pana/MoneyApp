@@ -1,4 +1,5 @@
 ﻿using Backend.Core.Entities;
+using Backend.Core.SearchFilters.Transactions;
 
 namespace Backend.Core.Repositories
 {
@@ -10,5 +11,6 @@ namespace Backend.Core.Repositories
         public Task<User> DeleteTransactionOnUserAccount(string transactionId, User user, string accountId);
         Task<User> UpdateTransactionOnUserAccount(Transaction transaction, User user, string accountId);
         Transaction GetTransactionById(Transaction transaction, User user, string accountId);
+        User FilterUserTransactions(TransactionFilter filters, User user, string accountId);
     }
 }

@@ -20,6 +20,7 @@ namespace Backend.API.Properties
             _jwtConfiguration = jwtConfiguration.Value;
         }
 
+        #region LOGIN AND SIGNUP
         public async Task<string?> Signup([UseFluentValidation, UseValidator<UserSignupValidator>] User user, Currency currency, [Service] IUserRepository userRepository, [Service] IAccountRepository accountRepository)
         {
             var registeredUser = await userRepository.GetByEmailAsync(email: user.Email);
@@ -30,7 +31,7 @@ namespace Backend.API.Properties
             }
             var defaultAccount = await accountRepository.GenerateNewDefaultAccount(user: user, currency: currency);
             user.Accounts = new List<Account>() { defaultAccount };
-            
+
 
             await userRepository.Signup(user: user);
 
@@ -82,5 +83,7 @@ namespace Backend.API.Properties
 
             return accessToken;
         }
+
+        #endregion    }
     }
 }

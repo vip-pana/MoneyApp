@@ -9,15 +9,7 @@ namespace Backend.API.Mutations
     [ExtendObjectType("Mutation")]
     public class TransactionMutation
     {
-        public async Task<User> AddTransaction([UseFluentValidation, UseValidator<TransactionValidator>] Transaction transaction, User user, string accountId, [Service] IUserRepository userRepository)
-        {
-            var registeredUser = await userRepository.GetByEmailAsync(email: user.Email) ?? throw new GraphQLException("User not registered.");
-
-            var res = await userRepository.AddTransactionOnUserAccount(transaction: transaction, user: registeredUser, accountId);
-
-            return res;
-        }
-
+        #region CRUD
         public async Task<User> DeleteTransaction([UseFluentValidation, UseValidator<DeleteTransactionValidator>] Transaction transaction, User user, string accountId, [Service] IUserRepository userRepository)
         {
             var registeredUser = await userRepository.GetByEmailAsync(email: user.Email);
@@ -55,6 +47,7 @@ namespace Backend.API.Mutations
             }
 
             return res;
-        }
+        } 
+        #endregion
     }
 }
