@@ -7,7 +7,6 @@ import { queryUrl } from "../queryUrl";
 import {
   AddOrUpdateTransactionDocument,
   AddOrUpdateTransactionMutation,
-  Currency,
   DeleteTransactionDocument,
   DeleteTransactionMutation,
   LoginDocument,
@@ -15,13 +14,18 @@ import {
   OperationType,
   SignupDocument,
   SignupMutation,
-  TransactionInput,
   UserByEmailDocument,
   UserByEmailQuery,
   UserExistByEmailDocument,
   UserExistByEmailQuery,
 } from "@/gql/generated/graphql";
-import { TransactionModalFormValueDefinition, UserCategory } from "./typeDefinition";
+import {
+  GetUserByEmailQueryValueDefinition,
+  LoginQueryValueDefinition,
+  SignupQueryValueDefinition,
+  TransactionModalFormValueDefinition,
+  TransactionQueryValueDefinition,
+} from "./typeDefinition";
 
 export const useCheckEmailExistQuery = async (emailFormValue: string) => {
   const res = request<UserExistByEmailQuery>(queryUrl, UserExistByEmailDocument, {
@@ -30,7 +34,7 @@ export const useCheckEmailExistQuery = async (emailFormValue: string) => {
   return res;
 };
 
-export const useLoginQuery = async ({ email, password }: { email: string; password: string }) => {
+export const useLoginQuery = async ({ email, password }: LoginQueryValueDefinition) => {
   const res = await request<LoginMutation>(queryUrl, LoginDocument, {
     user: {
       email: email,
@@ -40,27 +44,15 @@ export const useLoginQuery = async ({ email, password }: { email: string; passwo
   return res;
 };
 
-export const useSignupQuery = async ({
-  name,
-  surname,
-  email,
-  password,
-  currency,
-}: {
-  name: string;
-  surname: string;
-  email: string;
-  password: string;
-  currency: string;
-}) => {
+export const useSignupQuery = async ({ name, surname, email, password, currency }: SignupQueryValueDefinition) => {
   const res = await request<SignupMutation>(queryUrl, SignupDocument, {
     user: {
       name: name,
       surname: surname,
       email: email,
       password: password,
+      currency: currency,
     },
-    currency: currency,
   });
   return res;
 };
@@ -77,39 +69,27 @@ export const useUserByEmailQuery = async ({
   setExpenseAmount,
   setTransactions,
   setSelectedAccountId,
-}: {
-  email: string;
-  setName: (value: string) => void;
-  setSurname: (value: string) => void;
-  setEmail: (value: string) => void;
-  setCurrency: (value: Currency) => void;
-  setIncomeCategories: (categories: UserCategory[]) => void;
-  setExpenseCategories: (categories: UserCategory[]) => void;
-  setIncomeAmount: (value: number) => void;
-  setExpenseAmount: (value: number) => void;
-  setTransactions: (value: TransactionInput[]) => void;
-  setSelectedAccountId: (value: string) => void;
-}) => {
+}: GetUserByEmailQueryValueDefinition) => {
   const res = await request<UserByEmailQuery>(queryUrl, UserByEmailDocument, {
     email: email,
   });
-  setName(res.userByEmail.name ?? "");
-  setSurname(res.userByEmail.surname ?? "");
-  setEmail(res.userByEmail.email ?? "");
+  setName(res.userByEmail.name);
+  setSurname(res.userByEmail.surname);
+  setEmail(res.userByEmail.email);
+
   if (res.userByEmail.accounts) {
-    if (res.userByEmail.accounts[0].id) {
-      setSelectedAccountId(res.userByEmail.accounts[0].id);
-    }
-    setCurrency(res.userByEmail.accounts[0].currency ?? Currency.Undefined);
-    setIncomeCategories(
-      res.userByEmail.accounts[0].categories.filter((category) => category.categoryType === OperationType.Income)
-    );
-    setExpenseCategories(
-      res.userByEmail.accounts[0].categories.filter((category) => category.categoryType === OperationType.Expense)
-    );
+    if (res.userByEmail.accounts[0].id) setSelectedAccountId(res.userByEmail.accounts[0].id);
+    setCurrency(res.userByEmail.accounts[0].currency);
     setIncomeAmount(res.userByEmail.accounts[0].incomeAmount);
     setExpenseAmount(res.userByEmail.accounts[0].expenseAmount);
     setTransactions(res.userByEmail.accounts[0].transactions);
+
+    let incomeCategories = res.userByEmail.accounts[0].categories.filter(
+      (category) => category.categoryType === OperationType.Income
+    );
+    setIncomeCategories(incomeCategories);
+    setExpenseCategories(
+      res.userByEmail.accounts[0].categories.filter((category) => category.categoryType === OperationType.Expense)
   }
 
   return res;
@@ -125,20 +105,20 @@ export const useAddTransactionQuery = async ({
   accountId: string;
 }) => {
   const res = await request<AddOrUpdateTransactionMutation>(queryUrl, AddOrUpdateTransactionDocument, {
-    accountId: accountId,
-    user: {
-      email: email,
-    },
-    transaction: {
-      amount: parseFloat(transaction.amount.toString()),
-      currency: transaction.currency,
-      category: {
-        name: transaction.selectedCategory,
-        categoryType: transaction.operationType,
+    transactionInput: {
+      userEmail: email,
+      accountId: accountId,
+      transaction: {
+        amount: parseFloat(transaction.amount.toString()),
+        currency: transaction.currency,
+        transactionType: transaction.operationType,
+        description: transaction.description,
+        dateTime: transaction.date,
+        category: {
+          name: transaction.selectedCategory,
+          categoryType: transaction.operationType,
+        },
       },
-      dateTime: transaction.date,
-      description: transaction.description,
-      transactionType: transaction.operationType,
     },
   });
   return res;
@@ -148,19 +128,15 @@ export const useDeleteTransactionQuery = async ({
   email,
   transactionId,
   accountId,
-}: {
-  email: string;
-  transactionId: string;
-  accountId: string;
-}) => {
+}: 
+  TransactionQueryValueDefinition
+) => {
   const res = await request<DeleteTransactionMutation>(queryUrl, DeleteTransactionDocument, {
-    user: {
-      email: email,
-    },
     transaction: {
-      id: transactionId,
+      userEmail: email,
+      accountId: accountId,
+      transactionId: transactionId,
     },
-    accountId: accountId,
   });
   return res;
 };
@@ -170,12 +146,10 @@ export const useUpdateTransactionQuery = async ({
   transaction,
   accountId,
   transactionId,
-}: {
-  email: string;
-  transaction: TransactionModalFormValueDefinition;
-  accountId: string;
-  transactionId: string;
-}) => {
+}:   TransactionQueryValueDefinition) => {
+
+  if (!transaction) throw new Error('Missing transaction');
+
   const res = await request<AddOrUpdateTransactionMutation>(queryUrl, AddOrUpdateTransactionDocument, {
     accountId: accountId,
     user: {

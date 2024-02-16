@@ -1,11 +1,11 @@
-﻿using Backend.Core.Entities;
+﻿using Backend.API.Types.InputTypes.UserTypes;
 using FluentValidation;
 
 namespace Backend.API.Validators.UserValidators
 {
-    public class UserSignupValidator : AbstractValidator<User>
+    public class UserSignupInputTypeValidator : AbstractValidator<UserSignupInputType>
     {
-        public UserSignupValidator()
+        public UserSignupInputTypeValidator()
         {
             RuleFor(c => c.Name).NotEmpty().WithMessage("User email is required")
                 .MinimumLength(3).MaximumLength(50).WithMessage("User name must be between 3 and 50 chars.");

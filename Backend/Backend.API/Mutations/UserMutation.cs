@@ -1,9 +1,8 @@
-﻿using System.Security.Claims;
-using AppAny.HotChocolate.FluentValidation;
+﻿using AppAny.HotChocolate.FluentValidation;
 using Backend.API.Configuration.Models;
+using Backend.API.Types.InputTypes.UserTypes;
 using Backend.API.Validators.UserValidators;
 using Backend.Core.Entities;
-using Backend.Core.Enums;
 using Backend.Core.Repositories;
 using Backend.Utils.Authentication;
 using Microsoft.Extensions.Options;
@@ -13,53 +12,53 @@ namespace Backend.API.Properties
     [ExtendObjectType("Mutation")]
     public class UserMutation
     {
-        private readonly JwtConfiguration _jwtConfiguration;
-
-        public UserMutation(IOptions<JwtConfiguration> jwtConfiguration)
+        private readonly JwtParams _jwtParams;
+        private readonly IUserRepository _userRepository;
+        private readonly IAccountRepository _accountRepository;
+        public UserMutation(IOptions<JwtConfiguration> jwtConfiguration, [Service] IAccountRepository accountRepository, [Service] IUserRepository userRepository)
         {
-            _jwtConfiguration = jwtConfiguration.Value;
+            _jwtParams = new JwtParams()
+            {
+                JwtKey = jwtConfiguration.Value.Key,
+                JwtIssuer = jwtConfiguration.Value.Issuer,
+                JwtAudience = jwtConfiguration.Value.Audience,
+            };
+
+            _accountRepository = accountRepository;
+            _userRepository = userRepository;
         }
 
         #region LOGIN AND SIGNUP
-        public async Task<string?> Signup([UseFluentValidation, UseValidator<UserSignupValidator>] User user, Currency currency, [Service] IUserRepository userRepository, [Service] IAccountRepository accountRepository)
+        public async Task<string> Signup([UseFluentValidation, UseValidator<UserSignupInputTypeValidator>] UserSignupInputType user)
         {
-            var registeredUser = await userRepository.GetByEmailAsync(email: user.Email);
+            var registeredUser = await _userRepository.GetByEmailAsync(email: user.Email);
 
-            if (registeredUser != null)
+            if (registeredUser != null) throw new GraphQLException("User already registered.");
+
+            var defaultAccount = await _accountRepository.GenerateNewDefaultAccount(currency: user.SelectedCurrency);
+
+            User newUser = new()
             {
-                throw new GraphQLException("User already registered.");
-            }
-            var defaultAccount = await accountRepository.GenerateNewDefaultAccount(user: user, currency: currency);
-            user.Accounts = new List<Account>() { defaultAccount };
-
-
-            await userRepository.Signup(user: user);
-
-            var jwtParams = new JwtParams
-            {
-                JwtKey = _jwtConfiguration.Key,
-                JwtIssuer = _jwtConfiguration.Issuer,
-                JwtAudience = _jwtConfiguration.Audience,
-                Claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, user.Email),
-                    new Claim("JWTID", Guid.NewGuid().ToString()),
-                }
+                Name = user.Name,
+                Email = user.Email,
+                Accounts = [defaultAccount],
+                Surname = user.Name,
+                Password = AuthenticationUtils.HashPassword(user.Password)
             };
-            string accessToken = AuthenticationUtils.GenerateAccessToken(jwtParams: jwtParams);
+
+            await _userRepository.Signup(user: newUser);
+
+            string accessToken = AuthenticationUtils.GenerateAccessToken(jwtParams: _jwtParams);
 
             return accessToken;
         }
 
-        public async Task<string?> Login([UseFluentValidation, UseValidator<UserLoginValidator>] User user, [Service] IUserRepository userRepository)
+        public async Task<string> Login([UseFluentValidation, UseValidator<UserLoginInputTypeValidator>] UserLoginInputType user)
         {
-            var registeredUser = await userRepository.GetByEmailAsync(user.Email);
+            var registeredUser = await _userRepository.GetByEmailAsync(user.Email);
             string accessToken;
 
-            if (registeredUser is null)
-            {
-                throw new GraphQLException("User not registered.");
-            }
+            if (registeredUser == null) throw new GraphQLException("User not registered.");
 
             if (!AuthenticationUtils.VerifyPassword(inputPassword: user.Password, hashedPassword: registeredUser.Password))
             {
@@ -67,23 +66,11 @@ namespace Backend.API.Properties
             }
             else
             {
-                var jwtParams = new JwtParams
-                {
-                    JwtKey = _jwtConfiguration.Key,
-                    JwtIssuer = _jwtConfiguration.Issuer,
-                    JwtAudience = _jwtConfiguration.Audience,
-                    Claims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.Name, user.Email),
-                        new Claim("JWTID", Guid.NewGuid().ToString()),
-                    }
-                };
-                accessToken = AuthenticationUtils.GenerateAccessToken(jwtParams: jwtParams);
+                accessToken = AuthenticationUtils.GenerateAccessToken(jwtParams: _jwtParams);
             }
 
             return accessToken;
         }
-
-        #endregion    }
+        #endregion
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Backend.Core.Enums;
-using MongoDB.Bson;
 
 namespace Backend.Core.Entities
 {
@@ -8,10 +7,5 @@ namespace Backend.Core.Entities
         public required string Name {  get; set; }
         public required OperationType CategoryType { get; set; }
         public List<Category>? Subcategories { get; set;}
-
-        public Category()
-        {
-            Id = ObjectId.GenerateNewId().ToString();
-        }
     }
 }

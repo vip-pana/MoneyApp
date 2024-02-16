@@ -52,6 +52,6 @@ export const formAddTransactionModalValidation = z.object({
 export const formTransactionsSearchValidation = z.object({
   dateStart: z.coerce.date(),
   dateEnd: z.coerce.date(),
-  category: z.string(),
-  currency: z.string(),
+  currencies: z.array(z.string()),
+  // validazione categories ignorata
 });

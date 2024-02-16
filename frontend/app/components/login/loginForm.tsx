@@ -28,7 +28,7 @@ const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any, un
   } = form;
 
   const loginQueryDocument = graphql(`
-    mutation login($user: UserInput!) {
+    mutation login($user: UserLoginInputTypeInput!) {
       login(user: $user)
     }
   `);

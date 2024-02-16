@@ -66,14 +66,17 @@ const Dashboardlayout = ({
             description
             transactionType
             category {
+              id
               name
               categoryType
             }
           }
           categories {
+            id
             name
             categoryType
             subcategories {
+              id
               name
               categoryType
             }
@@ -102,13 +105,10 @@ const Dashboardlayout = ({
   });
 
   React.useEffect(() => {
-    if (isError) {
-      {
-        toast.error(error.name, {
-          description: error.message,
-        });
-      }
-    }
+    if (isError)
+      toast.error(error.name, {
+        description: error.message,
+      });
   }, [isError, error]);
 
   return (

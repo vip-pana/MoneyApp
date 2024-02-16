@@ -12,7 +12,7 @@ namespace Backend.Infrastructure.Repositories
         }
 
         #region GENERATE CATEGORIES
-        public async Task<Account> GenerateNewDefaultAccount(User user, Currency currency)
+        public async Task<Account> GenerateNewDefaultAccount(Currency currency)
         {
             List<Category> categories = GenerateDefaultCategories();
 

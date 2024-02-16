@@ -43,8 +43,8 @@ const SignUpModalForm = () => {
   };
 
   const signupQueryDocument = graphql(`
-    mutation signup($user: UserInput!, $currency: Currency!) {
-      signup(user: $user, currency: $currency)
+    mutation signup($user: UserSignupInputTypeInput!) {
+      signup(user: $user)
     }
   `);
 

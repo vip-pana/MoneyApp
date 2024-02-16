@@ -1,9 +1,8 @@
 ﻿using Backend.Core.Entities;
 using Backend.Core.Enums;
+using Backend.Core.Filters.TransactionFilters;
 using Backend.Core.Repositories;
-using Backend.Core.SearchFilters.Transactions;
 using Backend.Infrastructure.Data;
-using Backend.Utils.Authentication;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -13,17 +12,7 @@ namespace Backend.Infrastructure.Repositories
     {
         public async Task<User> Signup(User user)
         {
-            if (user.Password != null)
-            {
-                user.Password = AuthenticationUtils.HashPassword(password: user.Password);
-            }
-            else
-            {
-                throw new Exception("Password not inserted");
-            }
-
             await collection.InsertOneAsync(user);
-
             return user;
         }
 
@@ -36,7 +25,22 @@ namespace Backend.Infrastructure.Repositories
         public async Task<User> AddTransactionOnUserAccount(Transaction transaction, User user, string accountId)
         {
             transaction.Id = ObjectId.GenerateNewId().ToString();
-            user.Accounts.Find(account => account.Id == accountId)?.Transactions.Add(transaction);
+
+            if (user.Accounts is null) throw new InvalidOperationException("No accounts inside the user");
+
+            var account = user.Accounts.Find(account => account.Id == accountId) ?? throw new InvalidOperationException("No account found with these id");
+            
+            var categoryExist = account.Categories.Exists(category => category.Id == transaction.Category.Id);
+            if (!categoryExist) throw new InvalidOperationException("The category in the transaction not exist in the account");
+
+            account.Transactions.Add(transaction);
+
+            var index = user.Accounts.IndexOf(account);
+            if (index != -1)
+            {
+                user.Accounts[index] = account;
+            }
+
             user = ReCalculateAccountAmounts(user, accountId);
 
             var filter = Builders<User>.Filter.Eq(_ => _.Id, user.Id);
@@ -47,13 +51,7 @@ namespace Backend.Infrastructure.Repositories
 
         public async Task<User> DeleteTransactionOnUserAccount(string transactionId, User user, string accountId)
         {
-            var transactionToRemove = GetAccountById(user, accountId).Transactions.FirstOrDefault(transaction => transaction.Id == transactionId);
-
-            if (transactionToRemove == null)
-            {
-                throw new Exception("Transaction not exist in account");
-            }
-
+            var transactionToRemove = GetAccountById(user, accountId).Transactions.Find(transaction => transaction.Id == transactionId) ?? throw new InvalidOperationException("Transaction not exist in account");
             GetAccountById(user, accountId).Transactions.Remove(transactionToRemove);
 
             user = ReCalculateAccountAmounts(user, accountId);
@@ -66,7 +64,9 @@ namespace Backend.Infrastructure.Repositories
 
         public async Task<User> UpdateTransactionOnUserAccount(Transaction transaction, User user, string accountId)
         {
-            var transactionToRemove = GetTransactionById(transaction, user, accountId);
+            if (transaction.Id is null) throw new InvalidOperationException("Id not found on transaction");
+
+            var transactionToRemove = GetTransactionById(transaction.Id, user, accountId);
 
             GetAccountById(user, accountId).Transactions.Remove(transactionToRemove);
 
@@ -80,28 +80,18 @@ namespace Backend.Infrastructure.Repositories
         }
 
         #region PLAIN METHODS
-        public Transaction GetTransactionById(Transaction transaction, User user, string accountId)
+        public Transaction GetTransactionById(string transactionId, User user, string accountId)
         {
-            if (user != null)
-            {
-                var transactionFound = GetAccountById(user: user, accountId: accountId).Transactions.FirstOrDefault(t => t.Id == transaction.Id);
+            if (user is null) throw new InvalidOperationException("User can't be null");
 
-                if (transactionFound != null)
-                {
-                    return transactionFound;
-                }
-                else
-                {
-                    throw new Exception("No transaction found with this id");
-                }
-            }
-            else
-            {
-                throw new Exception("User can't be null");
-            }
+            var transactionFound = GetAccountById(user: user, accountId: accountId).Transactions.Find(t => t.Id == transactionId);
+
+            if (transactionFound is null) throw new InvalidOperationException("No transaction found with this id");
+
+            return transactionFound;
         }
 
-        public Account GetAccountById(User user, string accountId)
+        public static Account GetAccountById(User user, string accountId)
         {
             if (user.Accounts != null && user.Accounts.Count != 0)
             {
@@ -113,66 +103,84 @@ namespace Backend.Infrastructure.Repositories
                 }
                 else
                 {
-                    throw new Exception("No user accounts found");
+                    throw new InvalidOperationException("No user accounts found");
                 }
             }
             else
             {
-                throw new Exception("This user not have accounts");
+                throw new InvalidOperationException("This user not have accounts");
             }
         }
 
         private static User ReCalculateAccountAmounts(User user, string accountId)
         {
-            var totalIncomeAmount = user.Accounts.Find(account => account.Id == accountId).Transactions.Where(transaction => transaction.TransactionType == Core.Enums.OperationType.Income).Sum(transaction => transaction.Amount);
+            if (user.Accounts.Count != 0)
+            {
+                var totalIncomeAmount = GetAccountById(user: user, accountId: accountId).Transactions.Where(transaction => transaction.TransactionType == OperationType.Income).Sum(transaction => transaction.Amount);
+                GetAccountById(user: user, accountId: accountId).IncomeAmount = totalIncomeAmount != 0 ? Math.Round(totalIncomeAmount, 2) : 0;
 
-            user.Accounts.Find(account => account.Id == accountId).IncomeAmount = totalIncomeAmount != 0 ? Math.Round(totalIncomeAmount.Value, 2) : 0;
-
-            var totalExpenseAmount = user.Accounts.Find(account => account.Id == accountId).Transactions.Where(transaction => transaction.TransactionType == Core.Enums.OperationType.Expense).Sum(transaction => transaction.Amount);
-
-            user.Accounts.Find(account => account.Id == accountId).ExpenseAmount = totalExpenseAmount != 0 ? Math.Round(totalExpenseAmount.Value, 2) : 0;
+                var totalExpenseAmount = GetAccountById(user: user, accountId: accountId).Transactions.Where(transaction => transaction.TransactionType == OperationType.Expense).Sum(transaction => transaction.Amount);
+                GetAccountById(user: user, accountId: accountId).ExpenseAmount = totalExpenseAmount != 0 ? Math.Round(totalExpenseAmount, 2) : 0;
+            }
 
             return user;
         }
 
+        public User FilterUserTransactions(TransactionFilters filters, User user, string accountId)
+        {
+            var transactions = GetAccountById(user: user, accountId: accountId).Transactions;
+            var filteredTransaction = FilterTransactionsByDatetimes(filters, transactions);
+
+            if (filters.CategoriesIds is not null && filters.CategoriesIds.Count != 0) 
+                filteredTransaction = FilterByCategories(categoriesIds: filters.CategoriesIds, transactions: filteredTransaction);
+
+            if (filters.Currencies is not null && filters.Currencies.Count != 0) 
+                filteredTransaction = FilterByCurrencies(currencies: filters.Currencies, transactions: filteredTransaction);
+
+            if (filters.OperationTypes is not null && filters.OperationTypes.Count != 0)
+                filteredTransaction = FilterByOperationTypes(operationTypes: filters.OperationTypes, transactions: filteredTransaction);
+
+            user = UpdateUserTransactions(user, accountId, filteredTransaction.ToList());
+
+            return user;
+        }
+
+        private User UpdateUserTransactions(User user, string accountId, List<Transaction> transactions)
+        {
+            if (user.Accounts is null) throw new InvalidOperationException("No accounts inside the user");
+
+            var account = user.Accounts.Find(account => account.Id == accountId) ?? throw new InvalidOperationException("No account found with these id");
+            
+            account.Transactions = transactions;
+
+            var index = user.Accounts.IndexOf(account);
+            if (index != -1)
+            {
+                user.Accounts[index] = account;
+            }
+
+            return user;
+        }
         #endregion
 
         #region FILTERS
-        public User FilterUserTransactions(TransactionFilter filters, User user, string accountId)
-        {
-            var transactions = GetAccountById(user: user, accountId: accountId).Transactions;
-
-            var filteredTransaction = FilterByDatetimes(filters, transactions);
-            
-            //if (inputSearch.Categories != null && inputSearch.Categories.Count != 0) filteredTransaction = FilterByCategories(categories: inputSearch.Categories, transactions: filteredTransaction);
-
-            //if (inputSearch.Currencies != null && inputSearch.Currencies.Count != 0) filteredTransaction = FilterByCurrencies(currencies: inputSearch.Currencies, transactions: filteredTransaction);
-            
-            //if (inputSearch.OperationTypes != null && inputSearch.OperationTypes.Count != 0) filteredTransaction = FilterByOperationTypes(operationTypes: inputSearch.OperationTypes, transactions: filteredTransaction);
-
-            user.Accounts.Find(account => account.Id == accountId).Transactions = filteredTransaction.ToList();
-
-            return user;
-        }
-
         private IEnumerable<Transaction> FilterByOperationTypes(List<OperationType> operationTypes, IEnumerable<Transaction> transactions)
         {
-            return transactions.Where(transaction => operationTypes.Contains(transaction.TransactionType.Value));
+            return transactions.Where(transaction => operationTypes.Contains(transaction.TransactionType));
         }
 
         private IEnumerable<Transaction> FilterByCurrencies(List<Currency> currencies, IEnumerable<Transaction> transactions)
         {
-            return transactions.Where(transaction => currencies.Contains(transaction.Currency.Value));
+            return transactions.Where(transaction => currencies.Contains(transaction.Currency));
         }
 
-        private IEnumerable<Transaction> FilterByCategories(List<Category> categories, IEnumerable<Transaction> transactions)
+        private static IEnumerable<Transaction> FilterTransactionsByDatetimes(TransactionFilters inputSearch, List<Transaction> transactions)
         {
-            return transactions.Where(transaction => categories.Contains(transaction.Category));
+            return transactions.Where(transaction => transaction.DateTime >= inputSearch.StartDate && transaction.DateTime <= inputSearch.EndDate);
         }
-
-        private static IEnumerable<Transaction> FilterByDatetimes(TransactionFilter inputSearch, List<Transaction> transactions)
+        private IEnumerable<Transaction> FilterByCategories(List<string> categoriesIds, IEnumerable<Transaction> transactions)
         {
-            return transactions.Where(transaction => transaction.DateTime.Value > inputSearch.StartDate && transaction.DateTime.Value < inputSearch.EndDate);
+            return transactions.Where(transaction => transaction.Category.Id is not null && categoriesIds.Contains(transaction.Category.Id));
         }
         #endregion
     }

@@ -1,5 +1,5 @@
 ﻿using AppAny.HotChocolate.FluentValidation;
-using Backend.API.Validators.DeleteTransactionValidator;
+using Backend.API.Types.InputTypes.TransactionTypes;
 using Backend.API.Validators.TransactionValidators;
 using Backend.Core.Entities;
 using Backend.Core.Repositories;
@@ -7,47 +7,38 @@ using Backend.Core.Repositories;
 namespace Backend.API.Mutations
 {
     [ExtendObjectType("Mutation")]
-    public class TransactionMutation
+    public class TransactionMutation([Service] IUserRepository userRepository)
     {
-        #region CRUD
-        public async Task<User> DeleteTransaction([UseFluentValidation, UseValidator<DeleteTransactionValidator>] Transaction transaction, User user, string accountId, [Service] IUserRepository userRepository)
+        public async Task<User> DeleteTransaction([UseFluentValidation, UseValidator<DeleteTransactionInputTypeValidator>] DeleteTransactionInputType transaction)
         {
-            var registeredUser = await userRepository.GetByEmailAsync(email: user.Email);
+            var registeredUser = await userRepository.GetByEmailAsync(email: transaction.UserEmail) ?? throw new GraphQLException("User not registered.");
 
-            if (registeredUser is null)
-            {
-                throw new GraphQLException("User not registered.");
-            }
+            if (transaction.TransactionId is null) throw new GraphQLException("Transaction id not passed");
 
-            User res = await userRepository.DeleteTransactionOnUserAccount(transactionId: transaction.Id, user: registeredUser, accountId);
+            User res = await userRepository.DeleteTransactionOnUserAccount(transactionId: transaction.TransactionId, user: registeredUser, transaction.AccountId);
 
             return res;
         }
 
-        public async Task<User> AddOrUpdateTransaction([UseFluentValidation, UseValidator<TransactionValidator>] Transaction transaction, User user, string accountId, [Service] IUserRepository userRepository)
+        public async Task<User> AddOrUpdateTransaction([UseFluentValidation, UseValidator<BaseTransactionInputTypeValidator>] BaseTransactionInputType transactionInput)
         {
-            User? res;
-            var registeredUser = await userRepository.GetByEmailAsync(email: user.Email) ?? throw new GraphQLException("User not registered.");
+            User res;
+            var registeredUser = await userRepository.GetByEmailAsync(email: transactionInput.UserEmail) ?? throw new GraphQLException("User not registered.");
 
-            if (transaction.Id != null)
+            if (transactionInput.Transaction.Id != null)
             {
-                var transactionExist = userRepository.GetTransactionById(transaction: transaction, user: registeredUser, accountId: accountId) != null;
-                if (transactionExist)
-                {
-                    res = await userRepository.UpdateTransactionOnUserAccount(transaction: transaction, user: registeredUser, accountId: accountId);
-                }
-                else
-                {
-                    throw new GraphQLException("Transaction id not exist");
-                }
+                var transactionExist = userRepository.GetTransactionById(transactionId: transactionInput.Transaction.Id, user: registeredUser, accountId: transactionInput.AccountId) != null;
+                
+                if (!transactionExist) throw new GraphQLException("Transaction id does not exist");
+                
+                res = await userRepository.UpdateTransactionOnUserAccount(transaction: transactionInput.Transaction, user: registeredUser, accountId: transactionInput.AccountId);
             }
             else
             {
-                res = await userRepository.AddTransactionOnUserAccount(transaction: transaction, user: registeredUser, accountId);
+                res = await userRepository.AddTransactionOnUserAccount(transaction: transactionInput.Transaction, user: registeredUser, transactionInput.AccountId);
             }
 
             return res;
         } 
-        #endregion
     }
 }

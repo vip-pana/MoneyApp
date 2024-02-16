@@ -4,11 +4,11 @@ namespace Backend.Core.Entities
 {
     public class Transaction: BaseEntity
     {
-        public string? Description { get; set; }
-        public double? Amount { get; set; }
-        public OperationType? TransactionType { get; set; }
-        public Currency? Currency { get; set; }
-        public Category? Category { get; set; }
-        public DateTime? DateTime { get; set; }
+        public required string Description { get; set; }
+        public required double Amount { get; set; }
+        public required OperationType TransactionType { get; set; }
+        public required Currency Currency { get; set; }
+        public required Category Category { get; set; }
+        public required DateTime DateTime { get; set; }
     }
 }

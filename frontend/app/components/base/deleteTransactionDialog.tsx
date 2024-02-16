@@ -31,8 +31,8 @@ const DeleteTransactionDialog = ({
   const cancelRef = React.useRef<HTMLButtonElement>(null);
 
   const deleteTransactionQueryDocument = graphql(`
-    mutation deleteTransaction($user: UserInput!, $transaction: TransactionInput!, $accountId: String!) {
-      deleteTransaction(user: $user, transaction: $transaction, accountId: $accountId) {
+    mutation deleteTransaction($transaction: DeleteTransactionInputTypeInput!) {
+      deleteTransaction(transaction: $transaction) {
         accounts {
           incomeAmount
           expenseAmount
