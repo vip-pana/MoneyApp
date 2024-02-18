@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Flex, HStack, IconButton, useDisclosure, useMediaQuery } from "@chakra-ui/react";
+import { Box, Flex, HStack, IconButton, useColorMode, useDisclosure, useMediaQuery } from "@chakra-ui/react";
 import React from "react";
 import { LuAlignJustify, LuPlus } from "react-icons/lu";
 import Sidebar from "../ui/dasboard/base/sidebar/sidebar";
@@ -31,6 +31,7 @@ const Dashboardlayout = ({
     setSelectedAccountId,
   } = useUserStore();
 
+  const { colorMode } = useColorMode();
   const [collapse, setCollapse] = React.useState(false);
   const [isLargerThan800] = useMediaQuery("(min-width: 800px)");
   const {
@@ -75,7 +76,7 @@ const Dashboardlayout = ({
             id
             name
             categoryType
-            subcategories {
+            subCategories {
               id
               name
               categoryType
@@ -125,6 +126,7 @@ const Dashboardlayout = ({
         justifyContent="space-between"
         transition="ease-in-out .2s"
         borderRadius="3xl"
+        backgroundColor={colorMode === "light" ? "none" : "#2D3748"}
       >
         <Sidebar collapse={collapse} />
       </Flex>

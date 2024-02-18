@@ -3,11 +3,11 @@ using FluentValidation;
 
 namespace Backend.API.Validators.TransactionValidators
 {
-    public class DeleteTransactionInputTypeValidator : AbstractValidator<DeleteTransactionInputType>
+    public class DeleteTransactionListInputTypeValidator : AbstractValidator<DeleteTransactionListInputType>
     {
-        public DeleteTransactionInputTypeValidator()
+        public DeleteTransactionListInputTypeValidator()
         {
-            RuleFor(x => x.TransactionId).NotEmpty().WithMessage("Transaction id can't be null");
+            RuleFor(x => x.TransactionIds).NotEmpty().WithMessage("TransactionIds can't be null");
             RuleFor(x => x.AccountId).NotEmpty();
             RuleFor(x => x.UserEmail).NotEmpty();
         }

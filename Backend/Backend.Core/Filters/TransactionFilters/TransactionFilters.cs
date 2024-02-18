@@ -5,8 +5,8 @@ namespace Backend.Core.Filters.TransactionFilters
 {
     public class TransactionFilters
     {
-        public DateTime StartDate { get; init; }
-        public DateTime EndDate { get; init; }
+        public DateTime DateStart { get; init; }
+        public DateTime DateEnd { get; init; }
         public List<string>? CategoriesIds { get; init; }
         public List<Currency>? Currencies { get; init; }
         public List<OperationType>? OperationTypes { get; init; }

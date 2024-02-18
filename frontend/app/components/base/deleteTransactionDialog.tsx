@@ -1,8 +1,9 @@
 "use client";
 
 import { graphql } from "@/gql/generated";
-import { TransactionInput } from "@/gql/generated/graphql";
+import { TransactionModalProps } from "@/utils/definitions/typeDefinition";
 import { useDeleteTransactionQuery } from "@/utils/definitions/useQueryDefinition";
+import { useTransactionTableStore } from "@/utils/zustand/transactionTableStore";
 import { useUserStore } from "@/utils/zustand/userStore";
 import {
   AlertDialogOverlay,
@@ -18,16 +19,10 @@ import { useQuery } from "@tanstack/react-query";
 import React from "react";
 import { toast } from "sonner";
 
-const DeleteTransactionDialog = ({
-  isOpen,
-  onClose,
-  selectedTransaction,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  selectedTransaction: TransactionInput | undefined;
-}) => {
+const DeleteTransactionDialog = ({ isOpen, onClose, selectedTransaction }: TransactionModalProps) => {
   const { email, selectedAccountId, setTransactions, setExpenseAmount, setIncomeAmount } = useUserStore();
+  const { setTransactionsFiltered } = useTransactionTableStore();
+
   const cancelRef = React.useRef<HTMLButtonElement>(null);
 
   const deleteTransactionQueryDocument = graphql(`
@@ -75,6 +70,7 @@ const DeleteTransactionDialog = ({
       toast.success("Transaction deleted!");
       if (data?.deleteTransaction.accounts) {
         setTransactions(data?.deleteTransaction.accounts[0].transactions);
+        setTransactionsFiltered(data?.deleteTransaction.accounts[0].transactions);
         setIncomeAmount(data.deleteTransaction.accounts[0].incomeAmount);
         setExpenseAmount(data.deleteTransaction.accounts[0].expenseAmount);
       }
@@ -95,7 +91,9 @@ const DeleteTransactionDialog = ({
           </AlertDialogBody>
 
           <AlertDialogFooter>
-            <Button onClick={onClose}>Cancel</Button>
+            <Button onClick={onClose} variant={"outline"}>
+              Cancel
+            </Button>
             <Button colorScheme="red" onClick={onSubmit} isLoading={isLoading} ml={3}>
               Delete
             </Button>

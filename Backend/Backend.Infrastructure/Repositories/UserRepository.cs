@@ -62,6 +62,16 @@ namespace Backend.Infrastructure.Repositories
             return user;
         }
 
+        public async Task<User> DeleteTransactionListOnUserAccount(List<string> transactionIds, User user, string accountId)
+        {
+            User result = user;
+            foreach (var transactionId in transactionIds)
+            {
+                result = await DeleteTransactionOnUserAccount(transactionId, user, accountId);
+            }
+            return result;
+        }
+
         public async Task<User> UpdateTransactionOnUserAccount(Transaction transaction, User user, string accountId)
         {
             if (transaction.Id is null) throw new InvalidOperationException("Id not found on transaction");
@@ -161,6 +171,8 @@ namespace Backend.Infrastructure.Repositories
 
             return user;
         }
+
+
         #endregion
 
         #region FILTERS
@@ -176,7 +188,7 @@ namespace Backend.Infrastructure.Repositories
 
         private static IEnumerable<Transaction> FilterTransactionsByDatetimes(TransactionFilters inputSearch, List<Transaction> transactions)
         {
-            return transactions.Where(transaction => transaction.DateTime >= inputSearch.StartDate && transaction.DateTime <= inputSearch.EndDate);
+            return transactions.Where(transaction => transaction.DateTime >= inputSearch.DateStart && transaction.DateTime <= inputSearch.DateEnd);
         }
         private IEnumerable<Transaction> FilterByCategories(List<string> categoriesIds, IEnumerable<Transaction> transactions)
         {

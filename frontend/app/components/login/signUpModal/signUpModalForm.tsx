@@ -34,6 +34,7 @@ const SignUpModalForm = () => {
       toast.error(error.name, {
         description: error.message,
       });
+      console.log(error);
     }
     if (data?.signup) {
       sessionStorage.setItem("token", data.signup);
@@ -56,7 +57,7 @@ const SignUpModalForm = () => {
         surname: getValues("surname"),
         email: getValues("email").toLowerCase(),
         password: getValues("password"),
-        currency: getEnumValue(getValues("currency"), Currency),
+        selectedCurrency: getEnumValue(getValues("currency"), Currency),
       }),
     enabled: false,
   });
@@ -72,12 +73,10 @@ const SignUpModalForm = () => {
           <Input placeholder="Last Name" focusBorderColor="black" {...register("surname")} disabled={isLoading} />
           <FormErrorHelperText>{errors.surname?.message}</FormErrorHelperText>
         </FormControl>
-
         <FormControl>
           <Input placeholder="Mail" type="mail" focusBorderColor="black" {...register("email")} disabled={isLoading} />
           <FormErrorHelperText>{errors.email?.message}</FormErrorHelperText>
         </FormControl>
-
         <FormControl>
           <InputGroup size="md">
             <Input

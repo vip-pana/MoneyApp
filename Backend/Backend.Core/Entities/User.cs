@@ -10,7 +10,7 @@
 
         public User() : base()
         {
-            Accounts = new List<Account>();
+            Accounts = [];
         }
     }
 }

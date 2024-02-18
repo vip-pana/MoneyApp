@@ -13,6 +13,7 @@ namespace Backend.API.Configuration
             services.AddTransient<UserSignupInputTypeValidator>();
             services.AddTransient<BaseTransactionInputTypeValidator>();
             services.AddTransient<DeleteTransactionInputTypeValidator>();
+            services.AddTransient<DeleteTransactionListInputTypeValidator>();
             services.AddTransient<TransactionFilterInputTypeValidator>();
         }
     }

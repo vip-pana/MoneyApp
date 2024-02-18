@@ -32,7 +32,7 @@ export const formSignupValidation = z
     path: ["confirmPassword"],
   });
 
-export const formAddTransactionModalValidation = z.object({
+export const formAddOrUpdateTransactionModalValidation = z.object({
   amount: z.string().refine(
     (value) => {
       const numericValue = parseFloat(value);
@@ -44,7 +44,7 @@ export const formAddTransactionModalValidation = z.object({
   ),
   operationType: z.string().min(1),
   currency: z.string().min(1, "Please select one currency"),
-  selectedCategory: z.string().min(1, "Please select one category"),
+  // category: z.string().min(1, "Please select one category"),
   description: z.string().min(1, "Please insert a description"),
   date: z.coerce.date(),
 });
@@ -52,6 +52,6 @@ export const formAddTransactionModalValidation = z.object({
 export const formTransactionsSearchValidation = z.object({
   dateStart: z.coerce.date(),
   dateEnd: z.coerce.date(),
-  currencies: z.array(z.string()),
+  // currencies: z.array(z.string()),
   // validazione categories ignorata
 });

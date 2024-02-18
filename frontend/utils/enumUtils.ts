@@ -8,7 +8,12 @@ export const formatEnumValueByString = (enumToFormat: string): string => {
   return value;
 };
 
-export const currencyOptions = Object.keys(Currency).map((key) => ({
+export type CurrencyDropdown = {
+  value: Currency;
+  label: string;
+};
+
+export const currencyOptions: CurrencyDropdown[] = Object.keys(Currency).map((key) => ({
   value: Currency[key as keyof typeof Currency],
   label: Currency[key as keyof typeof Currency].toUpperCase(),
 }));

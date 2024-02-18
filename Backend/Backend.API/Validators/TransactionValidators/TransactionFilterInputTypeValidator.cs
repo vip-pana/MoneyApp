@@ -9,9 +9,9 @@ namespace Backend.API.Validators.TransactionValidators
         {
             RuleFor(x => x.UserEmail).NotEmpty();
             RuleFor(x => x.AccountId).NotEmpty();
-            RuleFor(x => x.TransactionFilters.StartDate).NotEmpty().Must((model, startDate) => startDate <= model.TransactionFilters.EndDate)
+            RuleFor(x => x.TransactionFilters.DateStart).NotEmpty().Must((model, startDate) => startDate <= model.TransactionFilters.DateEnd)
                 .WithMessage("Start date can't be greater than end date");
-            RuleFor(x => x.TransactionFilters.EndDate).NotEmpty();
+            RuleFor(x => x.TransactionFilters.DateEnd).NotEmpty();
         }
     }
 }

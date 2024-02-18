@@ -54,13 +54,13 @@ namespace Backend.Infrastructure.Repositories
                 "Tax",
                 "Purchases",
             };
-            List<Category> financeAndInvestmentsCategories = GenerateCategories(financeAndInvestmentsNames, operationType);
+            List<SubCategory> financeAndInvestmentsCategories = GenerateCategories(financeAndInvestmentsNames, operationType);
 
             categories.Add(new Category()
             {
                 Name = "Finance & Investments",
                 CategoryType = operationType,
-                Subcategories = financeAndInvestmentsCategories
+                SubCategories = financeAndInvestmentsCategories
             });
 
             // Refunds
@@ -69,13 +69,13 @@ namespace Backend.Infrastructure.Repositories
                 "Tax",
                 "Purchases",
             };
-            List<Category> refundsCategories = GenerateCategories(refundsNames, operationType);
+            List<SubCategory> refundsCategories = GenerateCategories(refundsNames, operationType);
 
             categories.Add(new Category()
             {
                 Name = "Refunds",
                 CategoryType = operationType,
-                Subcategories = refundsCategories
+                SubCategories = refundsCategories
             });
 
             // Plain categories
@@ -110,13 +110,13 @@ namespace Backend.Infrastructure.Repositories
                 "Restaurant, Fast-food",
                 "Bar, Cafe",
             };
-            List<Category> foodAndDrinksCategories = GenerateCategories(foodAndDrinksNames, operationType);
+            List<SubCategory> foodAndDrinksCategories = GenerateCategories(foodAndDrinksNames, operationType);
 
             categories.Add(new Category()
             {
                 Name = "Food & Drinks",
                 CategoryType = operationType,
-                Subcategories = foodAndDrinksCategories
+                SubCategories = foodAndDrinksCategories
             });
 
 
@@ -131,13 +131,13 @@ namespace Backend.Infrastructure.Repositories
                 "Drug store",
                 "Gifts",
             };
-            List<Category> shoppingCategories = GenerateCategories(shoppingNames, operationType);
+            List<SubCategory> shoppingCategories = GenerateCategories(shoppingNames, operationType);
 
             categories.Add(new Category()
             {
                 Name = "Shopping",
                 CategoryType = operationType,
-                Subcategories = shoppingCategories
+                SubCategories = shoppingCategories
             });
 
             // housing categories
@@ -150,13 +150,13 @@ namespace Backend.Infrastructure.Repositories
                 "Maintenance, repairs",
                 "Property insurance",
             };
-            List<Category> housingCategories = GenerateCategories(housingNames, operationType);
+            List<SubCategory> housingCategories = GenerateCategories(housingNames, operationType);
 
             categories.Add(new Category()
             {
                 Name = "Housing",
                 CategoryType = operationType,
-                Subcategories = housingCategories
+                SubCategories = housingCategories
             });
 
             // Vehicle, Travel & Transportation categories
@@ -172,13 +172,13 @@ namespace Backend.Infrastructure.Repositories
                 "Vehicle insurance",
                 "Leasing",
             };
-            List<Category> trasportationCategories = GenerateCategories(trasportationNames, operationType);
+            List<SubCategory> trasportationCategories = GenerateCategories(trasportationNames, operationType);
 
             categories.Add(new Category()
             {
                 Name = "Vehicle, Travel & Transportation",
                 CategoryType = operationType,
-                Subcategories = trasportationCategories
+                SubCategories = trasportationCategories
             });
 
             // Vehicle, Travel & Transportation categories
@@ -194,13 +194,13 @@ namespace Backend.Infrastructure.Repositories
                 "Vehicle insurance",
                 "Leasing",
             };
-            List<Category> lifeAndEntertainmentCategories = GenerateCategories(lifeAndEntertainmentNames, operationType);
+            List<SubCategory> lifeAndEntertainmentCategories = GenerateCategories(lifeAndEntertainmentNames, operationType);
 
             categories.Add(new Category()
             {
                 Name = "Life & entertainment",
                 CategoryType = operationType,
-                Subcategories = lifeAndEntertainmentCategories
+                SubCategories = lifeAndEntertainmentCategories
             });
 
             // Finance & Investments categories
@@ -213,13 +213,13 @@ namespace Backend.Infrastructure.Repositories
                 "Fees",
                 "Financial investments",
             };
-            List<Category> financeAndInvestmentsCategories = GenerateCategories(financeAndInvestmentsNames, operationType);
+            List<SubCategory> financeAndInvestmentsCategories = GenerateCategories(financeAndInvestmentsNames, operationType);
 
             categories.Add(new Category()
             {
                 Name = "Finance & Investments",
                 CategoryType = operationType,
-                Subcategories = financeAndInvestmentsCategories
+                SubCategories = financeAndInvestmentsCategories
             });
 
             // Plain Categories
@@ -232,13 +232,13 @@ namespace Backend.Infrastructure.Repositories
             return categories;
         }
 
-        private List<Category> GenerateCategories(List<string> names, OperationType type)
+        private List<SubCategory> GenerateCategories(List<string> names, OperationType type)
         {
-            var categories = new List<Category>();
+            var categories = new List<SubCategory>();
 
             foreach (string name in names)
             {
-                Category category = new() { Name = name, CategoryType = type };
+                SubCategory category = new() { Name = name, CategoryType = type };
                 categories.Add(category);
             }
 

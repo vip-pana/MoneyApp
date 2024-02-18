@@ -12,5 +12,6 @@ namespace Backend.Core.Repositories
         Task<User> UpdateTransactionOnUserAccount(Transaction transaction, User user, string accountId);
         Transaction GetTransactionById(string transactionId, User user, string accountId);
         User FilterUserTransactions(TransactionFilters filters, User user, string accountId);
+        Task<User> DeleteTransactionListOnUserAccount(List<string> transactionIds, User user, string accountId);
     }
 }

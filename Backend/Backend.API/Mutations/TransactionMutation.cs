@@ -20,6 +20,18 @@ namespace Backend.API.Mutations
             return res;
         }
 
+        public async Task<User> DeleteTransactionList([UseFluentValidation, UseValidator<DeleteTransactionListInputTypeValidator>] DeleteTransactionListInputType transactions)
+        {
+            var registeredUser = await userRepository.GetByEmailAsync(email: transactions.UserEmail) ?? throw new GraphQLException("User not registered.");
+
+            var allTransactionsHaveId = transactions.TransactionIds.Exists(transaction => transaction != null || string.IsNullOrWhiteSpace(transaction));
+            if (!allTransactionsHaveId) throw new GraphQLException("Transaction ids not passed");
+
+            User res = await userRepository.DeleteTransactionListOnUserAccount(transactionIds: transactions.TransactionIds, user: registeredUser, transactions.AccountId);
+
+            return res;
+        }
+
         public async Task<User> AddOrUpdateTransaction([UseFluentValidation, UseValidator<BaseTransactionInputTypeValidator>] BaseTransactionInputType transactionInput)
         {
             User res;
