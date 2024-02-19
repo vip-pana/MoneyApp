@@ -19,7 +19,6 @@ namespace Backend.API
 
             app.UseWebSockets();
             app.UseAuthentication();
-            app.UseAuthorization();
             app.MapGraphQL();
 
             app.Run();

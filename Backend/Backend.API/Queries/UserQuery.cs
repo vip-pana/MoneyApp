@@ -1,8 +1,10 @@
 ﻿using Backend.Core.Entities;
 using Backend.Core.Repositories;
+using HotChocolate.Authorization;
 
 namespace Backend.API.Queries
 {
+    [Authorize]
     [ExtendObjectType("Query")]
     public class UserQuery ([Service] IUserRepository userRepository)
     {

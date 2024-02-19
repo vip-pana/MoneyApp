@@ -1,4 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 
@@ -15,6 +16,7 @@ namespace Backend.Utils.Authentication
             var token = new JwtSecurityToken(
                jwtParams.JwtIssuer,
                jwtParams.JwtAudience,
+               claims: jwtParams.Claims,
                expires: DateTime.Now.AddHours(1),
                signingCredentials: signingCredentials);
 
@@ -37,5 +39,6 @@ namespace Backend.Utils.Authentication
         public required string JwtKey { get; set; }
         public required string JwtIssuer { get; set; }
         public required string JwtAudience { get; set; }
+        public IEnumerable<Claim>? Claims { get; set; }
     }
 }
