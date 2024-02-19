@@ -26,8 +26,6 @@ namespace Backend.Infrastructure.Repositories
         {
             transaction.Id = ObjectId.GenerateNewId().ToString();
 
-            if (user.Accounts is null) throw new InvalidOperationException("No accounts inside the user");
-
             var account = user.Accounts.Find(account => account.Id == accountId) ?? throw new InvalidOperationException("No account found with these id");
             
             var categoryExist = account.Categories.Exists(category => category.Id == transaction.Category.Id);
@@ -155,7 +153,7 @@ namespace Backend.Infrastructure.Repositories
             return user;
         }
 
-        private User UpdateUserTransactions(User user, string accountId, List<Transaction> transactions)
+        private static User UpdateUserTransactions(User user, string accountId, List<Transaction> transactions)
         {
             if (user.Accounts is null) throw new InvalidOperationException("No accounts inside the user");
 
@@ -171,17 +169,15 @@ namespace Backend.Infrastructure.Repositories
 
             return user;
         }
-
-
         #endregion
 
         #region FILTERS
-        private IEnumerable<Transaction> FilterByOperationTypes(List<OperationType> operationTypes, IEnumerable<Transaction> transactions)
+        private static IEnumerable<Transaction> FilterByOperationTypes(List<OperationType> operationTypes, IEnumerable<Transaction> transactions)
         {
             return transactions.Where(transaction => operationTypes.Contains(transaction.TransactionType));
         }
 
-        private IEnumerable<Transaction> FilterByCurrencies(List<Currency> currencies, IEnumerable<Transaction> transactions)
+        private static IEnumerable<Transaction> FilterByCurrencies(List<Currency> currencies, IEnumerable<Transaction> transactions)
         {
             return transactions.Where(transaction => currencies.Contains(transaction.Currency));
         }
@@ -190,7 +186,8 @@ namespace Backend.Infrastructure.Repositories
         {
             return transactions.Where(transaction => transaction.DateTime >= inputSearch.DateStart && transaction.DateTime <= inputSearch.DateEnd);
         }
-        private IEnumerable<Transaction> FilterByCategories(List<string> categoriesIds, IEnumerable<Transaction> transactions)
+
+        private static IEnumerable<Transaction> FilterByCategories(List<string> categoriesIds, IEnumerable<Transaction> transactions)
         {
             return transactions.Where(transaction => transaction.Category.Id is not null && categoriesIds.Contains(transaction.Category.Id));
         }

@@ -78,11 +78,9 @@ export const useUserByEmailQuery = async (props: GetUserByEmailQueryValueDefinit
     props.setTransactions(res.userByEmail.accounts[0].transactions);
 
     const incomeCategories = res.userByEmail.accounts[0].categories
-      .filter(
-        (category) => category.categoryType === OperationType.Income && category.id != null && category.id != undefined
-      )
+      .filter((category) => category.categoryType === OperationType.Income)
       .map((category) => ({
-        id: category.id || "",
+        id: category.id,
         name: category.name,
         categoryType: category.categoryType,
         subCategories: category.subCategories || [],
@@ -92,7 +90,7 @@ export const useUserByEmailQuery = async (props: GetUserByEmailQueryValueDefinit
     const expenseCategories = res.userByEmail.accounts[0].categories
       .filter((category) => category.categoryType === OperationType.Expense)
       .map((category) => ({
-        id: category.id || "",
+        id: category.id,
         name: category.name,
         categoryType: category.categoryType,
         subCategories: category.subCategories || [],

@@ -26,13 +26,8 @@ const DeleteTransactionListDialog = ({ isOpen, onClose, selectedTransactionList 
   const cancelRef = React.useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (selectedTransactionList !== undefined) {
-      const ids: string[] = selectedTransactionList
-        .map((transaction) => (transaction ? transaction.id ?? "" : ""))
-        .filter((id) => id !== "");
-
-      setTransactionIds(ids);
-    }
+    if (selectedTransactionList !== undefined)
+      setTransactionIds(selectedTransactionList.map((transaction) => transaction.id));
   }, [selectedTransactionList]);
 
   const deleteTransactionListQueryDocument = graphql(`

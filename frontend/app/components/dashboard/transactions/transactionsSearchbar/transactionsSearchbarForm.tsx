@@ -122,15 +122,13 @@ const TransactionsSearchbarForm = () => {
 
   const formatCategories = () => {
     const allCategories = [...incomeCategories, ...expenseCategories];
-    const allCategoriesFormatted: SelectCategory[] = allCategories
-      .filter((category) => category.id !== undefined)
-      .map((category) => ({
-        id: category.id!,
-        name: category.name,
-        categoryType: category.categoryType,
-        subCategory: category.subCategories,
-        colorScheme: category.categoryType === OperationType.Income ? "teal" : "red",
-      }));
+    const allCategoriesFormatted: SelectCategory[] = allCategories.map((category) => ({
+      id: category.id,
+      name: category.name,
+      categoryType: category.categoryType,
+      subCategory: category.subCategories,
+      colorScheme: category.categoryType === OperationType.Income ? "teal" : "red",
+    }));
     return allCategoriesFormatted;
   };
 
@@ -187,6 +185,7 @@ const TransactionsSearchbarForm = () => {
     setselectedDateRangeOption(dateRangeOptions[0]);
     setFilteredSelectedCategories([]);
     setSelectedCurrencies([]);
+    setIsRangeDateVisible(false);
   };
 
   return (
@@ -258,8 +257,10 @@ const TransactionsSearchbarForm = () => {
                       if (Array.isArray(selectedCategoryList)) {
                         setFilteredSelectedCategories(selectedCategoryList);
                       }
-                      let categoriesIds = selectedCategoryList.map((category) => category.id);
-                      setValue("selectedCategoriesIds", categoriesIds);
+                      setValue(
+                        "selectedCategoriesIds",
+                        selectedCategoryList.map((category) => category.id)
+                      );
                     }}
                   />
                 )}

@@ -24,7 +24,7 @@ namespace Backend.API.Mutations
         {
             var registeredUser = await userRepository.GetByEmailAsync(email: transactions.UserEmail) ?? throw new GraphQLException("User not registered.");
 
-            var allTransactionsHaveId = transactions.TransactionIds.Exists(transaction => transaction != null || string.IsNullOrWhiteSpace(transaction));
+            var allTransactionsHaveId = transactions.TransactionIds.Exists(transaction => transaction is not null || string.IsNullOrWhiteSpace(transaction));
             if (!allTransactionsHaveId) throw new GraphQLException("Transaction ids not passed");
 
             User res = await userRepository.DeleteTransactionListOnUserAccount(transactionIds: transactions.TransactionIds, user: registeredUser, transactions.AccountId);
@@ -32,25 +32,36 @@ namespace Backend.API.Mutations
             return res;
         }
 
-        public async Task<User> AddOrUpdateTransaction([UseFluentValidation, UseValidator<BaseTransactionInputTypeValidator>] BaseTransactionInputType transactionInput)
+        public async Task<User> AddOrUpdateTransaction([UseFluentValidation, UseValidator<BaseTransactionInputTypeValidator>] AddOrUpdateTransactionInputType transactionInput)
         {
             User res;
             var registeredUser = await userRepository.GetByEmailAsync(email: transactionInput.UserEmail) ?? throw new GraphQLException("User not registered.");
 
+            var transaction = new Transaction(
+                description: transactionInput.Transaction.Description,
+                amount: transactionInput.Transaction.Amount,
+                transactionType: transactionInput.Transaction.TransactionType,
+                currency: transactionInput.Transaction.Currency,
+                category: transactionInput.Transaction.Category,
+                dateTime: transactionInput.Transaction.DateTime
+                );
+
             if (transactionInput.Transaction.Id != null)
             {
+                transaction.Id = transactionInput.Transaction.Id;
+
                 var transactionExist = userRepository.GetTransactionById(transactionId: transactionInput.Transaction.Id, user: registeredUser, accountId: transactionInput.AccountId) != null;
-                
+
                 if (!transactionExist) throw new GraphQLException("Transaction id does not exist");
-                
-                res = await userRepository.UpdateTransactionOnUserAccount(transaction: transactionInput.Transaction, user: registeredUser, accountId: transactionInput.AccountId);
+
+                res = await userRepository.UpdateTransactionOnUserAccount(transaction: transaction, user: registeredUser, accountId: transactionInput.AccountId);
             }
             else
             {
-                res = await userRepository.AddTransactionOnUserAccount(transaction: transactionInput.Transaction, user: registeredUser, transactionInput.AccountId);
+                res = await userRepository.AddTransactionOnUserAccount(transaction: transaction, user: registeredUser, transactionInput.AccountId);
             }
 
             return res;
-        } 
+        }
     }
 }

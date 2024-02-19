@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace Backend.API.Validators.TransactionValidators
 {
-    public class BaseTransactionInputTypeValidator : AbstractValidator<BaseTransactionInputType>
+    public class BaseTransactionInputTypeValidator : AbstractValidator<AddOrUpdateTransactionInputType>
     {
         public BaseTransactionInputTypeValidator()
         {

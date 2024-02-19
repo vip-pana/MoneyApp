@@ -2,10 +2,8 @@
 
 namespace Backend.API.Types.InputTypes.TransactionTypes
 {
-    public class TransactionFiltersInputType
+    public class TransactionFiltersInputType : BaseInputType
     {
-        public required string UserEmail { get; init; }
-        public required string AccountId { get; init; }
         public required TransactionFilters TransactionFilters { get; init; }
     }
 }

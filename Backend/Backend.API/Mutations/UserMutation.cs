@@ -58,7 +58,7 @@ namespace Backend.API.Properties
             var registeredUser = await _userRepository.GetByEmailAsync(user.Email);
             string accessToken;
 
-            if (registeredUser == null) throw new GraphQLException("User not registered.");
+            if (registeredUser is null) throw new GraphQLException("User not registered.");
 
             if (!AuthenticationUtils.VerifyPassword(inputPassword: user.Password, hashedPassword: registeredUser.Password))
             {

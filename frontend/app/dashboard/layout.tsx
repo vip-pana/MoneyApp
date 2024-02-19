@@ -1,7 +1,6 @@
 "use client";
 
 import { Box, Flex, HStack, IconButton, useColorMode, useDisclosure, useMediaQuery } from "@chakra-ui/react";
-import React from "react";
 import { LuAlignJustify, LuPlus } from "react-icons/lu";
 import Sidebar from "../ui/dasboard/base/sidebar/sidebar";
 import Navbar from "../ui/dasboard/base/navbar/navbar";
@@ -12,6 +11,7 @@ import { useUserByEmailQuery } from "@/utils/definitions/useQueryDefinition";
 import { sessionStorageEmail } from "@/utils/queryUrl";
 import TransactionModal from "../components/base/transactionModal/transactionModal";
 import { toast } from "sonner";
+import { useEffect, useState } from "react";
 
 const Dashboardlayout = ({
   children,
@@ -32,7 +32,7 @@ const Dashboardlayout = ({
   } = useUserStore();
 
   const { colorMode } = useColorMode();
-  const [collapse, setCollapse] = React.useState(false);
+  const [collapse, setCollapse] = useState(false);
   const [isLargerThan800] = useMediaQuery("(min-width: 800px)");
   const {
     isOpen: isOpenAddTransactionModal,
@@ -40,7 +40,7 @@ const Dashboardlayout = ({
     onClose: onCloseAddTransactionModal,
   } = useDisclosure();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isLargerThan800) {
       setCollapse(false);
     }
@@ -105,7 +105,7 @@ const Dashboardlayout = ({
       }),
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isError)
       toast.error(error.name, {
         description: error.message,
@@ -115,7 +115,7 @@ const Dashboardlayout = ({
   return (
     <HStack w="full" h="100vh" padding={10}>
       <Flex
-        boxShadow="2xl"
+        boxShadow={colorMode === "light" ? "2xl" : "none"}
         as="aside"
         w="full"
         h="full"
@@ -126,7 +126,7 @@ const Dashboardlayout = ({
         justifyContent="space-between"
         transition="ease-in-out .2s"
         borderRadius="3xl"
-        backgroundColor={colorMode === "light" ? "none" : "#2D3748"}
+        backgroundColor={colorMode === "light" ? "none" : "#2d3748"}
       >
         <Sidebar collapse={collapse} />
       </Flex>

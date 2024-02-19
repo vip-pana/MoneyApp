@@ -1,5 +1,5 @@
 import FormErrorHelperText from "@/app/ui/base/formErrorHelperText";
-import { CategoryInput, Currency, TransactionInput } from "@/gql/generated/graphql";
+import { CategoryInput, Currency, TransactionInputTypeInput } from "@/gql/generated/graphql";
 import { TransactionModalFormValueDefinition } from "@/utils/definitions/typeDefinition";
 import { currencyOptions } from "@/utils/enumUtils";
 import { VStack, HStack, FormControl, ModalFooter, Button, Input } from "@chakra-ui/react";
@@ -16,7 +16,7 @@ import { toast } from "sonner";
 import { useTransactionTableStore } from "@/utils/zustand/transactionTableStore";
 
 interface TransactionModalFormProps {
-  selectedTransaction?: TransactionInput | undefined;
+  selectedTransaction?: TransactionInputTypeInput | undefined;
   form: UseFormReturn<TransactionModalFormValueDefinition>;
   clearErrorsAndClose: () => void;
 }
@@ -56,7 +56,7 @@ const TransactionModalForm = (props: TransactionModalFormProps) => {
     }
   }, [props.selectedTransaction]);
 
-  const setValuesBySelectedTransaction = (transaction: TransactionInput) => {
+  const setValuesBySelectedTransaction = (transaction: TransactionInputTypeInput) => {
     setValue("amount", transaction.amount.toString());
     setValue("currency", transaction.currency);
     setValue("description", transaction.description);
@@ -73,7 +73,7 @@ const TransactionModalForm = (props: TransactionModalFormProps) => {
   };
 
   const addOrUpdateTransaction = graphql(`
-    mutation addOrUpdateTransaction($transactionInput: BaseTransactionInputTypeInput!) {
+    mutation addOrUpdateTransaction($transactionInput: AddOrUpdateTransactionInputTypeInput!) {
       addOrUpdateTransaction(transactionInput: $transactionInput) {
         accounts {
           incomeAmount

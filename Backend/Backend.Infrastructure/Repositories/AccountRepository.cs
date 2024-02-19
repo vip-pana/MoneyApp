@@ -5,12 +5,8 @@ using Backend.Infrastructure.Data;
 
 namespace Backend.Infrastructure.Repositories
 {
-    public class AccountRepository : BaseRepository<Account>, IAccountRepository
+    public class AccountRepository(IDbContext context) : BaseRepository<Account>(context), IAccountRepository
     {
-        public AccountRepository(IDbContext context) : base(context)
-        {
-        }
-
         #region GENERATE CATEGORIES
         public async Task<Account> GenerateNewDefaultAccount(Currency currency)
         {
@@ -21,8 +17,8 @@ namespace Backend.Infrastructure.Repositories
                 Name = "Default Account",
                 Currency = currency,
                 Categories = categories,
-                Transactions = new List<Transaction>(),
-                SubUsers = new List<User>(),
+                Transactions = [],
+                SubUsers = [],
                 IncomeAmount = 0.00,
                 ExpenseAmount = 0.00,
             };
@@ -244,7 +240,6 @@ namespace Backend.Infrastructure.Repositories
 
             return categories;
         }
-
         #endregion
     }
 }

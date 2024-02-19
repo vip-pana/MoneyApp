@@ -12,10 +12,11 @@ namespace Backend.Core.Entities
         public required double IncomeAmount { get; set; }
         public required double ExpenseAmount { get; set; }
 
-        public Account()
+        public Account() : base()
         {
             Categories = [];
             Transactions = [];
+            SubUsers = [];
         }
     }
 }
