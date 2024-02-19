@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, HStack, Spacer, Tooltip, useDisclosure } from "@chakra-ui/react";
-import SignupModal from "./signUpModal";
+import SignupModal from "./signUpModal/signUpModal";
 
 const SecondActions = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -9,14 +9,7 @@ const SecondActions = () => {
   return (
     <>
       <HStack w={"100%"} mt={"50"} mb={"-10"} spacing={20}>
-        <Button
-          variant={"ghost"}
-          colorScheme="white"
-          size="sm"
-          onClick={() => {
-            onOpen();
-          }}
-        >
+        <Button variant={"ghost"} colorScheme="white" size="sm" onClick={() => onOpen()}>
           Sign Up
         </Button>
 

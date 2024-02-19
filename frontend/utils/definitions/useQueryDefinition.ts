@@ -2,29 +2,35 @@
 // // that's because all query have to use a query call, so they have to use the query method in queryDefinition.ts
 // // here you have to insert only the request but the call are to do on the component
 
-import { UseFormSetValue } from "react-hook-form";
 import request from "graphql-request";
 import { queryUrl } from "../queryUrl";
 import {
-  AddTransactionDocument,
-  AddTransactionMutation,
-  Currency,
+  AddOrUpdateTransactionDocument,
+  AddOrUpdateTransactionMutation,
   DeleteTransactionDocument,
+  DeleteTransactionListDocument,
+  DeleteTransactionListMutation,
   DeleteTransactionMutation,
   LoginDocument,
   LoginMutation,
   OperationType,
   SignupDocument,
   SignupMutation,
-  TransactionInput,
-  UpdateTransactionDocument,
-  UpdateTransactionMutation,
   UserByEmailDocument,
   UserByEmailQuery,
   UserExistByEmailDocument,
   UserExistByEmailQuery,
+  UserTransactionsFilteredDocument,
+  UserTransactionsFilteredQuery,
 } from "@/gql/generated/graphql";
-import { TransactionModalFormValueDefinition, UserCategory } from "./typeDefinition";
+import {
+  GetUserByEmailQueryValueDefinition,
+  LoginQueryValueDefinition,
+  SignupQueryValueDefinition,
+  TransactionListQueryValueDefinition,
+  TransactionQueryValueDefinition,
+  TransactionsSearchQueryValueDefinition,
+} from "./typeDefinition";
 
 export const useCheckEmailExistQuery = async (emailFormValue: string) => {
   const res = request<UserExistByEmailQuery>(queryUrl, UserExistByEmailDocument, {
@@ -33,7 +39,7 @@ export const useCheckEmailExistQuery = async (emailFormValue: string) => {
   return res;
 };
 
-export const useLoginQuery = async ({ email, password }: { email: string; password: string }) => {
+export const useLoginQuery = async ({ email, password }: LoginQueryValueDefinition) => {
   const res = await request<LoginMutation>(queryUrl, LoginDocument, {
     user: {
       email: email,
@@ -43,159 +49,117 @@ export const useLoginQuery = async ({ email, password }: { email: string; passwo
   return res;
 };
 
-export const useSignupQuery = async ({
-  name,
-  surname,
-  email,
-  password,
-  currency,
-}: {
-  name: string;
-  surname: string;
-  email: string;
-  password: string;
-  currency: string;
-}) => {
+export const useSignupQuery = async (props: SignupQueryValueDefinition) => {
   const res = await request<SignupMutation>(queryUrl, SignupDocument, {
     user: {
-      name: name,
-      surname: surname,
-      email: email,
-      password: password,
+      name: props.name,
+      surname: props.surname,
+      email: props.email,
+      password: props.password,
+      selectedCurrency: props.selectedCurrency,
     },
-    currency: currency,
   });
   return res;
 };
 
-export const useUserByEmailQuery = async ({
-  email,
-  setName,
-  setSurname,
-  setEmail,
-  setCurrency,
-  setIncomeCategories,
-  setExpenseCategories,
-  setIncomeAmount,
-  setExpenseAmount,
-  setTransactions,
-  setSelectedAccountId,
-}: {
-  email: string;
-  setName: (value: string) => void;
-  setSurname: (value: string) => void;
-  setEmail: (value: string) => void;
-  setCurrency: (value: Currency) => void;
-  setIncomeCategories: (categories: UserCategory[]) => void;
-  setExpenseCategories: (categories: UserCategory[]) => void;
-  setIncomeAmount: (value: number) => void;
-  setExpenseAmount: (value: number) => void;
-  setTransactions: (value: TransactionInput[]) => void;
-  setSelectedAccountId: (value: string) => void;
-}) => {
+export const useUserByEmailQuery = async (props: GetUserByEmailQueryValueDefinition) => {
   const res = await request<UserByEmailQuery>(queryUrl, UserByEmailDocument, {
-    email: email,
+    email: props.email,
   });
-  setName(res.userByEmail.name ?? "");
-  setSurname(res.userByEmail.surname ?? "");
-  setEmail(res.userByEmail.email ?? "");
+  props.setName(res.userByEmail.name);
+  props.setSurname(res.userByEmail.surname);
+  props.setEmail(res.userByEmail.email);
+
   if (res.userByEmail.accounts) {
-    if (res.userByEmail.accounts[0].id) {
-      setSelectedAccountId(res.userByEmail.accounts[0].id);
-    }
-    setCurrency(res.userByEmail.accounts[0].currency ?? Currency.Undefined);
-    setIncomeCategories(
-      res.userByEmail.accounts[0].categories.filter((category) => category.categoryType === OperationType.Income)
-    );
-    setExpenseCategories(
-      res.userByEmail.accounts[0].categories.filter((category) => category.categoryType === OperationType.Expense)
-    );
-    setIncomeAmount(res.userByEmail.accounts[0].incomeAmount);
-    setExpenseAmount(res.userByEmail.accounts[0].expenseAmount);
-    setTransactions(res.userByEmail.accounts[0].transactions);
+    if (res.userByEmail.accounts[0].id) props.setSelectedAccountId(res.userByEmail.accounts[0].id);
+    props.setCurrency(res.userByEmail.accounts[0].currency);
+    props.setIncomeAmount(res.userByEmail.accounts[0].incomeAmount);
+    props.setExpenseAmount(res.userByEmail.accounts[0].expenseAmount);
+    props.setTransactions(res.userByEmail.accounts[0].transactions);
+
+    const incomeCategories = res.userByEmail.accounts[0].categories
+      .filter((category) => category.categoryType === OperationType.Income)
+      .map((category) => ({
+        id: category.id,
+        name: category.name,
+        categoryType: category.categoryType,
+        subCategories: category.subCategories || [],
+      }));
+    props.setIncomeCategories(incomeCategories);
+
+    const expenseCategories = res.userByEmail.accounts[0].categories
+      .filter((category) => category.categoryType === OperationType.Expense)
+      .map((category) => ({
+        id: category.id,
+        name: category.name,
+        categoryType: category.categoryType,
+        subCategories: category.subCategories || [],
+      }));
+    props.setExpenseCategories(expenseCategories);
   }
 
   return res;
 };
 
-export const useAddTransactionQuery = async ({
-  email,
-  transaction,
-  accountId: accountId,
-}: {
-  email: string;
-  transaction: TransactionModalFormValueDefinition;
-  accountId: string;
-}) => {
-  const res = await request<AddTransactionMutation>(queryUrl, AddTransactionDocument, {
-    accountId: accountId,
-    user: {
-      email: email,
-    },
-    transaction: {
-      amount: parseFloat(transaction.amount.toString()),
-      currency: transaction.currency,
-      category: {
-        name: transaction.selectedCategory,
-        categoryType: transaction.operationType,
+export const useAddOrUpdateTransactionQuery = async (props: TransactionQueryValueDefinition) => {
+  if (!props.transaction) throw new Error("Missing transaction");
+
+  const res = await request<AddOrUpdateTransactionMutation>(queryUrl, AddOrUpdateTransactionDocument, {
+    transactionInput: {
+      userEmail: props.email,
+      accountId: props.accountId,
+      transaction: {
+        id: props.transactionId,
+        amount: parseFloat(props.transaction.amount.toString()),
+        currency: props.transaction.currency,
+        transactionType: props.transaction.operationType,
+        description: props.transaction.description,
+        dateTime: props.transaction.date,
+        category: {
+          id: props.transaction.category.id,
+          name: props.transaction.category.name,
+          categoryType: props.transaction.operationType,
+        },
       },
-      dateTime: transaction.date,
-      description: transaction.description,
-      transactionType: transaction.operationType,
     },
   });
   return res;
 };
 
-export const useDeleteTransactionQuery = async ({
-  email,
-  transactionId,
-  accountId,
-}: {
-  email: string;
-  transactionId: string;
-  accountId: string;
-}) => {
+export const useDeleteTransactionQuery = async (props: TransactionQueryValueDefinition) => {
   const res = await request<DeleteTransactionMutation>(queryUrl, DeleteTransactionDocument, {
-    user: {
-      email: email,
-    },
     transaction: {
-      id: transactionId,
+      userEmail: props.email,
+      accountId: props.accountId,
+      transactionId: props.transactionId,
     },
-    accountId: accountId,
   });
   return res;
 };
 
-export const useUpdateTransactionQuery = async ({
-  email,
-  transaction,
-  accountId,
-  transactionId,
-}: {
-  email: string;
-  transaction: TransactionModalFormValueDefinition;
-  accountId: string;
-  transactionId: string;
-}) => {
-  const res = await request<UpdateTransactionMutation>(queryUrl, UpdateTransactionDocument, {
-    user: {
-      email: email,
+export const useDeleteTransactionListQuery = async (props: TransactionListQueryValueDefinition) => {
+  const res = await request<DeleteTransactionListMutation>(queryUrl, DeleteTransactionListDocument, {
+    transactions: {
+      userEmail: props.email,
+      accountId: props.accountId,
+      transactionIds: props.transactionIds,
     },
-    transaction: {
-      id: transactionId,
-      amount: parseFloat(transaction.amount.toString()),
-      currency: transaction.currency,
-      category: {
-        name: transaction.selectedCategory,
-        categoryType: transaction.operationType,
+  });
+  return res;
+};
+
+export const useTransactionsFilteredQuery = async (props: TransactionsSearchQueryValueDefinition) => {
+  const res = await request<UserTransactionsFilteredQuery>(queryUrl, UserTransactionsFilteredDocument, {
+    filters: {
+      userEmail: props.email,
+      accountId: props.accountId,
+      transactionFilters: {
+        dateStart: props.dateStart,
+        dateEnd: props.dateEnd,
+        categoriesIds: props.categoriesIds,
+        currencies: props.currencies,
       },
-      dateTime: transaction.date,
-      description: transaction.description,
-      transactionType: transaction.operationType,
     },
-    accountId: accountId,
   });
   return res;
 };

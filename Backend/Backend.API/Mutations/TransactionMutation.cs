@@ -1,5 +1,5 @@
 ﻿using AppAny.HotChocolate.FluentValidation;
-using Backend.API.Validators.DeleteTransactionValidator;
+using Backend.API.Types.InputTypes.TransactionTypes;
 using Backend.API.Validators.TransactionValidators;
 using Backend.Core.Entities;
 using Backend.Core.Repositories;
@@ -7,46 +7,59 @@ using Backend.Core.Repositories;
 namespace Backend.API.Mutations
 {
     [ExtendObjectType("Mutation")]
-    public class TransactionMutation
+    public class TransactionMutation([Service] IUserRepository userRepository)
     {
-        public async Task<User> AddTransaction([UseFluentValidation, UseValidator<TransactionValidator>] Transaction transaction, User user, string accountId, [Service] IUserRepository userRepository)
+        public async Task<User> DeleteTransaction([UseFluentValidation, UseValidator<DeleteTransactionInputTypeValidator>] DeleteTransactionInputType transaction)
         {
-            var registeredUser = await userRepository.GetByEmailAsync(email: user.Email);
+            var registeredUser = await userRepository.GetByEmailAsync(email: transaction.UserEmail) ?? throw new GraphQLException("User not registered.");
 
-            if (registeredUser is null)
-            {
-                throw new GraphQLException("User not registered.");
-            }
+            if (transaction.TransactionId is null) throw new GraphQLException("Transaction id not passed");
 
-            var res = await userRepository.AddTransactionOnUserAccount(transaction: transaction, user: registeredUser, accountId);
+            User res = await userRepository.DeleteTransactionOnUserAccount(transactionId: transaction.TransactionId, user: registeredUser, transaction.AccountId);
 
             return res;
         }
 
-        public async Task<User> deleteTransaction([UseFluentValidation, UseValidator<DeleteTransactionValidator>] Transaction transaction, User user, string accountId, [Service] IUserRepository userRepository)
+        public async Task<User> DeleteTransactionList([UseFluentValidation, UseValidator<DeleteTransactionListInputTypeValidator>] DeleteTransactionListInputType transactions)
         {
-            var registeredUser = await userRepository.GetByEmailAsync(email: user.Email);
+            var registeredUser = await userRepository.GetByEmailAsync(email: transactions.UserEmail) ?? throw new GraphQLException("User not registered.");
 
-            if (registeredUser is null)
-            {
-                throw new GraphQLException("User not registered.");
-            }
+            var allTransactionsHaveId = transactions.TransactionIds.Exists(transaction => transaction is not null || string.IsNullOrWhiteSpace(transaction));
+            if (!allTransactionsHaveId) throw new GraphQLException("Transaction ids not passed");
 
-            User res = await userRepository.DeleteTransactionOnUserAccount(transactionId: transaction.Id, user: registeredUser, accountId);
+            User res = await userRepository.DeleteTransactionListOnUserAccount(transactionIds: transactions.TransactionIds, user: registeredUser, transactions.AccountId);
 
             return res;
         }
 
-        public async Task<User> updateTransaction([UseFluentValidation, UseValidator<TransactionValidator>] Transaction transaction, User user, string accountId, [Service] IUserRepository userRepository, [Service] ITransactionRepository transactionRepository)
+        public async Task<User> AddOrUpdateTransaction([UseFluentValidation, UseValidator<BaseTransactionInputTypeValidator>] AddOrUpdateTransactionInputType transactionInput)
         {
-            var registeredUser = await userRepository.GetByEmailAsync(email: user.Email);
+            User res;
+            var registeredUser = await userRepository.GetByEmailAsync(email: transactionInput.UserEmail) ?? throw new GraphQLException("User not registered.");
 
-            if (registeredUser is null)
+            var transaction = new Transaction(
+                description: transactionInput.Transaction.Description,
+                amount: transactionInput.Transaction.Amount,
+                transactionType: transactionInput.Transaction.TransactionType,
+                currency: transactionInput.Transaction.Currency,
+                category: transactionInput.Transaction.Category,
+                dateTime: transactionInput.Transaction.DateTime
+                );
+
+            if (transactionInput.Transaction.Id != null)
             {
-                throw new GraphQLException("User not registered.");
-            }
+                transaction.Id = transactionInput.Transaction.Id;
 
-            User res = await userRepository.UpdateTransactionOnUserAccount(transaction: transaction, user: registeredUser, accountId: accountId);
+                var transactionExist = userRepository.GetTransactionById(transactionId: transactionInput.Transaction.Id, user: registeredUser, accountId: transactionInput.AccountId) != null;
+
+                if (!transactionExist) throw new GraphQLException("Transaction id does not exist");
+
+                res = await userRepository.UpdateTransactionOnUserAccount(transaction: transaction, user: registeredUser, accountId: transactionInput.AccountId);
+            }
+            else
+            {
+                res = await userRepository.AddTransactionOnUserAccount(transaction: transaction, user: registeredUser, transactionInput.AccountId);
+            }
 
             return res;
         }

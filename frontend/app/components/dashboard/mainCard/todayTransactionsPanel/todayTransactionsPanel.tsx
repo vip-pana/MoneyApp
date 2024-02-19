@@ -1,24 +1,10 @@
 "use client";
 import { useUserStore } from "@/utils/zustand/userStore";
-import {
-  HStack,
-  IconButton,
-  Stat,
-  StatArrow,
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
-  Text,
-  Th,
-  Thead,
-  Tr,
-  useDisclosure,
-} from "@chakra-ui/react";
+import { Table, TableContainer, Tbody, Th, Thead, Tr, useDisclosure } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import { LuTrash } from "react-icons/lu";
 import DeleteTransactionDialog from "../../../base/deleteTransactionDialog";
-import { OperationType, TransactionInput } from "@/gql/generated/graphql";
+import { TransactionInput } from "@/gql/generated/graphql";
+import TransactionElement from "./transactionElement";
 
 const TodayTransactionsPanel = () => {
   const { transactions } = useUserStore();
@@ -29,15 +15,20 @@ const TodayTransactionsPanel = () => {
   } = useDisclosure();
 
   const [selectedTransaction, setSelectedTransaction] = useState<TransactionInput>();
+  const [todayTransactions, setTodayTransactions] = useState<TransactionInput[]>([]);
   const [today, setToday] = useState<Date>(new Date());
 
   useEffect(() => {
+    setTodayDate();
+    setTodayTransactions(transactions.filter(filterHours));
+  }, []);
+
+  const setTodayDate = () => {
     const tmp = today;
     tmp.setMinutes(tmp.getMinutes() + tmp.getTimezoneOffset());
-
     tmp.setUTCHours(0, 0, 0, 0);
     setToday(tmp);
-  }, []);
+  };
 
   const filterHours = (transaction: TransactionInput) => {
     const transactionDate = new Date(transaction.dateTime);
@@ -46,6 +37,7 @@ const TodayTransactionsPanel = () => {
 
     return transactionDate.getTime() === today.getTime();
   };
+
   return (
     <>
       <TableContainer overflowY={"auto"} maxH={"200px"}>
@@ -59,37 +51,13 @@ const TodayTransactionsPanel = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {transactions.filter(filterHours).map((transaction, index) => (
-              <Tr key={index}>
-                <Td>
-                  <Stat>
-                    <Text>
-                      <StatArrow
-                        type={transaction.transactionType === OperationType.Income ? "increase" : "decrease"}
-                      />
-                      {transaction.amount} {transaction.currency}
-                    </Text>
-                  </Stat>
-                </Td>
-                <Td>{transaction.category?.name}</Td>
-                <Td>{transaction.description}</Td>
-                <Td>
-                  <HStack>
-                    <IconButton
-                      aria-label={"info"}
-                      icon={<LuTrash />}
-                      isRound
-                      variant={"outline"}
-                      colorScheme="red"
-                      size={"sm"}
-                      onClick={() => {
-                        setSelectedTransaction(transaction);
-                        onOpenDeleteTransactionDialog();
-                      }}
-                    />
-                  </HStack>
-                </Td>
-              </Tr>
+            {todayTransactions.map((transaction, index) => (
+              <TransactionElement
+                transaction={transaction}
+                index={index}
+                setSelectedTransaction={setSelectedTransaction}
+                onOpenDeleteTransactionDialog={onOpenDeleteTransactionDialog}
+              />
             ))}
           </Tbody>
         </Table>

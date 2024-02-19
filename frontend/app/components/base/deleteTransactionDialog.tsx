@@ -1,8 +1,9 @@
 "use client";
 
 import { graphql } from "@/gql/generated";
-import { TransactionInput } from "@/gql/generated/graphql";
+import { TransactionModalProps } from "@/utils/definitions/typeDefinition";
 import { useDeleteTransactionQuery } from "@/utils/definitions/useQueryDefinition";
+import { useTransactionTableStore } from "@/utils/zustand/transactionTableStore";
 import { useUserStore } from "@/utils/zustand/userStore";
 import {
   AlertDialogOverlay,
@@ -13,27 +14,20 @@ import {
   Button,
   AlertDialog,
   Text,
-  useToast,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
+import { toast } from "sonner";
 
-const DeleteTransactionDialog = ({
-  isOpen,
-  onClose,
-  selectedTransaction,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  selectedTransaction: TransactionInput | undefined;
-}) => {
+const DeleteTransactionDialog = ({ isOpen, onClose, selectedTransaction }: TransactionModalProps) => {
   const { email, selectedAccountId, setTransactions, setExpenseAmount, setIncomeAmount } = useUserStore();
+  const { setTransactionsFiltered } = useTransactionTableStore();
+
   const cancelRef = React.useRef<HTMLButtonElement>(null);
-  const toast = useToast();
 
   const deleteTransactionQueryDocument = graphql(`
-    mutation deleteTransaction($user: UserInput!, $transaction: TransactionInput!, $accountId: String!) {
-      deleteTransaction(user: $user, transaction: $transaction, accountId: $accountId) {
+    mutation deleteTransaction($transaction: DeleteTransactionInputTypeInput!) {
+      deleteTransaction(transaction: $transaction) {
         accounts {
           incomeAmount
           expenseAmount
@@ -69,18 +63,14 @@ const DeleteTransactionDialog = ({
   const onSubmit = async () => {
     const { data, isError, error } = await refetch();
     if (isError) {
-      toast({
-        title: error.name,
+      toast.error(error.name, {
         description: error.message,
-        status: "error",
       });
     } else {
-      toast({
-        title: "Transaction deleted!",
-        status: "success",
-      });
+      toast.success("Transaction deleted!");
       if (data?.deleteTransaction.accounts) {
         setTransactions(data?.deleteTransaction.accounts[0].transactions);
+        setTransactionsFiltered(data?.deleteTransaction.accounts[0].transactions);
         setIncomeAmount(data.deleteTransaction.accounts[0].incomeAmount);
         setExpenseAmount(data.deleteTransaction.accounts[0].expenseAmount);
       }
@@ -89,30 +79,28 @@ const DeleteTransactionDialog = ({
   };
 
   return (
-    <>
-      <AlertDialog isOpen={isOpen} onClose={onClose} leastDestructiveRef={cancelRef}>
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Delete Transaction
-            </AlertDialogHeader>
+    <AlertDialog isOpen={isOpen} onClose={onClose} leastDestructiveRef={cancelRef}>
+      <AlertDialogOverlay>
+        <AlertDialogContent>
+          <AlertDialogHeader>Delete Transaction</AlertDialogHeader>
 
-            <AlertDialogBody>
-              <Text>Amount: {selectedTransaction?.amount}</Text>
-              <Text>Description: {selectedTransaction?.description}</Text>
-              Are you sure? You can't undo this action afterwards.
-            </AlertDialogBody>
+          <AlertDialogBody>
+            <Text>Amount: {selectedTransaction?.amount}</Text>
+            <Text>Description: {selectedTransaction?.description}</Text>
+            Are you sure? You can't undo this action afterwards.
+          </AlertDialogBody>
 
-            <AlertDialogFooter>
-              <Button onClick={onClose}>Cancel</Button>
-              <Button colorScheme="red" onClick={onSubmit} isLoading={isLoading} ml={3}>
-                Delete
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
-    </>
+          <AlertDialogFooter>
+            <Button onClick={onClose} variant={"outline"}>
+              Cancel
+            </Button>
+            <Button colorScheme="red" onClick={onSubmit} isLoading={isLoading} ml={3}>
+              Delete
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialogOverlay>
+    </AlertDialog>
   );
 };
 

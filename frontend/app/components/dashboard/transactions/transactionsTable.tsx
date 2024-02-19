@@ -16,14 +16,18 @@ import {
   Tr,
   useDisclosure,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { LuFileEdit, LuTrash } from "react-icons/lu";
 import DeleteTransactionDialog from "../../base/deleteTransactionDialog";
 import { OperationType, TransactionInput } from "@/gql/generated/graphql";
 import TransactionModal from "../../base/transactionModal/transactionModal";
+import { format } from "date-fns";
+import { useTransactionTableStore } from "@/utils/zustand/transactionTableStore";
 
-const TransactionsGrid = () => {
+const TransactionsTable = () => {
   const { transactions } = useUserStore();
+  const { transactionsFiltered, setTransactionsFiltered, selectedTransactionList, setSelectedTransactionList } =
+    useTransactionTableStore();
   const {
     isOpen: isOpenDeleteTransactionDialog,
     onOpen: onOpenDeleteTransactionDialog,
@@ -36,10 +40,20 @@ const TransactionsGrid = () => {
   } = useDisclosure();
 
   const [selectedTransaction, setSelectedTransaction] = useState<TransactionInput>();
-  const [selectedTransactionList, setSelectedTransactionList] = useState<TransactionInput[]>([]);
+
+  const formatDate = (dateTime: string): string => {
+    const date = new Date(dateTime);
+    const formattedDate = format(date, "yyyy-MM-dd");
+    return formattedDate;
+  };
+
+  useEffect(() => {
+    setTransactionsFiltered(transactions);
+  }, []);
+
   return (
     <>
-      <TableContainer overflowY={"auto"} maxH={"400px"}>
+      <TableContainer overflowY={"auto"} maxH={"300px"}>
         <Table variant={"striped"} size={"sm"}>
           <Thead>
             <Tr>
@@ -52,15 +66,16 @@ const TransactionsGrid = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {transactions.map((transaction, index) => (
+            {transactionsFiltered.map((transaction, index) => (
               <Tr key={index}>
                 <Td>
                   <Checkbox
+                    colorScheme="red"
                     onChange={(e) => {
                       if (e.target.checked) {
                         setSelectedTransactionList([...selectedTransactionList, transaction]);
                       } else {
-                        setSelectedTransactionList(selectedTransactionList.filter((el) => el == transaction));
+                        setSelectedTransactionList(selectedTransactionList.filter((t) => t !== transaction));
                       }
                     }}
                   />
@@ -77,7 +92,7 @@ const TransactionsGrid = () => {
                 </Td>
                 <Td>{transaction.category?.name}</Td>
                 <Td>{transaction.description}</Td>
-                <Td>{transaction.dateTime}</Td>
+                <Td>{formatDate(transaction.dateTime)}</Td>
                 <Td>
                   <HStack>
                     <IconButton
@@ -126,4 +141,4 @@ const TransactionsGrid = () => {
   );
 };
 
-export default TransactionsGrid;
+export default TransactionsTable;

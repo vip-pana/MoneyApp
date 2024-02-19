@@ -1,6 +1,6 @@
 ﻿using Backend.Core.Entities;
 
-namespace Backend.API.Types.InputTypes
+namespace Backend.API.Types.InputTypes.UserTypes
 {
     public class InputUserType : InputObjectType<User>
     {

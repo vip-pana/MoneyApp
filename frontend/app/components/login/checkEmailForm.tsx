@@ -1,5 +1,5 @@
 import { formCheckEmailValidation } from "@/utils/definitions/typeValidation";
-import { Button, FormControl, IconButton, Input, InputGroup, InputRightElement, useToast } from "@chakra-ui/react";
+import { Button, FormControl, IconButton, Input, InputGroup, InputRightElement } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LuChevronRight } from "react-icons/lu";
 import { UseFormSetValue, useForm } from "react-hook-form";
@@ -9,6 +9,7 @@ import { useCheckEmailExistQuery } from "@/utils/definitions/useQueryDefinition"
 import { useUserStore } from "@/utils/zustand/userStore";
 import FormErrorHelperText from "@/app/ui/base/formErrorHelperText";
 import { CheckMailValueDefinition, LoginValueDefinition } from "../../../utils/definitions/typeDefinition";
+import { toast } from "sonner";
 
 const CheckEmailForm = ({
   setEmailLoginFormValue,
@@ -25,7 +26,6 @@ const CheckEmailForm = ({
     getValues,
   } = form;
 
-  const toast = useToast();
   const { setEmailExist } = useUserStore();
 
   const checkEmailExistQueryDocument = graphql(`
@@ -36,17 +36,15 @@ const CheckEmailForm = ({
 
   const { refetch, isLoading } = useQuery({
     queryKey: ["checkEmailExist"],
-    queryFn: () => useCheckEmailExistQuery(getValues("email").toLowerCase(), setEmailExist, setEmailLoginFormValue),
+    queryFn: () => useCheckEmailExistQuery(getValues("email").toLowerCase()),
     enabled: false,
   });
 
   const onSubmit = async () => {
     const { data, isError, error } = await refetch();
     if (isError || data?.userExistByEmail == false) {
-      toast({
-        title: error?.name,
+      toast.error(error?.name, {
         description: error?.message,
-        status: "error",
       });
     } else {
       setEmailLoginFormValue("email", getValues("email").toLowerCase());

@@ -5,26 +5,17 @@ import { graphql } from "@/gql/generated";
 import { useLoginQuery } from "@/utils/definitions/useQueryDefinition";
 import { sessionStorageEmail } from "@/utils/queryUrl";
 import { useUserStore } from "@/utils/zustand/userStore";
-import {
-  Stack,
-  Input,
-  FormControl,
-  InputGroup,
-  InputRightElement,
-  IconButton,
-  Button,
-  useToast,
-} from "@chakra-ui/react";
+import { Stack, Input, FormControl, InputGroup, InputRightElement, IconButton, Button } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { UseFormReturn } from "react-hook-form";
 import { LuUnlock, LuEyeOff, LuEye } from "react-icons/lu";
 import { LoginValueDefinition } from "../../../utils/definitions/typeDefinition";
+import { toast } from "sonner";
 
 const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any, undefined> }) => {
   const router = useRouter();
-  const toast = useToast();
 
   const { setEmailExist } = useUserStore();
   const [passwordVisible, setPasswordVisible] = React.useState(false);
@@ -33,12 +24,11 @@ const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any, un
     register,
     handleSubmit,
     formState: { errors },
-    setValue,
     getValues,
   } = form;
 
   const loginQueryDocument = graphql(`
-    mutation login($user: UserInput!) {
+    mutation login($user: UserLoginInputTypeInput!) {
       login(user: $user)
     }
   `);
@@ -46,10 +36,8 @@ const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any, un
   const onSubmit = async () => {
     const { data, isError, error } = await refetch();
     if (isError) {
-      toast({
-        title: error.name,
+      toast.error(error.name, {
         description: error.message,
-        status: "error",
       });
     } else if (data?.login) {
       sessionStorage.setItem("token", data.login);

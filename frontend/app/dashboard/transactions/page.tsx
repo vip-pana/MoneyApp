@@ -1,9 +1,7 @@
-import TodayTransactionsPanel from "@/app/components/dashboard/mainCard/todayTransactionsPanel/todayTransactionsPanel";
-import MainCard from "@/app/components/dashboard/mainCard/mainCard";
-import TransactionsSearchbar from "@/app/components/dashboard/transactions/transactionsSearchbar";
+import TransactionsSearchbar from "@/app/components/dashboard/transactions/transactionsSearchbar/transactionsSearchbar";
 import { Box, Card, CardBody, Text } from "@chakra-ui/react";
 import React from "react";
-import TransactionsGrid from "@/app/components/dashboard/transactions/transactionsGrid";
+import TransactionsTable from "@/app/components/dashboard/transactions/transactionsTable";
 
 const TransactionPage = () => {
   return (
@@ -12,7 +10,7 @@ const TransactionPage = () => {
       <Box mt={"20px"}>
         <Card>
           <CardBody>
-            <TransactionsGrid />
+            <TransactionsTable />
           </CardBody>
         </Card>
       </Box>

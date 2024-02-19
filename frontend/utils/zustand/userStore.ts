@@ -1,6 +1,5 @@
-import { Currency, TransactionInput } from "@/gql/generated/graphql";
+import { CategoryInput, Currency, TransactionInput } from "@/gql/generated/graphql";
 import { create } from "zustand";
-import { UserCategory } from "../definitions/typeDefinition";
 
 type User = {
   emailExist: boolean;
@@ -24,11 +23,11 @@ type User = {
   expenseAmount: number;
   setExpenseAmount: (value: number) => void;
 
-  incomeCategories: UserCategory[];
-  setIncomeCategories: (categories: UserCategory[]) => void;
+  incomeCategories: CategoryInput[];
+  setIncomeCategories: (categories: CategoryInput[]) => void;
 
-  expenseCategories: UserCategory[];
-  setExpenseCategories: (categories: UserCategory[]) => void;
+  expenseCategories: CategoryInput[];
+  setExpenseCategories: (categories: CategoryInput[]) => void;
 
   transactions: TransactionInput[];
   setTransactions: (value: TransactionInput[]) => void;
@@ -53,9 +52,9 @@ export const useUserStore = create<User>((set) => ({
   expenseAmount: 0,
   setExpenseAmount: (value: number) => set((state) => ({ expenseAmount: value })),
   incomeCategories: [],
-  setIncomeCategories: (categories: UserCategory[]) => set((state) => ({ incomeCategories: categories })),
+  setIncomeCategories: (categories: CategoryInput[]) => set((state) => ({ incomeCategories: categories })),
   expenseCategories: [],
-  setExpenseCategories: (categories: UserCategory[]) => set((state) => ({ expenseCategories: categories })),
+  setExpenseCategories: (categories: CategoryInput[]) => set((state) => ({ expenseCategories: categories })),
   transactions: [],
   setTransactions: (values: TransactionInput[]) => set((state) => ({ transactions: values })),
   selectedAccountId: "",

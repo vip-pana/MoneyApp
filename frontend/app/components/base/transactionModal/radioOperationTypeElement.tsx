@@ -5,6 +5,8 @@ const RadioOperationTypeElement = (props: any) => {
   const input = getInputProps();
   const checkBox = getRadioProps();
 
+  const isIncome = props.children == "Income";
+
   return (
     <Box as="label">
       <input {...input} />
@@ -14,9 +16,9 @@ const RadioOperationTypeElement = (props: any) => {
         borderRadius={"lg"}
         borderWidth={"1px"}
         boxShadow={"md"}
-        borderColor={props.isIncome ? "teal.600" : "red.600"}
+        borderColor={isIncome ? "teal.600" : "red.600"}
         _checked={{
-          bg: props.isIncome ? "teal.600" : "red.600",
+          bg: isIncome ? "teal.600" : "red.600",
           color: "white",
         }}
         _focus={{

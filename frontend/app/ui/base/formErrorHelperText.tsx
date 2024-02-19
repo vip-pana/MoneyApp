@@ -3,8 +3,14 @@ import React from "react";
 
 export default function FormErrorHelperText({
   children,
+  centered,
 }: Readonly<{
   children: React.ReactNode;
+  centered?: boolean;
 }>) {
-  return <FormHelperText color={"red"}>{children}</FormHelperText>;
+  return (
+    <FormHelperText color={"red"} textAlign={centered ? "center" : undefined}>
+      {children}
+    </FormHelperText>
+  );
 }
