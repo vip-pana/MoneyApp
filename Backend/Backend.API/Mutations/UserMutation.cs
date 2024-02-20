@@ -5,6 +5,7 @@ using Backend.API.Validators.UserValidators;
 using Backend.Core.Entities;
 using Backend.Core.Repositories;
 using Backend.Utils.Authentication;
+using HotChocolate.Execution;
 using Microsoft.Extensions.Options;
 
 namespace Backend.API.Properties
@@ -31,9 +32,10 @@ namespace Backend.API.Properties
         #region LOGIN AND SIGNUP
         public async Task<string> Signup([UseFluentValidation, UseValidator<UserSignupInputTypeValidator>] UserSignupInputType user)
         {
+
             var registeredUser = await _userRepository.GetByEmailAsync(email: user.Email);
 
-            if (registeredUser != null) throw new GraphQLException("User already registered.");
+            if (registeredUser is null) throw new QueryException(new Error("User not registered"));
 
             var defaultAccount = await _accountRepository.GenerateNewDefaultAccount(currency: user.SelectedCurrency);
 
@@ -58,11 +60,11 @@ namespace Backend.API.Properties
             var registeredUser = await _userRepository.GetByEmailAsync(user.Email);
             string accessToken;
 
-            if (registeredUser is null) throw new GraphQLException("User not registered.");
+            if (registeredUser is null) throw new GraphQLException(new Error("User not registered."));
 
             if (!AuthenticationUtils.VerifyPassword(inputPassword: user.Password, hashedPassword: registeredUser.Password))
             {
-                throw new GraphQLException("Wrong password.");
+                throw new GraphQLException(new Error("Wrong password."));
             }
             else
             {

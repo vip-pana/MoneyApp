@@ -54,7 +54,7 @@ const DeleteTransactionDialog = ({ isOpen, onClose, selectedTransaction }: Trans
     queryFn: () =>
       useDeleteTransactionQuery({
         email: email,
-        transactionId: selectedTransaction?.id ?? "",
+        transactionId: selectedTransaction.id,
         accountId: selectedAccountId,
       }),
     enabled: false,

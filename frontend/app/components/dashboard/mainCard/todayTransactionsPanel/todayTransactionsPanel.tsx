@@ -3,7 +3,7 @@ import { useUserStore } from "@/utils/zustand/userStore";
 import { Table, TableContainer, Tbody, Th, Thead, Tr, useDisclosure } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import DeleteTransactionDialog from "../../../base/deleteTransactionDialog";
-import { TransactionInput } from "@/gql/generated/graphql";
+import { Transaction } from "@/gql/generated/graphql";
 import TransactionElement from "./transactionElement";
 
 const TodayTransactionsPanel = () => {
@@ -14,8 +14,8 @@ const TodayTransactionsPanel = () => {
     onClose: onCloseDeleteTransactionDialog,
   } = useDisclosure();
 
-  const [selectedTransaction, setSelectedTransaction] = useState<TransactionInput>();
-  const [todayTransactions, setTodayTransactions] = useState<TransactionInput[]>([]);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction>();
+  const [todayTransactions, setTodayTransactions] = useState<Transaction[]>([]);
   const [today, setToday] = useState<Date>(new Date());
 
   useEffect(() => {
@@ -30,7 +30,7 @@ const TodayTransactionsPanel = () => {
     setToday(tmp);
   };
 
-  const filterHours = (transaction: TransactionInput) => {
+  const filterHours = (transaction: Transaction) => {
     const transactionDate = new Date(transaction.dateTime);
     transactionDate.setMinutes(transactionDate.getMinutes() + transactionDate.getTimezoneOffset());
     transactionDate.setUTCHours(0, 0, 0, 0);

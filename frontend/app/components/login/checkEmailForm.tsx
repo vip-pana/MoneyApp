@@ -42,10 +42,12 @@ const CheckEmailForm = ({
 
   const onSubmit = async () => {
     const { data, isError, error } = await refetch();
-    if (isError || data?.userExistByEmail == false) {
+    if (isError) {
       toast.error(error?.name, {
         description: error?.message,
       });
+    } else if (data?.userExistByEmail === false) {
+      toast.error("User not registered");
     } else {
       setEmailLoginFormValue("email", getValues("email").toLowerCase());
       setEmailExist(true);
