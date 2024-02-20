@@ -11,7 +11,7 @@ namespace Backend.API.Queries
     {
         public async Task<User> GetUserTransactionsFiltered([UseFluentValidation, UseValidator<TransactionFilterInputTypeValidator>] TransactionFiltersInputType filters)
         {
-            var registeredUser = await userRepository.GetByEmailAsync(email: filters.UserEmail) ?? throw new GraphQLException("User not registered.");
+            var registeredUser = await userRepository.GetByEmailAsync(email: filters.UserEmail) ?? throw new GraphQLException(new Error("User not registered."));
 
             registeredUser = userRepository.FilterUserTransactions(filters.TransactionFilters, registeredUser, filters.AccountId);
 
