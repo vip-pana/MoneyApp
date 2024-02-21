@@ -5,6 +5,7 @@ using Backend.API.Validators.UserValidators;
 using Backend.Core.Entities;
 using Backend.Core.Repositories;
 using Backend.Utils.Authentication;
+using HotChocolate.Authorization;
 using HotChocolate.Execution;
 using Microsoft.Extensions.Options;
 
@@ -30,9 +31,9 @@ namespace Backend.API.Properties
         }
 
         #region LOGIN AND SIGNUP
+        [AllowAnonymous]
         public async Task<string> Signup([UseFluentValidation, UseValidator<UserSignupInputTypeValidator>] UserSignupInputType user)
         {
-
             var registeredUser = await _userRepository.GetByEmailAsync(email: user.Email);
 
             if (registeredUser is null) throw new QueryException(new Error("User not registered"));
@@ -55,6 +56,7 @@ namespace Backend.API.Properties
             return accessToken;
         }
 
+        [AllowAnonymous]
         public async Task<string> Login([UseFluentValidation, UseValidator<UserLoginInputTypeValidator>] UserLoginInputType user)
         {
             var registeredUser = await _userRepository.GetByEmailAsync(user.Email);

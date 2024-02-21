@@ -1,4 +1,5 @@
 "use client";
+
 import { useUserStore } from "@/utils/zustand/userStore";
 import { Table, TableContainer, Tbody, Th, Thead, Tr, useDisclosure } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
@@ -21,6 +22,7 @@ const TodayTransactionsPanel = () => {
   useEffect(() => {
     setTodayDate();
     setTodayTransactions(transactions.filter(filterHours));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const setTodayDate = () => {
@@ -55,6 +57,7 @@ const TodayTransactionsPanel = () => {
               <TransactionElement
                 transaction={transaction}
                 index={index}
+                key={index}
                 setSelectedTransaction={setSelectedTransaction}
                 onOpenDeleteTransactionDialog={onOpenDeleteTransactionDialog}
               />

@@ -25,7 +25,8 @@ namespace Backend.API.Configuration.Services
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true
+                    ValidateIssuerSigningKey = true,
+                    ClockSkew = TimeSpan.Zero
                 };
                 options.RequireHttpsMetadata = false;
             });

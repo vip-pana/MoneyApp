@@ -1,5 +1,5 @@
 import { Box, Center, VStack } from "@chakra-ui/react";
-import Logo from "../ui/login/logo";
+import Logo from "../ui/login/Logo";
 
 const LoginLayout = ({
   children,

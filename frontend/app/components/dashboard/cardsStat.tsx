@@ -1,6 +1,4 @@
-import { Box, Center, HStack, Heading, IconButton } from "@chakra-ui/react";
-import React from "react";
-import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
+import { Box, Center, HStack } from "@chakra-ui/react";
 import TransactionCard from "./transactionCard";
 import MonthChange from "./monthChange";
 

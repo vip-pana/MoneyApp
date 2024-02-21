@@ -2,23 +2,23 @@
 
 import FormErrorHelperText from "@/app/ui/base/formErrorHelperText";
 import { graphql } from "@/gql/generated";
-import { useLoginQuery } from "@/utils/definitions/useQueryDefinition";
+import { useLoginQuery as UseLoginQuery } from "@/utils/definitions/useQueryDefinition";
 import { sessionStorageEmail } from "@/utils/queryUrl";
 import { useUserStore } from "@/utils/zustand/userStore";
 import { Stack, Input, FormControl, InputGroup, InputRightElement, IconButton, Button } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import React from "react";
 import { UseFormReturn } from "react-hook-form";
 import { LuUnlock, LuEyeOff, LuEye } from "react-icons/lu";
 import { LoginValueDefinition } from "../../../utils/definitions/typeDefinition";
 import { toast } from "sonner";
+import { useState } from "react";
 
 const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any, undefined> }) => {
   const router = useRouter();
 
   const { setEmailExist } = useUserStore();
-  const [passwordVisible, setPasswordVisible] = React.useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   const {
     register,
@@ -49,7 +49,7 @@ const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any, un
   const { refetch, isLoading } = useQuery({
     queryKey: ["login"],
     queryFn: () =>
-      useLoginQuery({
+      UseLoginQuery({
         email: getValues("email").toLowerCase(),
         password: getValues("password"),
       }),
