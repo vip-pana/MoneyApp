@@ -3,12 +3,14 @@ using Backend.API.Types.InputTypes.TransactionTypes;
 using Backend.API.Validators.TransactionValidators;
 using Backend.Core.Entities;
 using Backend.Core.Repositories;
+using HotChocolate.Authorization;
 
 namespace Backend.API.Mutations
 {
     [ExtendObjectType("Mutation")]
     public class TransactionMutation([Service] IUserRepository userRepository)
     {
+        [Authorize]
         public async Task<User> DeleteTransaction([UseFluentValidation, UseValidator<DeleteTransactionInputTypeValidator>] DeleteTransactionInputType transaction)
         {
             var registeredUser = await userRepository.GetByEmailAsync(email: transaction.UserEmail) ?? throw new GraphQLException(new Error("User not registered."));
@@ -20,6 +22,7 @@ namespace Backend.API.Mutations
             return res;
         }
 
+        [Authorize]
         public async Task<User> DeleteTransactionList([UseFluentValidation, UseValidator<DeleteTransactionListInputTypeValidator>] DeleteTransactionListInputType transactions)
         {
             var registeredUser = await userRepository.GetByEmailAsync(email: transactions.UserEmail) ?? throw new GraphQLException(new Error("User not registered."));
@@ -32,6 +35,7 @@ namespace Backend.API.Mutations
             return res;
         }
 
+        [Authorize]
         public async Task<User> AddOrUpdateTransaction([UseFluentValidation, UseValidator<BaseTransactionInputTypeValidator>] AddOrUpdateTransactionInputType transactionInput)
         {
             User res;

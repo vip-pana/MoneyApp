@@ -1,4 +1,4 @@
-import { OperationType, TransactionInput } from "@/gql/generated/graphql";
+import { OperationType, Transaction } from "@/gql/generated/graphql";
 import { Tr, Td, Stat, StatArrow, HStack, IconButton, Text } from "@chakra-ui/react";
 import { LuTrash } from "react-icons/lu";
 
@@ -8,9 +8,9 @@ const TransactionElement = ({
   setSelectedTransaction,
   onOpenDeleteTransactionDialog,
 }: {
-  transaction: TransactionInput;
+  transaction: Transaction;
   index: number;
-  setSelectedTransaction: (value: React.SetStateAction<TransactionInput | undefined>) => void;
+  setSelectedTransaction: (value: React.SetStateAction<Transaction | undefined>) => void;
   onOpenDeleteTransactionDialog: () => void;
 }) => {
   return (

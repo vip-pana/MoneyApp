@@ -4,7 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Backend.API.Configuration.Services
 {
-    public class JwtServiceInstaller : IServiceInstaller
+    public class AuthServiceInstaller : IServiceInstaller
     {
         public void Install(IServiceCollection services, IConfiguration configuration)
         {
@@ -16,17 +16,17 @@ namespace Backend.API.Configuration.Services
 
                 ArgumentNullException.ThrowIfNull(jwtConfiuration);
 
-                options.Authority = jwtConfiuration.Authority;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfiuration.Key)),
                     ValidIssuer = jwtConfiuration.Issuer,
                     ValidAudience = jwtConfiuration.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfiuration.Key)),
                     RequireExpirationTime = true,
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true
+                    ValidateIssuerSigningKey = true,
+                    ClockSkew = TimeSpan.Zero
                 };
                 options.RequireHttpsMetadata = false;
             });
