@@ -5,7 +5,7 @@ import { SignUpValueDefinition } from "@/utils/definitions/typeDefinition";
 import { formSignupValidation } from "@/utils/definitions/typeValidation";
 import { useSignupQuery } from "@/utils/definitions/useQueryDefinition";
 import { getEnumValue } from "@/utils/enumUtils";
-import { getGraphQLErrorMessage } from "@/utils/errorUtils";
+import { manageApiCallErrors } from "@/utils/errorUtils";
 import { sessionStorageEmail } from "@/utils/queryUrl";
 import { Stack, FormControl, InputGroup, InputRightElement, Button, Input, Select } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,7 +14,6 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { LuEyeOff, LuEye } from "react-icons/lu";
-import { toast } from "sonner";
 
 const SignUpModalForm = () => {
   const {
@@ -31,8 +30,8 @@ const SignUpModalForm = () => {
 
   const onSubmit = async () => {
     const { data, isError, error } = await refetch();
-    if (isError) {
-      toast.error(getGraphQLErrorMessage(error), {});
+    if (isError || data?.errors) {
+      manageApiCallErrors(error, data?.errors);
     }
     if (data?.string) {
       sessionStorage.setItem("token", data.string);

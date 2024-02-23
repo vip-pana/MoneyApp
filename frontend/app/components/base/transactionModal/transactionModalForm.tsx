@@ -14,6 +14,7 @@ import { useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { useTransactionTableStore } from "@/utils/zustand/transactionTableStore";
+import { manageApiCallErrors } from "@/utils/errorUtils";
 
 interface TransactionModalFormProps {
   selectedTransaction?: TransactionInputTypeInput | undefined;
@@ -72,7 +73,7 @@ const TransactionModalForm = (props: TransactionModalFormProps) => {
     setValue("date", formattedDate);
   };
 
-  const addOrUpdateTransaction = graphql(`
+  const addOrUpdateTransactionMutation = graphql(`
     mutation addOrUpdateTransaction($transactionInput: AddOrUpdateTransactionInputTypeInput!) {
       addOrUpdateTransaction(input: { transactionInput: $transactionInput }) {
         user {
@@ -101,14 +102,11 @@ const TransactionModalForm = (props: TransactionModalFormProps) => {
 
   const onSubmitAddOrUpdateTransaction = async () => {
     const { data, isError, error } = await addOrUpdateTransactionRefetch();
-    if (isError) {
-      toast.error(error.name, {
-        description: error.message,
-      });
-    } else {
+    if (isError || data?.addOrUpdateTransaction.errors) {
+      manageApiCallErrors(error, data?.addOrUpdateTransaction.errors);
+    } else if (data?.addOrUpdateTransaction.user?.accounts) {
       toast.success(props.selectedTransaction?.id ? "Transaction updated!" : "Transaction added!");
-      if (data?.addOrUpdateTransaction.user?.accounts)
-        updateTransactionsData(data?.addOrUpdateTransaction.user?.accounts);
+      updateTransactionsData(data.addOrUpdateTransaction.user.accounts);
 
       reset();
       props.clearErrorsAndClose();

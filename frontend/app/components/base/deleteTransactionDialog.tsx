@@ -3,6 +3,7 @@
 import { graphql } from "@/gql/generated";
 import { TransactionModalProps } from "@/utils/definitions/typeDefinition";
 import { useDeleteTransactionMutation } from "@/utils/definitions/useQueryDefinition";
+import { manageApiCallErrors } from "@/utils/errorUtils";
 import { useTransactionTableStore } from "@/utils/zustand/transactionTableStore";
 import { useUserStore } from "@/utils/zustand/userStore";
 import {
@@ -25,7 +26,7 @@ const DeleteTransactionDialog = ({ isOpen, onClose, selectedTransaction }: Trans
 
   const cancelRef = React.useRef<HTMLButtonElement>(null);
 
-  const deleteTransactionQueryDocument = graphql(`
+  const deleteTransactionMutation = graphql(`
     mutation deleteTransaction($transaction: DeleteTransactionInputTypeInput!) {
       deleteTransaction(input: { transaction: $transaction }) {
         user {
@@ -57,18 +58,14 @@ const DeleteTransactionDialog = ({ isOpen, onClose, selectedTransaction }: Trans
 
   const onSubmit = async () => {
     const { data, isError, error } = await refetch();
-    if (isError) {
-      toast.error(error.name, {
-        description: error.message,
-      });
-    } else {
+    if (isError || data?.deleteTransaction.errors) {
+      manageApiCallErrors(error, data?.deleteTransaction.errors);
+    } else if (data?.deleteTransaction.user?.accounts) {
       toast.success("Transaction deleted!");
-      if (data?.deleteTransaction.user?.accounts) {
-        setTransactions(data?.deleteTransaction.user?.accounts[0].transactions);
-        setTransactionsFiltered(data?.deleteTransaction.user?.accounts[0].transactions);
-        setIncomeAmount(data.deleteTransaction.user?.accounts[0].incomeAmount);
-        setExpenseAmount(data.deleteTransaction.user?.accounts[0].expenseAmount);
-      }
+      setTransactions(data?.deleteTransaction.user.accounts[0].transactions);
+      setTransactionsFiltered(data?.deleteTransaction.user.accounts[0].transactions);
+      setIncomeAmount(data.deleteTransaction.user.accounts[0].incomeAmount);
+      setExpenseAmount(data.deleteTransaction.user.accounts[0].expenseAmount);
       onClose();
     }
   };

@@ -11,8 +11,8 @@ import { useRouter } from "next/navigation";
 import { UseFormReturn } from "react-hook-form";
 import { LuUnlock, LuEyeOff, LuEye } from "react-icons/lu";
 import { LoginValueDefinition } from "../../../utils/definitions/typeDefinition";
-import { toast } from "sonner";
 import { useState } from "react";
+import { manageApiCallErrors } from "@/utils/errorUtils";
 
 const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any, undefined> }) => {
   const router = useRouter();
@@ -40,10 +40,8 @@ const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any, un
 
   const onSubmit = async () => {
     const { data, isError, error } = await refetch();
-    if (isError) {
-      toast.error(error.name, {
-        description: error.message,
-      });
+    if (isError || data?.errors) {
+      manageApiCallErrors(error, data?.errors);
     } else if (data?.string) {
       sessionStorage.setItem("token", data.string);
       sessionStorage.setItem(sessionStorageEmail, getValues("email"));

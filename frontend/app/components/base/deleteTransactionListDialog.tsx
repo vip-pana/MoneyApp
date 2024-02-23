@@ -1,6 +1,7 @@
 import { graphql } from "@/gql/generated";
 import { TransactionModalProps } from "@/utils/definitions/typeDefinition";
 import { useDeleteTransactionListMutation } from "@/utils/definitions/useQueryDefinition";
+import { manageApiCallErrors } from "@/utils/errorUtils";
 import { useTransactionTableStore } from "@/utils/zustand/transactionTableStore";
 import { useUserStore } from "@/utils/zustand/userStore";
 import {
@@ -30,7 +31,7 @@ const DeleteTransactionListDialog = ({ isOpen, onClose, selectedTransactionList 
       setTransactionIds(selectedTransactionList.map((transaction) => transaction.id));
   }, [selectedTransactionList]);
 
-  const deleteTransactionListQueryDocument = graphql(`
+  const deleteTransactionListMutation = graphql(`
     mutation deleteTransactionList($transactions: DeleteTransactionListInputTypeInput!) {
       deleteTransactionList(input: { transactions: $transactions }) {
         user {
@@ -58,18 +59,17 @@ const DeleteTransactionListDialog = ({ isOpen, onClose, selectedTransactionList 
 
   const onSubmit = async () => {
     const { data, isError, error } = await refetch();
-    if (isError) {
-      toast.error(error.name, {
-        description: error.message,
-      });
-    } else {
+    if (isError || data?.errors) {
+      manageApiCallErrors(error, data?.errors);
+    }
+    if (data?.user) {
       toast.success("Transactions deleted!");
-      if (data?.user?.accounts) {
+      if (data.user.accounts) {
         setSelectedTransactionList([]);
-        setTransactions(data?.user?.accounts[0].transactions);
-        setTransactionsFiltered(data?.user?.accounts[0].transactions);
-        setIncomeAmount(data.user?.accounts[0].incomeAmount);
-        setExpenseAmount(data.user?.accounts[0].expenseAmount);
+        setTransactions(data.user.accounts[0].transactions);
+        setTransactionsFiltered(data.user.accounts[0].transactions);
+        setIncomeAmount(data.user.accounts[0].incomeAmount);
+        setExpenseAmount(data.user.accounts[0].expenseAmount);
       }
       onClose();
     }
