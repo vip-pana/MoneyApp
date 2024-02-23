@@ -5,8 +5,8 @@ using Backend.API.Validators.UserValidators;
 using Backend.Core.Entities;
 using Backend.Core.Repositories;
 using Backend.Utils.Authentication;
+using Backend.Utils.Exceptions;
 using HotChocolate.Authorization;
-using HotChocolate.Execution;
 using Microsoft.Extensions.Options;
 
 namespace Backend.API.Properties
@@ -32,11 +32,13 @@ namespace Backend.API.Properties
 
         #region LOGIN AND SIGNUP
         [AllowAnonymous]
+        [Error<UserAlreadyExistException>]
+        [Error<GenericException>]
         public async Task<string> Signup([UseFluentValidation, UseValidator<UserSignupInputTypeValidator>] UserSignupInputType user)
         {
             var registeredUser = await _userRepository.GetByEmailAsync(email: user.Email);
 
-            if (registeredUser is null) throw new QueryException(new Error("User not registered"));
+            if (registeredUser is not null) throw new UserAlreadyExistException();
 
             var defaultAccount = await _accountRepository.GenerateNewDefaultAccount(currency: user.SelectedCurrency);
 
@@ -57,16 +59,17 @@ namespace Backend.API.Properties
         }
 
         [AllowAnonymous]
+        [Error<GenericException>]
+        [Error<UserNotExistException>]
+        [Error<WrongPasswordException>]
         public async Task<string> Login([UseFluentValidation, UseValidator<UserLoginInputTypeValidator>] UserLoginInputType user)
         {
-            var registeredUser = await _userRepository.GetByEmailAsync(user.Email);
             string accessToken;
-
-            if (registeredUser is null) throw new GraphQLException(new Error("User not registered."));
+            var registeredUser = await _userRepository.GetByEmailAsync(user.Email) ?? throw new UserNotExistException(Email: user.Email);
 
             if (!AuthenticationUtils.VerifyPassword(inputPassword: user.Password, hashedPassword: registeredUser.Password))
             {
-                throw new GraphQLException(new Error("Wrong password."));
+                throw new WrongPasswordException();
             }
             else
             {

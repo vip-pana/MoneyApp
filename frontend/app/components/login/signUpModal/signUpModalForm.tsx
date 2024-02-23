@@ -34,8 +34,8 @@ const SignUpModalForm = () => {
     if (isError) {
       toast.error(getGraphQLErrorMessage(error), {});
     }
-    if (data?.signup) {
-      sessionStorage.setItem("token", data.signup);
+    if (data?.string) {
+      sessionStorage.setItem("token", data.string);
       sessionStorage.setItem(sessionStorageEmail, getValues("email").toLowerCase());
       router.push("/dashboard");
     }
@@ -43,7 +43,15 @@ const SignUpModalForm = () => {
 
   const signupQueryDocument = graphql(`
     mutation signup($user: UserSignupInputTypeInput!) {
-      signup(user: $user)
+      signup(input: { user: $user }) {
+        string
+        errors {
+          code: __typename
+          ... on Error {
+            message
+          }
+        }
+      }
     }
   `);
 

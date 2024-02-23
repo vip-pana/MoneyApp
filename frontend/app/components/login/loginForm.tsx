@@ -29,7 +29,15 @@ const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any, un
 
   const loginQueryDocument = graphql(`
     mutation login($user: UserLoginInputTypeInput!) {
-      login(user: $user)
+      login(input: { user: $user }) {
+        string
+        errors {
+          code: __typename
+          ... on Error {
+            message
+          }
+        }
+      }
     }
   `);
 
@@ -39,8 +47,8 @@ const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any, un
       toast.error(error.name, {
         description: error.message,
       });
-    } else if (data?.login) {
-      sessionStorage.setItem("token", data.login);
+    } else if (data?.string) {
+      sessionStorage.setItem("token", data.string);
       sessionStorage.setItem(sessionStorageEmail, getValues("email"));
       router.push("/dashboard");
     }

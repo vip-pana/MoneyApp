@@ -7,7 +7,7 @@ import { Select, SelectInstance, GroupBase } from "chakra-react-select";
 import { Controller, UseFormReturn } from "react-hook-form";
 import RadioOperationTypes from "./radioOperationTypes";
 import { graphql } from "@/gql/generated";
-import { useAddOrUpdateTransactionQuery } from "@/utils/definitions/useQueryDefinition";
+import { useAddOrUpdateTransactionMutation } from "@/utils/definitions/useQueryDefinition";
 import { useUserStore } from "@/utils/zustand/userStore";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
@@ -74,22 +74,30 @@ const TransactionModalForm = (props: TransactionModalFormProps) => {
 
   const addOrUpdateTransaction = graphql(`
     mutation addOrUpdateTransaction($transactionInput: AddOrUpdateTransactionInputTypeInput!) {
-      addOrUpdateTransaction(transactionInput: $transactionInput) {
-        accounts {
-          incomeAmount
-          expenseAmount
-          transactions {
-            id
-            amount
-            description
-            dateTime
-            currency
-            description
-            transactionType
-            category {
-              name
-              categoryType
+      addOrUpdateTransaction(input: { transactionInput: $transactionInput }) {
+        user {
+          accounts {
+            incomeAmount
+            expenseAmount
+            transactions {
+              id
+              amount
+              description
+              dateTime
+              currency
+              description
+              transactionType
+              category {
+                name
+                categoryType
+              }
             }
+          }
+        }
+        errors {
+          code: __typename
+          ... on Error {
+            message
           }
         }
       }
@@ -99,7 +107,7 @@ const TransactionModalForm = (props: TransactionModalFormProps) => {
   const { refetch: addOrUpdateTransactionRefetch, isLoading: addOrUpdateTransactionIsLoading } = useQuery({
     queryKey: ["addOrUpdateTransaction"],
     queryFn: () =>
-      useAddOrUpdateTransactionQuery({
+      useAddOrUpdateTransactionMutation({
         accountId: selectedAccountId,
         email: email,
         transaction: getValues(),
@@ -116,7 +124,8 @@ const TransactionModalForm = (props: TransactionModalFormProps) => {
       });
     } else {
       toast.success(props.selectedTransaction?.id ? "Transaction updated!" : "Transaction added!");
-      if (data?.addOrUpdateTransaction.accounts) updateTransactionsData(data?.addOrUpdateTransaction.accounts);
+      if (data?.addOrUpdateTransaction.user?.accounts)
+        updateTransactionsData(data?.addOrUpdateTransaction.user?.accounts);
 
       reset();
       props.clearErrorsAndClose();

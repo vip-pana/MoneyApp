@@ -2,7 +2,7 @@
 
 import { graphql } from "@/gql/generated";
 import { TransactionModalProps } from "@/utils/definitions/typeDefinition";
-import { useDeleteTransactionQuery } from "@/utils/definitions/useQueryDefinition";
+import { useDeleteTransactionMutation } from "@/utils/definitions/useQueryDefinition";
 import { useTransactionTableStore } from "@/utils/zustand/transactionTableStore";
 import { useUserStore } from "@/utils/zustand/userStore";
 import {
@@ -27,22 +27,30 @@ const DeleteTransactionDialog = ({ isOpen, onClose, selectedTransaction }: Trans
 
   const deleteTransactionQueryDocument = graphql(`
     mutation deleteTransaction($transaction: DeleteTransactionInputTypeInput!) {
-      deleteTransaction(transaction: $transaction) {
-        accounts {
-          incomeAmount
-          expenseAmount
-          transactions {
-            id
-            amount
-            description
-            dateTime
-            currency
-            description
-            transactionType
-            category {
-              name
-              categoryType
+      deleteTransaction(input: { transaction: $transaction }) {
+        user {
+          accounts {
+            incomeAmount
+            expenseAmount
+            transactions {
+              id
+              amount
+              description
+              dateTime
+              currency
+              description
+              transactionType
+              category {
+                name
+                categoryType
+              }
             }
+          }
+        }
+        errors {
+          code: __typename
+          ... on Error {
+            message
           }
         }
       }
@@ -52,7 +60,7 @@ const DeleteTransactionDialog = ({ isOpen, onClose, selectedTransaction }: Trans
   const { refetch, isLoading } = useQuery({
     queryKey: ["deleteTransaction"],
     queryFn: () =>
-      useDeleteTransactionQuery({
+      useDeleteTransactionMutation({
         email: email,
         transactionId: selectedTransaction.id,
         accountId: selectedAccountId,
@@ -68,11 +76,11 @@ const DeleteTransactionDialog = ({ isOpen, onClose, selectedTransaction }: Trans
       });
     } else {
       toast.success("Transaction deleted!");
-      if (data?.deleteTransaction.accounts) {
-        setTransactions(data?.deleteTransaction.accounts[0].transactions);
-        setTransactionsFiltered(data?.deleteTransaction.accounts[0].transactions);
-        setIncomeAmount(data.deleteTransaction.accounts[0].incomeAmount);
-        setExpenseAmount(data.deleteTransaction.accounts[0].expenseAmount);
+      if (data?.deleteTransaction.user?.accounts) {
+        setTransactions(data?.deleteTransaction.user?.accounts[0].transactions);
+        setTransactionsFiltered(data?.deleteTransaction.user?.accounts[0].transactions);
+        setIncomeAmount(data.deleteTransaction.user?.accounts[0].incomeAmount);
+        setExpenseAmount(data.deleteTransaction.user?.accounts[0].expenseAmount);
       }
       onClose();
     }

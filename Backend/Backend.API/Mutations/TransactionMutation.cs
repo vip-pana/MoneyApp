@@ -3,6 +3,7 @@ using Backend.API.Types.InputTypes.TransactionTypes;
 using Backend.API.Validators.TransactionValidators;
 using Backend.Core.Entities;
 using Backend.Core.Repositories;
+using Backend.Utils.Exceptions;
 using HotChocolate.Authorization;
 
 namespace Backend.API.Mutations
@@ -11,11 +12,13 @@ namespace Backend.API.Mutations
     public class TransactionMutation([Service] IUserRepository userRepository)
     {
         [Authorize]
+        [Error<UserNotExistException>]
+        [Error<FieldIdNotExistException>]
         public async Task<User> DeleteTransaction([UseFluentValidation, UseValidator<DeleteTransactionInputTypeValidator>] DeleteTransactionInputType transaction)
         {
-            var registeredUser = await userRepository.GetByEmailAsync(email: transaction.UserEmail) ?? throw new GraphQLException(new Error("User not registered."));
+            if (transaction.TransactionId is null) throw new FieldIdNotExistException();
 
-            if (transaction.TransactionId is null) throw new GraphQLException("Transaction id not passed");
+            var registeredUser = await userRepository.GetByEmailAsync(email: transaction.UserEmail) ?? throw new UserNotExistException(transaction.UserEmail);
 
             User res = await userRepository.DeleteTransactionOnUserAccount(transactionId: transaction.TransactionId, user: registeredUser, transaction.AccountId);
 
@@ -23,12 +26,13 @@ namespace Backend.API.Mutations
         }
 
         [Authorize]
+        [Error<UserNotExistException>]
         public async Task<User> DeleteTransactionList([UseFluentValidation, UseValidator<DeleteTransactionListInputTypeValidator>] DeleteTransactionListInputType transactions)
         {
-            var registeredUser = await userRepository.GetByEmailAsync(email: transactions.UserEmail) ?? throw new GraphQLException(new Error("User not registered."));
-
             var allTransactionsHaveId = transactions.TransactionIds.Exists(transaction => transaction is not null || string.IsNullOrWhiteSpace(transaction));
-            if (!allTransactionsHaveId) throw new GraphQLException(new Error("Transaction ids not passed"));
+            if (!allTransactionsHaveId) throw new FieldIdNotExistException();
+
+            var registeredUser = await userRepository.GetByEmailAsync(email: transactions.UserEmail) ?? throw new UserNotExistException(transactions.UserEmail);
 
             User res = await userRepository.DeleteTransactionListOnUserAccount(transactionIds: transactions.TransactionIds, user: registeredUser, transactions.AccountId);
 
@@ -36,10 +40,11 @@ namespace Backend.API.Mutations
         }
 
         [Authorize]
+        [Error<UserNotExistException>]
         public async Task<User> AddOrUpdateTransaction([UseFluentValidation, UseValidator<BaseTransactionInputTypeValidator>] AddOrUpdateTransactionInputType transactionInput)
         {
             User res;
-            var registeredUser = await userRepository.GetByEmailAsync(email: transactionInput.UserEmail) ?? throw new GraphQLException(new Error("User not registered."));
+            var registeredUser = await userRepository.GetByEmailAsync(email: transactionInput.UserEmail) ?? throw new UserNotExistException(transactionInput.UserEmail);
 
             var transaction = new Transaction(
                 description: transactionInput.Transaction.Description,
@@ -56,7 +61,7 @@ namespace Backend.API.Mutations
 
                 var transactionExist = userRepository.GetTransactionById(transactionId: transactionInput.Transaction.Id, user: registeredUser, accountId: transactionInput.AccountId) != null;
 
-                if (!transactionExist) throw new GraphQLException(new Error("Transaction id does not exist"));
+                if (!transactionExist) throw new FieldIdNotExistException();
 
                 res = await userRepository.UpdateTransactionOnUserAccount(transaction: transaction, user: registeredUser, accountId: transactionInput.AccountId);
             }

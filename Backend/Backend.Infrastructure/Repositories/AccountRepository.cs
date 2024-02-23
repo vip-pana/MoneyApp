@@ -2,6 +2,7 @@
 using Backend.Core.Enums;
 using Backend.Core.Repositories;
 using Backend.Infrastructure.Data;
+using Backend.Utils.Exceptions;
 
 namespace Backend.Infrastructure.Repositories
 {

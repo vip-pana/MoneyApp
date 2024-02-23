@@ -3,6 +3,7 @@ using Backend.Core.Enums;
 using Backend.Core.Filters.TransactionFilters;
 using Backend.Core.Repositories;
 using Backend.Infrastructure.Data;
+using Backend.Utils.Exceptions;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -26,10 +27,10 @@ namespace Backend.Infrastructure.Repositories
         {
             transaction.Id = ObjectId.GenerateNewId().ToString();
 
-            var account = user.Accounts.Find(account => account.Id == accountId) ?? throw new InvalidOperationException("No account found with these id");
+            var account = user.Accounts.Find(account => account.Id == accountId) ?? throw new FieldIdNotExistException();
             
             var categoryExist = account.Categories.Exists(category => category.Id == transaction.Category.Id);
-            if (!categoryExist) throw new InvalidOperationException("The category in the transaction not exist in the account");
+            if (!categoryExist) throw new GenericException("The category in the transaction not exist in the account");
 
             account.Transactions.Add(transaction);
 
@@ -72,8 +73,6 @@ namespace Backend.Infrastructure.Repositories
 
         public async Task<User> UpdateTransactionOnUserAccount(Transaction transaction, User user, string accountId)
         {
-            if (transaction.Id is null) throw new InvalidOperationException("Id not found on transaction");
-
             var transactionToRemove = GetTransactionById(transaction.Id, user, accountId);
 
             GetAccountById(user, accountId).Transactions.Remove(transactionToRemove);

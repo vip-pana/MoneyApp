@@ -9,13 +9,13 @@ import {
   AddOrUpdateTransactionMutation,
   DeleteTransactionDocument,
   DeleteTransactionListDocument,
-  DeleteTransactionListMutation,
+  DeleteTransactionListPayload,
   DeleteTransactionMutation,
   LoginDocument,
-  LoginMutation,
+  LoginPayload,
   OperationType,
   SignupDocument,
-  SignupMutation,
+  SignupPayload,
   UserByEmailDocument,
   UserByEmailQuery,
   UserExistByEmailDocument,
@@ -27,15 +27,16 @@ import {
   GetUserByEmailQueryValueDefinition,
   LoginQueryValueDefinition,
   SignupQueryValueDefinition,
-  TransactionListQueryValueDefinition,
-  TransactionQueryValueDefinition,
-  TransactionsSearchQueryValueDefinition,
+  TransactionListQueryValueDefinition as TransactionListMutationValueDefinition,
+  TransactionQueryValueDefinition as TransactionMutationValueDefinition,
+  TransactionsSearchQueryValueDefinition as TransactionsFilteredQueryValueDefinition,
 } from "./typeDefinition";
 
 const headers = {
   Authorization: `Bearer ${sessionStorage?.getItem("token")}`,
 };
 
+// NO AUTH NEEDED
 export const useCheckEmailExistQuery = async (emailFormValue: string) => {
   const res = request<UserExistByEmailQuery>(queryUrl, UserExistByEmailDocument, {
     email: emailFormValue,
@@ -44,7 +45,7 @@ export const useCheckEmailExistQuery = async (emailFormValue: string) => {
 };
 
 export const useLoginQuery = async ({ email, password }: LoginQueryValueDefinition) => {
-  const res = await request<LoginMutation>(queryUrl, LoginDocument, {
+  const res = await request<LoginPayload>(queryUrl, LoginDocument, {
     user: {
       email: email,
       password: password,
@@ -54,7 +55,7 @@ export const useLoginQuery = async ({ email, password }: LoginQueryValueDefiniti
 };
 
 export const useSignupQuery = async (props: SignupQueryValueDefinition) => {
-  const res = await request<SignupMutation>(queryUrl, SignupDocument, {
+  const res = await request<SignupPayload>(queryUrl, SignupDocument, {
     user: {
       name: props.name,
       surname: props.surname,
@@ -66,6 +67,7 @@ export const useSignupQuery = async (props: SignupQueryValueDefinition) => {
   return res;
 };
 
+// AUTH REQUIRED
 export const UseUserByEmailQuery = async (props: GetUserByEmailQueryValueDefinition) => {
   const res = await request<UserByEmailQuery>(
     queryUrl,
@@ -110,7 +112,7 @@ export const UseUserByEmailQuery = async (props: GetUserByEmailQueryValueDefinit
   return res;
 };
 
-export const useAddOrUpdateTransactionQuery = async (props: TransactionQueryValueDefinition) => {
+export const useAddOrUpdateTransactionMutation = async (props: TransactionMutationValueDefinition) => {
   if (!props.transaction) throw new Error("Missing transaction");
 
   const res = await request<AddOrUpdateTransactionMutation>(
@@ -140,7 +142,7 @@ export const useAddOrUpdateTransactionQuery = async (props: TransactionQueryValu
   return res;
 };
 
-export const useDeleteTransactionQuery = async (props: TransactionQueryValueDefinition) => {
+export const useDeleteTransactionMutation = async (props: TransactionMutationValueDefinition) => {
   const res = await request<DeleteTransactionMutation>(
     queryUrl,
     DeleteTransactionDocument,
@@ -156,8 +158,8 @@ export const useDeleteTransactionQuery = async (props: TransactionQueryValueDefi
   return res;
 };
 
-export const useDeleteTransactionListQuery = async (props: TransactionListQueryValueDefinition) => {
-  const res = await request<DeleteTransactionListMutation>(
+export const useDeleteTransactionListMutation = async (props: TransactionListMutationValueDefinition) => {
+  const res = await request<DeleteTransactionListPayload>(
     queryUrl,
     DeleteTransactionListDocument,
     {
@@ -172,7 +174,7 @@ export const useDeleteTransactionListQuery = async (props: TransactionListQueryV
   return res;
 };
 
-export const useTransactionsFilteredQuery = async (props: TransactionsSearchQueryValueDefinition) => {
+export const useTransactionsFilteredQuery = async (props: TransactionsFilteredQueryValueDefinition) => {
   const res = await request<UserTransactionsFilteredQuery>(
     queryUrl,
     UserTransactionsFilteredDocument,
