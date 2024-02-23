@@ -35,28 +35,11 @@ const DeleteTransactionListDialog = ({ isOpen, onClose, selectedTransactionList 
       deleteTransactionList(input: { transactions: $transactions }) {
         user {
           accounts {
-            incomeAmount
-            expenseAmount
-            transactions {
-              id
-              amount
-              description
-              dateTime
-              currency
-              description
-              transactionType
-              category {
-                name
-                categoryType
-              }
-            }
+            ...accountFields
           }
         }
         errors {
-          code: __typename
-          ... on Error {
-            message
-          }
+          ...errorFields
         }
       }
     }

@@ -32,10 +32,7 @@ const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any, un
       login(input: { user: $user }) {
         string
         errors {
-          code: __typename
-          ... on Error {
-            message
-          }
+          ...errorFields
         }
       }
     }

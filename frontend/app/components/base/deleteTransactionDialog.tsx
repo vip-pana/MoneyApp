@@ -33,25 +33,12 @@ const DeleteTransactionDialog = ({ isOpen, onClose, selectedTransaction }: Trans
             incomeAmount
             expenseAmount
             transactions {
-              id
-              amount
-              description
-              dateTime
-              currency
-              description
-              transactionType
-              category {
-                name
-                categoryType
-              }
+              ...transactionFields
             }
           }
         }
         errors {
-          code: __typename
-          ... on Error {
-            message
-          }
+          ...errorFields
         }
       }
     }

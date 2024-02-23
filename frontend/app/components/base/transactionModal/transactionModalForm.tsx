@@ -77,28 +77,11 @@ const TransactionModalForm = (props: TransactionModalFormProps) => {
       addOrUpdateTransaction(input: { transactionInput: $transactionInput }) {
         user {
           accounts {
-            incomeAmount
-            expenseAmount
-            transactions {
-              id
-              amount
-              description
-              dateTime
-              currency
-              description
-              transactionType
-              category {
-                name
-                categoryType
-              }
-            }
+            ...accountFields
           }
         }
         errors {
-          code: __typename
-          ... on Error {
-            message
-          }
+          ...errorFields
         }
       }
     }

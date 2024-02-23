@@ -137,18 +137,7 @@ const TransactionsSearchbarForm = () => {
       userTransactionsFiltered(filters: $filters) {
         accounts {
           transactions {
-            id
-            amount
-            description
-            dateTime
-            currency
-            description
-            transactionType
-            category {
-              id
-              name
-              categoryType
-            }
+            ...transactionFields
           }
         }
       }

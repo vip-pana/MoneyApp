@@ -46,10 +46,7 @@ const SignUpModalForm = () => {
       signup(input: { user: $user }) {
         string
         errors {
-          code: __typename
-          ... on Error {
-            message
-          }
+          ...errorFields
         }
       }
     }
