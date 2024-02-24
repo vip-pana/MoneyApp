@@ -83,6 +83,7 @@ namespace Backend.Infrastructure.Repositories
                 "Lending, renting",
                 "Salary",
                 "Pension",
+                "Other",
             };
 
             foreach (var name in plainCategoriesNames)
@@ -199,7 +200,7 @@ namespace Backend.Infrastructure.Repositories
                 CategoryType = operationType,
                 SubCategories = lifeAndEntertainmentCategories
             });
-
+            
             // Finance & Investments categories
             var financeAndInvestmentsNames = new List<string>
             {
