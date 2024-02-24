@@ -19,18 +19,22 @@ const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any, un
 
   const { setEmailExist } = useUserStore();
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [passwordValue, setPasswordValue] = useState("");
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     getValues,
+    reset,
   } = form;
 
   const loginQueryDocument = graphql(`
     mutation login($user: UserLoginInputTypeInput!) {
       login(input: { user: $user }) {
-        string
+        accessOutputType {
+          accessToken
+        }
         errors {
           ...errorFields
         }
@@ -42,8 +46,8 @@ const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any, un
     const { data, isError, error } = await refetch();
     if (isError || data?.errors) {
       manageApiCallErrors(error, data?.errors);
-    } else if (data?.string) {
-      sessionStorage.setItem("token", data.string);
+    } else if (data?.accessOutputType) {
+      sessionStorage.setItem("token", data.accessOutputType.accessToken);
       sessionStorage.setItem(sessionStorageEmail, getValues("email"));
       router.push("/dashboard");
     }
@@ -58,6 +62,14 @@ const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any, un
       }),
     enabled: false,
   });
+
+  const clearData = () => {
+    setPasswordValue("");
+    reset({
+      password: "",
+    });
+    setEmailExist(false);
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -82,6 +94,8 @@ const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any, un
             <Input
               placeholder="Password"
               {...register("password")}
+              value={passwordValue}
+              onChange={(e) => setPasswordValue(e.target.value)}
               type={passwordVisible ? "text" : "password"}
               disabled={isLoading}
             />

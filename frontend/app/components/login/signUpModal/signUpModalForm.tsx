@@ -11,7 +11,7 @@ import { Stack, FormControl, InputGroup, InputRightElement, Button, Input, Selec
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import React from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { LuEyeOff, LuEye } from "react-icons/lu";
 
@@ -25,7 +25,7 @@ const SignUpModalForm = () => {
     resolver: zodResolver(formSignupValidation),
   });
 
-  const [passwordVisible, setPasswordVisible] = React.useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
   const router = useRouter();
 
   const onSubmit = async () => {
