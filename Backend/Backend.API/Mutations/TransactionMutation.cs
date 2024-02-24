@@ -16,8 +16,6 @@ namespace Backend.API.Mutations
         [Error<FieldIdNotExistException>]
         public async Task<User> DeleteTransaction([UseFluentValidation, UseValidator<DeleteTransactionInputTypeValidator>] DeleteTransactionInputType transaction)
         {
-            if (transaction.TransactionId is null) throw new FieldIdNotExistException();
-
             var registeredUser = await userRepository.GetByEmailAsync(email: transaction.UserEmail) ?? throw new UserNotExistException(transaction.UserEmail);
 
             User res = await userRepository.DeleteTransactionOnUserAccount(transactionId: transaction.TransactionId, user: registeredUser, transaction.AccountId);
@@ -29,9 +27,6 @@ namespace Backend.API.Mutations
         [Error<UserNotExistException>]
         public async Task<User> DeleteTransactionList([UseFluentValidation, UseValidator<DeleteTransactionListInputTypeValidator>] DeleteTransactionListInputType transactions)
         {
-            var allTransactionsHaveId = transactions.TransactionIds.Exists(transaction => transaction is not null || string.IsNullOrWhiteSpace(transaction));
-            if (!allTransactionsHaveId) throw new FieldIdNotExistException();
-
             var registeredUser = await userRepository.GetByEmailAsync(email: transactions.UserEmail) ?? throw new UserNotExistException(transactions.UserEmail);
 
             User res = await userRepository.DeleteTransactionListOnUserAccount(transactionIds: transactions.TransactionIds, user: registeredUser, transactions.AccountId);
