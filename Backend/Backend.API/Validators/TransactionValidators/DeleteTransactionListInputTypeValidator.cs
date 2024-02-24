@@ -7,7 +7,7 @@ namespace Backend.API.Validators.TransactionValidators
     {
         public DeleteTransactionListInputTypeValidator()
         {
-            RuleFor(x => x.TransactionIds).NotEmpty().WithMessage("TransactionIds can't be null");
+            RuleFor(x => x.TransactionIds).NotEmpty().WithMessage("TransactionIds can't be null").NotNull();
             RuleFor(x => x.AccountId).NotEmpty();
             RuleFor(x => x.UserEmail).NotEmpty();
         }
