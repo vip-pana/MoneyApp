@@ -1,26 +1,29 @@
 "use client";
 
-import { Button, HStack, Spacer, Tooltip, useDisclosure } from "@chakra-ui/react";
-import SignupModal from "./signUpModal/signUpModal";
+import SignupDialog from "./signupDialog/signupDialog";
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const SecondActions = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
   return (
     <>
-      <HStack w={"100%"} mt={"50"} mb={"-10"} spacing={20}>
-        <Button variant={"ghost"} colorScheme="white" size="sm" onClick={() => onOpen()}>
-          Sign Up
-        </Button>
-
-        <Spacer />
-        <Button variant={"ghost"} colorScheme="white" size="sm">
-          <Tooltip hasArrow label="Please, first insert email." aria-label="insert first email tooltip" placement="top">
-            Forgot password?
-          </Tooltip>
-        </Button>
-      </HStack>
-      <SignupModal isOpen={isOpen} onClose={onClose} />
+      <div className="flex w-full mt-12 space-x-40">
+        <SignupDialog />
+        <div className="flex items-center">
+          <div className="relative">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost">Hover</Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Please, first insert email.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        </div>
+      </div>
     </>
   );
 };

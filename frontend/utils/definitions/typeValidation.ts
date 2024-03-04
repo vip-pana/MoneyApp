@@ -42,9 +42,7 @@ export const formAddOrUpdateTransactionModalValidation = z.object({
       message: "Amount must be at least 0.01",
     }
   ),
-  operationType: z.string().min(1),
   currency: z.string().min(1, "Please select one currency"),
-  // category: z.string().min(1, "Please select one category"),
   description: z.string().min(1, "Please insert a description"),
   date: z.coerce.date(),
 });
@@ -52,6 +50,4 @@ export const formAddOrUpdateTransactionModalValidation = z.object({
 export const formTransactionsSearchValidation = z.object({
   dateStart: z.coerce.date(),
   dateEnd: z.coerce.date(),
-  // currencies: z.array(z.string()),
-  // validazione categories ignorata
 });

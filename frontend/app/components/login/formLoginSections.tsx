@@ -14,17 +14,8 @@ const FormLoginSections = () => {
   const form = useForm<LoginValueDefinition>({
     resolver: zodResolver(formLoginValidation),
   });
-  const { setValue } = form;
 
-  return (
-    <>
-      {emailExist ? (
-        <LoginForm form={form} />
-      ) : (
-        <CheckEmailForm setEmailLoginFormValue={setValue} />
-      )}
-    </>
-  );
+  return <>{emailExist ? <LoginForm form={form} /> : <CheckEmailForm setEmailLoginFormValue={form.setValue} />}</>;
 };
 
 export default FormLoginSections;

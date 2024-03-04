@@ -1,6 +1,7 @@
-import { HStack } from "@chakra-ui/react";
-import MainContent from "./mainContent";
-import InsertOperationComponent from "./insertOperationComponent";
+import MainContent from "../components/dashboard/mainContent";
+import TransactionDialog from "../components/base/transactionModal/transactionDialog";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 const Dashboardlayout = ({
   children,
@@ -8,10 +9,16 @@ const Dashboardlayout = ({
   children: React.ReactNode;
 }>) => {
   return (
-    <HStack w="full" h="100vh" padding={10}>
+    <div className="flex w-full h-screen p-10">
       <MainContent>{children}</MainContent>
-      <InsertOperationComponent />
-    </HStack>
+      <TransactionDialog>
+        <div className="absolute bottom-16 right-12 ">
+          <Button size={"icon"}>
+            <Plus className="w-6 h-6" />
+          </Button>
+        </div>
+      </TransactionDialog>
+    </div>
   );
 };
 

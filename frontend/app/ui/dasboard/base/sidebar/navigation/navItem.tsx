@@ -1,61 +1,40 @@
-import { Box, Heading, ListIcon, Text, useColorMode } from "@chakra-ui/react";
 import { usePathname } from "next/navigation";
-import { Link } from "@chakra-ui/next-js";
-import { IconType } from "react-icons/lib";
+import Link from "next/link";
+import { useTheme } from "next-themes";
+import { NavigationItem } from "./navigationItems";
+import { Separator } from "@/components/ui/separator";
 
-type NavItemElement = {
-  type: string;
-  label: string;
-  icon?: IconType;
-  path?: string;
-};
-
-const NavItem = ({
-  item,
-  collapse,
-}: {
-  item: NavItemElement;
-  collapse: boolean;
-}) => {
-  const { colorMode } = useColorMode();
+const NavItem = ({ item, collapse }: { item: NavigationItem; collapse: boolean }) => {
   const pathname = usePathname();
   const isActive = pathname === item.path;
-  const { label } = item;
-  if (item.type === "link") {
-    const hoverValue = colorMode == "light" ? "black" : "white";
+  const { theme } = useTheme();
+  const hoverValue = theme == "light" ? "black" : "white";
 
+  if (item.type === "link") {
     return (
-      <Box display="flex" alignItems="center" my={6} justifyContent="center">
+      <div className="flex align-middle my-6">
         <Link
           href={item.path ?? "/"}
-          gap={1}
-          display="flex"
-          alignItems="center"
-          _hover={{ textDecoration: "none", color: hoverValue }}
-          fontWeight="medium"
-          color={isActive ? hoverValue : "gray.400"}
-          w="full"
-          justifyContent={!collapse ? "center" : ""}
+          // errore nel caricamento
+          className={`flex items-center ${isActive ? hoverValue : "text-gray-400"} ${!collapse && "justify-center"}
+          hover:no-underline dark:hover:text-white   
+          gap-3 w-full ${!collapse && "justify-center"}`}
         >
-          <ListIcon as={item.icon} fontSize={22} m="0" />
-          {collapse && <Text>{label}</Text>}
+          {item.icon && <item.icon className="w-4 h-4" />}
+          {collapse && <div className="text-base font-semibold">{item.label}</div>}
         </Link>
-      </Box>
+      </div>
     );
   }
+
   return (
-    <Heading
-      color="gray.400"
-      fontWeight="medium"
-      textTransform="uppercase"
-      fontSize="sm"
-      borderTopWidth={1}
-      borderColor="gray.100"
-      pt={collapse ? 8 : 0}
-      my={6}
-    >
-      <Text display={collapse ? "flex" : "none"}>{label}</Text>
-    </Heading>
+    <div className={`pt-${collapse ? 8 : 0} my-6`}>
+      {collapse ? (
+        <p className={`text-gray-400 font-medium uppercase text-sm`}>{item.label}</p>
+      ) : (
+        <Separator className="my-4" />
+      )}
+    </div>
   );
 };
 

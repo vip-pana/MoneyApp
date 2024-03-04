@@ -11,7 +11,7 @@ namespace Backend.API.Mutations
     [ExtendObjectType("Mutation")]
     public class TransactionMutation([Service] IUserRepository userRepository)
     {
-        [Authorize]
+        [AllowAnonymous]
         [Error<UserNotExistException>]
         [Error<FieldIdNotExistException>]
         public async Task<User> DeleteTransaction([UseFluentValidation, UseValidator<DeleteTransactionInputTypeValidator>] DeleteTransactionInputType transaction)
@@ -23,7 +23,7 @@ namespace Backend.API.Mutations
             return res;
         }
 
-        [Authorize]
+        [AllowAnonymous]
         [Error<UserNotExistException>]
         public async Task<User> DeleteTransactionList([UseFluentValidation, UseValidator<DeleteTransactionListInputTypeValidator>] DeleteTransactionListInputType transactions)
         {
@@ -34,7 +34,7 @@ namespace Backend.API.Mutations
             return res;
         }
 
-        [Authorize]
+        [AllowAnonymous]
         [Error<UserNotExistException>]
         public async Task<User> AddOrUpdateTransaction([UseFluentValidation, UseValidator<BaseTransactionInputTypeValidator>] AddOrUpdateTransactionInputType transactionInput)
         {

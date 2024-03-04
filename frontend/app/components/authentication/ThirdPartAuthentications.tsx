@@ -1,28 +1,17 @@
-import { HStack, IconButton, Spacer } from "@chakra-ui/react";
-import React from "react";
-import { FaApple } from "react-icons/fa6";
-import { FcGoogle } from "react-icons/fc";
+import { Button } from "@/components/ui/button";
+import { Apple } from "lucide-react";
 
 export const ThirdPartAuthentications = () => {
   return (
-    <HStack w={"100%"}>
-      <IconButton
-        variant="outline"
-        aria-label="Apple authentication"
-        fontSize="33px"
-        isRound
-        size={"lg"}
-        icon={<FaApple />}
-      />
-      <Spacer />
-      <IconButton
-        variant="outline"
-        aria-label="Google authentication"
-        fontSize="35px"
-        size={"lg"}
-        isRound
-        icon={<FcGoogle />}
-      />
-    </HStack>
+    <div className="flex w-full justify-between">
+      <div>
+        <Button variant={"outline"}>
+          <Apple />
+        </Button>
+      </div>
+      <div>
+        <Button variant={"outline"}>G</Button>
+      </div>
+    </div>
   );
 };

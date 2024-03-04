@@ -1,16 +1,15 @@
-import { List, ListItem } from "@chakra-ui/react";
 import NavItem from "./navItem";
 import { navigationItems } from "@/app/ui/dasboard/base/sidebar/navigation/navigationItems";
 
 const Navigation = ({ collapse }: { collapse: boolean }) => {
   return (
-    <List w="full" my={8}>
+    <div className="w-full my-8 ">
       {navigationItems.map((item, index) => (
-        <ListItem key={index}>
+        <div key={index}>
           <NavItem item={item} collapse={collapse} />
-        </ListItem>
+        </div>
       ))}
-    </List>
+    </div>
   );
 };
 

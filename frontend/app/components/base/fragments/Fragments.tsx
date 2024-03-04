@@ -32,8 +32,12 @@ const Fragments = () => {
 
   const accountFragment = graphql(`
     fragment accountFields on Account {
+      currency
       incomeAmount
       expenseAmount
+      categories {
+        ...categoryFields
+      }
       transactions {
         ...transactionFields
       }

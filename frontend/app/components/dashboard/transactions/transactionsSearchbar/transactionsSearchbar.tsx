@@ -1,14 +1,13 @@
-"use client";
-
-import { Card, CardBody } from "@chakra-ui/react";
 import TransactionsSearchbarForm from "./transactionsSearchbarForm";
+import { Card, CardContent } from "@/components/ui/card";
 
 const TransactionsSearchbar = () => {
   return (
     <Card>
-      <CardBody>
+      <div className="mt-5"></div>
+      <CardContent>
         <TransactionsSearchbarForm />
-      </CardBody>
+      </CardContent>
     </Card>
   );
 };

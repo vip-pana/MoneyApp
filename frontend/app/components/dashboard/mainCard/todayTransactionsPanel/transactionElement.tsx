@@ -1,17 +1,15 @@
 import { OperationType, Transaction } from "@/gql/generated/graphql";
 import { Tr, Td, Stat, StatArrow, HStack, IconButton, Text } from "@chakra-ui/react";
-import { LuTrash } from "react-icons/lu";
+import { Trash } from "lucide-react";
 
 const TransactionElement = ({
   transaction,
   index,
   setSelectedTransaction,
-  onOpenDeleteTransactionDialog,
 }: {
   transaction: Transaction;
   index: number;
   setSelectedTransaction: (value: React.SetStateAction<Transaction | undefined>) => void;
-  onOpenDeleteTransactionDialog: () => void;
 }) => {
   return (
     <Tr key={index}>
@@ -29,14 +27,13 @@ const TransactionElement = ({
         <HStack>
           <IconButton
             aria-label={"info"}
-            icon={<LuTrash />}
+            icon={<Trash />}
             isRound
             variant={"outline"}
             colorScheme="red"
             size={"sm"}
             onClick={() => {
               setSelectedTransaction(transaction);
-              onOpenDeleteTransactionDialog();
             }}
           />
         </HStack>

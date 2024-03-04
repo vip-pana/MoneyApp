@@ -1,19 +1,13 @@
 "use client";
 
 import { useUserStore } from "@/utils/zustand/userStore";
-import { Table, TableContainer, Tbody, Th, Thead, Tr, useDisclosure } from "@chakra-ui/react";
+import { Table, TableContainer, Tbody, Th, Thead, Tr } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import DeleteTransactionDialog from "../../../base/deleteTransactionDialog";
 import { Transaction } from "@/gql/generated/graphql";
 import TransactionElement from "./transactionElement";
 
 const TodayTransactionsPanel = () => {
   const { transactions } = useUserStore();
-  const {
-    isOpen: isOpenDeleteTransactionDialog,
-    onOpen: onOpenDeleteTransactionDialog,
-    onClose: onCloseDeleteTransactionDialog,
-  } = useDisclosure();
 
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction>();
   const [todayTransactions, setTodayTransactions] = useState<Transaction[]>([]);
@@ -22,7 +16,6 @@ const TodayTransactionsPanel = () => {
   useEffect(() => {
     setTodayDate();
     setTodayTransactions(transactions.filter(filterHours));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const setTodayDate = () => {
@@ -42,7 +35,7 @@ const TodayTransactionsPanel = () => {
 
   return (
     <>
-      <TableContainer overflowY={"auto"} maxH={"200px"}>
+      {/* <TableContainer overflowY={"auto"} maxH={"200px"}>
         <Table variant={"striped"} size={"sm"}>
           <Thead>
             <Tr>
@@ -59,17 +52,16 @@ const TodayTransactionsPanel = () => {
                 index={index}
                 key={index}
                 setSelectedTransaction={setSelectedTransaction}
-                onOpenDeleteTransactionDialog={onOpenDeleteTransactionDialog}
               />
             ))}
           </Tbody>
         </Table>
-      </TableContainer>
-      <DeleteTransactionDialog
+      </TableContainer> */}
+      {/* <DeleteTransactionDialog
         isOpen={isOpenDeleteTransactionDialog}
         onClose={onCloseDeleteTransactionDialog}
         selectedTransaction={selectedTransaction}
-      />
+      /> */}
     </>
   );
 };

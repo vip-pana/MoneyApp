@@ -1,16 +1,17 @@
-import { HStack, IconButton, Heading } from "@chakra-ui/react";
-import React from "react";
-import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const MonthChange = () => {
   return (
-    <HStack mt={"10px"}>
-      <IconButton aria-label="Previous month" icon={<LuChevronLeft />} variant={"ghost"} size={"sm"} />
-      <Heading as="h3" size="sm">
-        January
-      </Heading>
-      <IconButton aria-label="Previous month" icon={<LuChevronRight />} variant={"ghost"} size={"sm"} />
-    </HStack>
+    <div className="flex items-center mt-2">
+      <Button variant={"ghost"}>
+        <ChevronLeft />
+      </Button>
+      <p className="leading-7">January</p>
+      <Button variant={"ghost"}>
+        <ChevronRight />
+      </Button>
+    </div>
   );
 };
 

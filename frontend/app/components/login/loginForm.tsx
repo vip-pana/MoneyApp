@@ -1,33 +1,26 @@
 "use client";
 
-import FormErrorHelperText from "@/app/ui/base/formErrorHelperText";
 import { graphql } from "@/gql/generated";
 import { useLoginQuery as UseLoginQuery } from "@/utils/definitions/useQueryDefinition";
 import { sessionStorageEmail } from "@/utils/queryUrl";
 import { useUserStore } from "@/utils/zustand/userStore";
-import { Stack, Input, FormControl, InputGroup, InputRightElement, IconButton, Button } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { UseFormReturn } from "react-hook-form";
-import { LuUnlock, LuEyeOff, LuEye } from "react-icons/lu";
 import { LoginValueDefinition } from "../../../utils/definitions/typeDefinition";
-import { useState } from "react";
 import { manageApiCallErrors } from "@/utils/errorUtils";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
+import { Button } from "@/components/ui/button";
+import CustomButtonSubmit from "@/components/ui/custom-button-submit";
+import { Unlock } from "lucide-react";
 
-const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any, undefined> }) => {
+const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any> }) => {
   const router = useRouter();
-
   const { setEmailExist } = useUserStore();
-  const [passwordVisible, setPasswordVisible] = useState(false);
-  const [passwordValue, setPasswordValue] = useState("");
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    getValues,
-    reset,
-  } = form;
+  const { getValues } = form;
 
   const loginQueryDocument = graphql(`
     mutation login($user: UserLoginInputTypeInput!) {
@@ -44,10 +37,10 @@ const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any, un
 
   const onSubmit = async () => {
     const { data, isError, error } = await refetch();
-    if (isError || data?.errors) {
-      manageApiCallErrors(error, data?.errors);
-    } else if (data?.accessOutputType) {
-      sessionStorage.setItem("token", data.accessOutputType.accessToken);
+    if (isError || data?.login.errors) {
+      manageApiCallErrors(error, data?.login.errors);
+    } else if (data?.login.accessOutputType) {
+      sessionStorage.setItem("token", data.login.accessOutputType.accessToken);
       sessionStorage.setItem(sessionStorageEmail, getValues("email"));
       router.push("/dashboard");
     }
@@ -63,58 +56,50 @@ const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any, un
     enabled: false,
   });
 
-  const clearData = () => {
-    setPasswordValue("");
-    reset({
-      password: "",
-    });
-    setEmailExist(false);
-  };
-
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <Stack spacing={"20px"}>
-        <FormControl>
-          <InputGroup>
-            <Input placeholder="Email" {...register("email")} onChange={() => setEmailExist(false)} disabled />
-            <InputRightElement>
-              <IconButton
-                aria-label={"unlock password"}
-                icon={<LuUnlock />}
-                variant={"ghost"}
-                onClick={() => setEmailExist(false)}
-                isLoading={isLoading}
-              />
-            </InputRightElement>
-          </InputGroup>
-          <FormErrorHelperText>{errors.email?.message}</FormErrorHelperText>
-        </FormControl>
-        <FormControl>
-          <InputGroup>
-            <Input
-              placeholder="Password"
-              {...register("password")}
-              value={passwordValue}
-              onChange={(e) => setPasswordValue(e.target.value)}
-              type={passwordVisible ? "text" : "password"}
-              disabled={isLoading}
-            />
-            <InputRightElement>
-              <IconButton
-                aria-label={passwordVisible ? "Hide password" : "Show password"}
-                icon={passwordVisible ? <LuEyeOff /> : <LuEye />}
-                variant={"ghost"}
-                onClick={() => setPasswordVisible(!passwordVisible)}
-                isLoading={isLoading}
-              />
-            </InputRightElement>
-          </InputGroup>
-        </FormControl>
-        <Button type="submit" w={"100%"} mb={"-20px"} isLoading={isLoading}>
-          Login
-        </Button>
-      </Stack>
-    </form>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 w-80">
+        <FormField
+          name="email"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <div className="relative">
+                  <Input placeholder="Email" type="email" {...field} disabled />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => {
+                      setEmailExist(false);
+                    }}
+                  >
+                    <Unlock className="h-4 w-4" aria-hidden="true" />
+                    <span className="sr-only">Edit email</span>
+                  </Button>
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          name="password"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <PasswordInput placeholder="Password" {...field} value={field.value || ""} disabled={isLoading} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <CustomButtonSubmit title={"Login"} isLoading={isLoading} />
+      </form>
+    </Form>
   );
 };
 

@@ -32,9 +32,9 @@ import {
   TransactionsSearchQueryValueDefinition as TransactionsFilteredQueryValueDefinition,
 } from "./typeDefinition";
 
-const headers = {
-  Authorization: `Bearer ${sessionStorage?.getItem("token")}`,
-};
+// const headers = {
+//   Authorization: `Bearer`,
+// };
 
 // NO AUTH NEEDED
 export const useCheckEmailExistQuery = async (emailFormValue: string) => {
@@ -61,7 +61,7 @@ export const useSignupQuery = async (props: SignupQueryValueDefinition) => {
       surname: props.surname,
       email: props.email,
       password: props.password,
-      selectedCurrency: props.selectedCurrency,
+      selectedCurrency: props.currency,
     },
   });
   return res;
@@ -74,20 +74,18 @@ export const UseUserByEmailQuery = async (props: GetUserByEmailQueryValueDefinit
     UserByEmailDocument,
     {
       email: props.email,
-    },
-    headers
+    }
+    // headers
   );
   props.setName(res.userByEmail.name);
   props.setSurname(res.userByEmail.surname);
   props.setEmail(res.userByEmail.email);
-
   if (res.userByEmail.accounts) {
     if (res.userByEmail.accounts[0].id) props.setSelectedAccountId(res.userByEmail.accounts[0].id);
     props.setCurrency(res.userByEmail.accounts[0].currency);
     props.setIncomeAmount(res.userByEmail.accounts[0].incomeAmount);
     props.setExpenseAmount(res.userByEmail.accounts[0].expenseAmount);
     props.setTransactions(res.userByEmail.accounts[0].transactions);
-
     const incomeCategories = res.userByEmail.accounts[0].categories
       .filter((category) => category.categoryType === OperationType.Income)
       .map((category) => ({
@@ -97,7 +95,6 @@ export const UseUserByEmailQuery = async (props: GetUserByEmailQueryValueDefinit
         subCategories: category.subCategories || [],
       }));
     props.setIncomeCategories(incomeCategories);
-
     const expenseCategories = res.userByEmail.accounts[0].categories
       .filter((category) => category.categoryType === OperationType.Expense)
       .map((category) => ({
@@ -108,7 +105,6 @@ export const UseUserByEmailQuery = async (props: GetUserByEmailQueryValueDefinit
       }));
     props.setExpenseCategories(expenseCategories);
   }
-
   return res;
 };
 
@@ -136,8 +132,8 @@ export const useAddOrUpdateTransactionMutation = async (props: TransactionMutati
           },
         },
       },
-    },
-    headers
+    }
+    // headers
   );
   return res;
 };
@@ -152,8 +148,8 @@ export const useDeleteTransactionMutation = async (props: TransactionMutationVal
         accountId: props.accountId,
         transactionId: props.transactionId,
       },
-    },
-    headers
+    }
+    // headers
   );
   return res;
 };
@@ -168,8 +164,8 @@ export const useDeleteTransactionListMutation = async (props: TransactionListMut
         accountId: props.accountId,
         transactionIds: props.transactionIds,
       },
-    },
-    headers
+    }
+    // headers
   );
   return res;
 };
@@ -189,8 +185,8 @@ export const useTransactionsFilteredQuery = async (props: TransactionsFilteredQu
           currencies: props.currencies,
         },
       },
-    },
-    headers
+    }
+    // headers
   );
   return res;
 };

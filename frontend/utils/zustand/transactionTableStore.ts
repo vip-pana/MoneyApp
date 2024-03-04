@@ -1,17 +1,17 @@
-import { TransactionInput } from "@/gql/generated/graphql";
+import { Transaction } from "@/gql/generated/graphql";
 import { create } from "zustand";
 
 type TransactionTable = {
-  transactionsFiltered: TransactionInput[];
-  setTransactionsFiltered: (filtered: TransactionInput[]) => void;
-  selectedTransactionList: TransactionInput[];
-  setSelectedTransactionList: (filtered: TransactionInput[]) => void;
+  transactionsFiltered: Transaction[];
+  setTransactionsFiltered: (filtered: Transaction[]) => void;
+  selectedTransactionList: Transaction[];
+  setSelectedTransactionList: (filtered: Transaction[]) => void;
 };
 
 export const useTransactionTableStore = create<TransactionTable>((set) => ({
   transactionsFiltered: [],
-  setTransactionsFiltered: (filtered: TransactionInput[]) => set((state) => ({ transactionsFiltered: filtered })),
+  setTransactionsFiltered: (filtered: Transaction[]) => set((state) => ({ transactionsFiltered: filtered })),
   selectedTransactionList: [],
-  setSelectedTransactionList: (selectedTransactions: TransactionInput[]) =>
+  setSelectedTransactionList: (selectedTransactions: Transaction[]) =>
     set((state) => ({ selectedTransactionList: selectedTransactions })),
 }));

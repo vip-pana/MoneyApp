@@ -1,15 +1,15 @@
 import { formCheckEmailValidation } from "@/utils/definitions/typeValidation";
-import { Button, FormControl, IconButton, Input, InputGroup, InputRightElement } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LuChevronRight } from "react-icons/lu";
 import { UseFormSetValue, useForm } from "react-hook-form";
 import { graphql } from "@/gql/generated";
 import { useQuery } from "@tanstack/react-query";
 import { useCheckEmailExistQuery } from "@/utils/definitions/useQueryDefinition";
 import { useUserStore } from "@/utils/zustand/userStore";
-import FormErrorHelperText from "@/app/ui/base/formErrorHelperText";
 import { CheckMailValueDefinition, LoginValueDefinition } from "../../../utils/definitions/typeDefinition";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import CustomButtonSubmit from "@/components/ui/custom-button-submit";
 
 const CheckEmailForm = ({
   setEmailLoginFormValue,
@@ -19,12 +19,7 @@ const CheckEmailForm = ({
   const form = useForm<CheckMailValueDefinition>({
     resolver: zodResolver(formCheckEmailValidation),
   });
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    getValues,
-  } = form;
+  const { getValues } = form;
 
   const { setEmailExist } = useUserStore();
 
@@ -42,12 +37,8 @@ const CheckEmailForm = ({
 
   const onSubmit = async () => {
     const { data, isError, error } = await refetch();
-    if (isError) {
-      toast.error(error?.name, {
-        description: error?.message,
-      });
-    } else if (data?.userExistByEmail === false) {
-      toast.error("User not registered");
+    if (isError || data?.userExistByEmail === false) {
+      toast.error(isError ? error?.message : "User not registered");
     } else {
       setEmailLoginFormValue("email", getValues("email").toLowerCase());
       setEmailExist(true);
@@ -55,31 +46,34 @@ const CheckEmailForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <FormControl>
-        <InputGroup>
-          <Input
-            {...register("email")}
-            placeholder="Email"
-            isInvalid={errors.email?.message != null}
-            disabled={isLoading}
-          />
-          <InputRightElement>
-            <IconButton
-              aria-label="confirm email"
-              icon={<LuChevronRight />}
-              variant={"ghost"}
-              type="submit"
-              isLoading={isLoading}
-            />
-          </InputRightElement>
-        </InputGroup>
-        <FormErrorHelperText>{errors.email?.message}</FormErrorHelperText>
-      </FormControl>
-      <Button type="submit" w={"100%"} mb={"-20px"} isLoading={isLoading}>
-        Continue with Email
-      </Button>
-    </form>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input
+                  className="w-80"
+                  {...field}
+                  value={field.value || ""}
+                  placeholder="Email"
+                  type="email"
+                  disabled={isLoading}
+                />
+              </FormControl>
+              <div className="text-center">
+                <FormMessage />
+              </div>
+            </FormItem>
+          )}
+        />
+        <div className="w-full mt-4">
+          <CustomButtonSubmit isLoading={isLoading} title="Continue with Email" />
+        </div>
+      </form>
+    </Form>
   );
 };
 

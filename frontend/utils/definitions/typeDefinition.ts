@@ -1,7 +1,7 @@
 // for convention all methods created in this file will have at the end of the name the phrase "ValueDefinition"
 // here is the file where all type definition will be created
 
-import { CategoryInput, Currency, OperationType, TransactionInput } from "@/gql/generated/graphql";
+import { CategoryInput, Currency, OperationType, Transaction } from "@/gql/generated/graphql";
 
 export type CheckMailValueDefinition = {
   email: string;
@@ -18,7 +18,7 @@ export type SignUpValueDefinition = {
   email: string;
   password: string;
   confirmPassword: string;
-  currency: string;
+  currency: Currency;
 };
 
 export type TransactionModalFormValueDefinition = {
@@ -48,7 +48,7 @@ export type GetUserByEmailQueryValueDefinition = {
   setExpenseCategories: (categories: CategoryInput[]) => void;
   setIncomeAmount: (value: number) => void;
   setExpenseAmount: (value: number) => void;
-  setTransactions: (value: TransactionInput[]) => void;
+  setTransactions: (value: Transaction[]) => void;
   setSelectedAccountId: (value: string) => void;
 };
 
@@ -57,7 +57,7 @@ export type SignupQueryValueDefinition = {
   surname: string;
   email: string;
   password: string;
-  selectedCurrency: string;
+  currency: string;
 };
 
 export type LoginQueryValueDefinition = {
@@ -88,8 +88,5 @@ export type TransactionsSearchQueryValueDefinition = {
 };
 
 export type TransactionModalProps = {
-  isOpen: boolean;
-  onClose: () => void;
-  selectedTransaction?: TransactionInput;
-  selectedTransactionList?: TransactionInput[];
+  selectedTransaction?: Transaction;
 };

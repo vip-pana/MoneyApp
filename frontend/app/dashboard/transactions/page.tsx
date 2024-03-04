@@ -1,19 +1,12 @@
+"use client";
 import TransactionsSearchbar from "@/app/components/dashboard/transactions/transactionsSearchbar/transactionsSearchbar";
-import { Box, Card, CardBody, Text } from "@chakra-ui/react";
-import React from "react";
-import TransactionsTable from "@/app/components/dashboard/transactions/transactionsTable";
+import DataTableTransactionTable from "@/app/components/dashboard/transactions/transactionsTable/dataTable";
 
 const TransactionPage = () => {
   return (
     <>
       <TransactionsSearchbar />
-      <Box mt={"20px"}>
-        <Card>
-          <CardBody>
-            <TransactionsTable />
-          </CardBody>
-        </Card>
-      </Box>
+      <DataTableTransactionTable />
     </>
   );
 };

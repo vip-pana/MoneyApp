@@ -1,21 +1,20 @@
-import { Box, Center, HStack } from "@chakra-ui/react";
 import TransactionCard from "./transactionCard";
 import MonthChange from "./monthChange";
 
 const CardsStat = () => {
   return (
     <>
-      <Center>
+      <div className="flex justify-center">
         <MonthChange />
-      </Center>
-      <HStack mt={"20px"} spacing={"50px"} w="100%">
-        <Box w={"100%"}>
+      </div>
+      <div className="flex mt-5 space-x-10 w-full">
+        <div className="w-full">
           <TransactionCard isIncome={true} />
-        </Box>
-        <Box w={"100%"}>
+        </div>
+        <div className="w-full">
           <TransactionCard isIncome={false} />
-        </Box>
-      </HStack>
+        </div>
+      </div>
     </>
   );
 };

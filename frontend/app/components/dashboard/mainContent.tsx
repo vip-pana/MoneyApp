@@ -2,16 +2,16 @@
 
 import { sessionStorageEmail } from "@/utils/queryUrl";
 import { useUserStore } from "@/utils/zustand/userStore";
-import { useColorMode, useMediaQuery, Flex, IconButton, Box } from "@chakra-ui/react";
 import { graphql } from "@/gql/generated";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LuAlignJustify } from "react-icons/lu";
 import { useQuery } from "@tanstack/react-query";
 import { UseUserByEmailQuery } from "@/utils/definitions/useQueryDefinition";
 import { toast } from "sonner";
-import Navbar from "../ui/dasboard/base/navbar/navbar";
-import Sidebar from "../ui/dasboard/base/sidebar/sidebar";
+import Navbar from "../../ui/dasboard/base/navbar/navbar";
+import Sidebar from "../../ui/dasboard/base/sidebar/sidebar";
+import { Button } from "@/components/ui/button";
+import { AlignJustify } from "lucide-react";
 
 const MainContent = ({
   children,
@@ -31,15 +31,7 @@ const MainContent = ({
     setSelectedAccountId,
   } = useUserStore();
 
-  const { colorMode } = useColorMode();
   const [collapse, setCollapse] = useState(false);
-  const [isLargerThan800] = useMediaQuery("(min-width: 800px)");
-
-  useEffect(() => {
-    if (!isLargerThan800) {
-      setCollapse(false);
-    }
-  }, [isLargerThan800]);
 
   const userByEmailQueryDocument = graphql(`
     query userByEmail($email: String!) {
@@ -111,36 +103,23 @@ const MainContent = ({
 
   return (
     <>
-      <Flex
-        boxShadow={colorMode === "light" ? "2xl" : "none"}
-        as="aside"
-        w="full"
-        h="full"
-        maxW={collapse ? 350 : 100}
-        alignItems="start"
-        padding={6}
-        flexDirection="column"
-        justifyContent="space-between"
-        transition="ease-in-out .2s"
-        borderRadius="3xl"
-        backgroundColor={colorMode === "light" ? "none" : "#2d3748"}
+      <aside
+        className={`flex flex-col shadow-2xl border-gray border w-full h-full p-7 items-start justify-between rounded-xl mr-5`}
+        style={{
+          maxWidth: `${collapse ? 300 : 100}px`,
+          transition: "ease-in-out .2s",
+        }}
       >
         <Sidebar collapse={collapse} />
-      </Flex>
-      <Flex as="main" boxShadow="2xl" w="full" h="full" flexDirection="column" position="relative" borderRadius="3xl">
-        <IconButton
-          aria-label="Menu Colapse"
-          icon={<LuAlignJustify />}
-          position="absolute"
-          top={6}
-          left={6}
-          onClick={() => setCollapse(!collapse)}
-        />
+      </aside>
+
+      <main className="relative flex w-full h-full border-gray border flex-col shadow-2xl rounded-xl">
+        <Button className="absolute top-6 left-6" variant="outline" onClick={() => setCollapse(!collapse)}>
+          <AlignJustify />
+        </Button>
         <Navbar />
-        <Box ml={"100px"} mt={"20px"} mr={"100px"}>
-          {children}
-        </Box>
-      </Flex>
+        <div className="ml-20 mt-5 mr-12">{children}</div>
+      </main>
     </>
   );
 };

@@ -17,7 +17,7 @@ namespace Backend.API.Queries
             return user != null;
         }
 
-        [Authorize]
+        [AllowAnonymous]
         public async Task<User> GetUserByEmail(string email)
         {
             var res = await userRepository.GetByEmailAsync(email);

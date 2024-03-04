@@ -46,9 +46,9 @@ namespace Backend.API.Properties
             User newUser = new()
             {
                 Name = user.Name,
+                Surname = user.Surname,
                 Email = user.Email,
                 Accounts = [defaultAccount],
-                Surname = user.Name,
                 Password = AuthenticationUtils.HashPassword(user.Password)
             };
 

@@ -1,4 +1,3 @@
-import { ErrorFieldsFragment, Maybe } from "@/gql/generated/graphql";
 import { toast } from "sonner";
 
 export const getGraphQLErrorMessage = (error: Error): string => {
@@ -12,8 +11,8 @@ export const manageApiCallErrors = (unManagedError: Error | null, exceptionsErro
     toast.error(unManagedError.message);
   }
   if (exceptionsErrors != null || exceptionsErrors != undefined) {
-    for (let err in exceptionsErrors) {
-      toast.error(err);
+    for (let index = 0; index < exceptionsErrors.length; index++) {
+      toast.error(exceptionsErrors[index].message);
     }
   }
 };

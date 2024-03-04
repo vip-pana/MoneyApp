@@ -1,22 +1,36 @@
-import FormErrorHelperText from "@/app/ui/base/formErrorHelperText";
+"use client";
+
 import { TransactionsSearchValueDefinition } from "@/utils/definitions/typeDefinition";
 import { formTransactionsSearchValidation } from "@/utils/definitions/typeValidation";
 import { CurrencyDropdown, currencyOptions } from "@/utils/enumUtils";
 import { useUserStore } from "@/utils/zustand/userStore";
-import { Wrap, WrapItem, FormControl, Spacer, Button, Input, IconButton, useDisclosure } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Select } from "chakra-react-select";
 import { add, format } from "date-fns";
-import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { LuSearch, LuTrash2 } from "react-icons/lu";
+import { useEffect, useId, useState } from "react";
+import { useForm } from "react-hook-form";
 import { Currency, OperationType } from "@/gql/generated/graphql";
 import { graphql } from "@/gql/generated";
 import { useQuery } from "@tanstack/react-query";
 import { useTransactionsFilteredQuery } from "@/utils/definitions/useQueryDefinition";
 import { toast } from "sonner";
 import { useTransactionTableStore } from "@/utils/zustand/transactionTableStore";
-import DeleteTransactionListDialog from "@/app/components/base/deleteTransactionListDialog";
+import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import {
+  Select as ShadcnSelect,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { Calendar as CalendarInput } from "@/components/ui/calendar";
+import Select, { CSSObjectWithLabel, ControlProps, GroupBase } from "react-select";
+import { useTheme } from "next-themes";
+import { Calendar, Search } from "lucide-react";
 
 interface SelectCategory {
   id: string;
@@ -28,7 +42,6 @@ interface SelectCategory {
 interface DateRangeOption {
   label: string;
   value: string;
-  onChange?: () => void;
 }
 const today = new Date();
 
@@ -37,73 +50,69 @@ const TransactionsSearchbarForm = () => {
   const { setTransactionsFiltered, selectedTransactionList } = useTransactionTableStore();
   const [isRangeDatesVisible, setIsRangeDateVisible] = useState(false);
   const [filteredCategories, setFilteredCategories] = useState<SelectCategory[]>([]);
-
-  const {
-    isOpen: isOpenDeleteTransactionListModal,
-    onOpen: onOpenDeleteTransactionListModal,
-    onClose: onCloseDeleteTransactionListModal,
-  } = useDisclosure();
+  const { theme } = useTheme();
 
   const form = useForm<TransactionsSearchValueDefinition>({
     resolver: zodResolver(formTransactionsSearchValidation),
   });
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-    getValues,
-    setValue,
-    register,
-  } = form;
+  const { setValue } = form;
 
   const dateRangeOptions: DateRangeOption[] = [
     {
       label: "Today",
       value: "Today",
-      onChange: () => {
-        const formattedDate = format(today, "yyyy-MM-dd");
-        setValue("dateStart", formattedDate);
-        setValue("dateEnd", formattedDate);
-      },
     },
     {
       label: "This week",
       value: "This week",
-      onChange: () => {
-        const newStartDate = add(today, { days: -7 });
-        const formatDate = format(newStartDate, "yyyy-MM-dd");
-        setValue("dateStart", formatDate);
-        const formattedDate = format(today, "yyyy-MM-dd");
-        setValue("dateEnd", formattedDate);
-      },
     },
     {
       label: "This month",
       value: "This month",
-      onChange: () => {
-        const newStartDate = add(today, { months: -1 });
-        const formatDate = format(newStartDate, "yyyy-MM-dd");
-        setValue("dateStart", formatDate);
-        const formattedDate = format(today, "yyyy-MM-dd");
-        setValue("dateEnd", formattedDate);
-      },
     },
     {
       label: "This year",
       value: "This year",
-      onChange: () => {
-        const newStartDate = add(today, { years: -1 });
-        const formatDate = format(newStartDate, "yyyy-MM-dd");
-        setValue("dateStart", formatDate);
-        const formattedDate = format(today, "yyyy-MM-dd");
-        setValue("dateEnd", formattedDate);
-      },
     },
     {
       label: "Custom range",
       value: "Custom range",
     },
   ];
+
+  const updateDateValue = (date: string) => {
+    let formattedEndDate = "";
+    let formattedStartDate = "";
+    let newStartDate: Date;
+    switch (date) {
+      case "Today":
+        formattedEndDate = format(today, "yyyy-MM-dd");
+        setValue("dateStart", formattedEndDate);
+        setValue("dateEnd", formattedEndDate);
+        break;
+      case "This week":
+        newStartDate = add(today, { days: -7 });
+        formattedStartDate = format(newStartDate, "yyyy-MM-dd");
+        setValue("dateStart", formattedStartDate);
+        formattedEndDate = format(today, "yyyy-MM-dd");
+        setValue("dateEnd", formattedEndDate);
+        break;
+      case "This month":
+        newStartDate = add(today, { months: -1 });
+        formattedStartDate = format(newStartDate, "yyyy-MM-dd");
+        setValue("dateStart", formattedStartDate);
+        formattedEndDate = format(today, "yyyy-MM-dd");
+        setValue("dateEnd", formattedEndDate);
+        break;
+      case "This year":
+        newStartDate = add(today, { years: -1 });
+        formattedStartDate = format(newStartDate, "yyyy-MM-dd");
+        setValue("dateStart", formattedStartDate);
+        formattedEndDate = format(today, "yyyy-MM-dd");
+        setValue("dateEnd", formattedEndDate);
+        break;
+    }
+  };
 
   useEffect(() => {
     setTodayDate();
@@ -118,7 +127,6 @@ const TransactionsSearchbarForm = () => {
 
   const [filtereSelectedCategories, setFilteredSelectedCategories] = useState<SelectCategory[]>([]);
   const [selectedCurrencies, setSelectedCurrencies] = useState<CurrencyDropdown[]>([]);
-  const [selectedDateRangeOption, setselectedDateRangeOption] = useState<DateRangeOption>(dateRangeOptions[0]);
 
   const formatCategories = () => {
     const allCategories = [...incomeCategories, ...expenseCategories];
@@ -150,10 +158,10 @@ const TransactionsSearchbarForm = () => {
       useTransactionsFilteredQuery({
         accountId: selectedAccountId,
         email: email,
-        currencies: getValues("currencies") ?? [],
-        dateStart: getValues("dateStart"),
-        dateEnd: getValues("dateEnd"),
-        categoriesIds: getValues("selectedCategoriesIds") ?? [],
+        currencies: form.getValues("currencies") ?? [],
+        dateStart: form.getValues("dateStart"),
+        dateEnd: form.getValues("dateEnd"),
+        categoriesIds: form.getValues("selectedCategoriesIds") ?? [],
       }),
     enabled: false,
   });
@@ -171,187 +179,226 @@ const TransactionsSearchbarForm = () => {
 
   const resetForm = () => {
     setTodayDate();
-    setselectedDateRangeOption(dateRangeOptions[0]);
     setFilteredSelectedCategories([]);
     setSelectedCurrencies([]);
     setIsRangeDateVisible(false);
   };
 
+  const selectStyles = {
+    control: (provided: CSSObjectWithLabel, state: ControlProps<any, true, GroupBase<any>>) => ({
+      ...provided,
+      backgroundColor: "transparent",
+      borderColor: "",
+      borderWidth: "1px",
+      borderRadius: "4px",
+      boxShadow: state.isFocused ? "0 0 0 1px #3B82F6" : "none",
+      minHeight: "40px",
+    }),
+    menu: (provided: CSSObjectWithLabel) => ({
+      ...provided,
+      borderRadius: "4px",
+      border: "1px solid gray",
+      marginTop: "2px",
+      backgroundColor: theme === "light" ? "white" : "#020817",
+    }),
+    singleValue: (provided: CSSObjectWithLabel) => ({
+      ...provided,
+      color: theme === "light" ? "black" : "white",
+    }),
+    placeholder: (provided: CSSObjectWithLabel) => ({
+      ...provided,
+      color: theme === "light" ? "black" : "white",
+      fontFamily: "inherit",
+      fontSize: "0.875rem",
+    }),
+    option: (provided: CSSObjectWithLabel, state: { isFocused: boolean }) => ({
+      ...provided,
+      backgroundColor: state.isFocused ? (theme === "light" ? "#f1f5f9" : "#1e293b") : provided.backgroundColor,
+      fontSize: "0.875rem",
+    }),
+  };
+
   return (
     <>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <Wrap>
-          <WrapItem>
-            <FormControl>
-              <Controller
-                control={control}
-                name="dateRangeOption"
-                defaultValue={dateRangeOptions.find((el) => el.value === "Today")?.value}
-                render={() => (
-                  <Select
-                    size={"sm"}
-                    value={selectedDateRangeOption}
-                    defaultValue={dateRangeOptions.find((el) => el.value === "Today")}
-                    options={dateRangeOptions}
-                    isLoading={isLoading}
-                    onChange={(el) => {
-                      if (el?.onChange) el.onChange();
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-wrap gap-4">
+          <FormField
+            name="dateRangeOption"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <ShadcnSelect
+                  onValueChange={(e) => {
+                    updateDateValue(e);
+                    setValue("dateRangeOption", e);
+                    if (e === "Custom range") {
+                      setIsRangeDateVisible(true);
+                    } else {
+                      setIsRangeDateVisible(false);
+                    }
+                  }}
+                  defaultValue={field.value}
+                  disabled={isLoading}
+                >
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="Select a date" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Date options</SelectLabel>
+                      {dateRangeOptions.map((option, index) => (
+                        <SelectItem key={index} value={option.value}>
+                          {option.value}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </ShadcnSelect>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-                      if (el != null) setselectedDateRangeOption(el);
-                      setValue("dateRangeOption", el?.value ?? "");
-                      if (el?.value === "Custom range") {
-                        setIsRangeDateVisible(true);
-                      } else {
-                        setIsRangeDateVisible(false);
-                      }
-                    }}
-                  />
-                )}
-              />
-              <FormErrorHelperText>{errors.dateRangeOption?.message}</FormErrorHelperText>
-              <FormErrorHelperText>{errors.dateStart?.message}</FormErrorHelperText>
-              <FormErrorHelperText>{errors.dateEnd?.message}</FormErrorHelperText>
-            </FormControl>
-          </WrapItem>
           {isRangeDatesVisible && (
             <>
-              <WrapItem>
-                <FormControl>
-                  <Input {...register("dateStart")} type="date" size={"sm"} disabled={isLoading} />
-                </FormControl>
-              </WrapItem>
-              <WrapItem>
-                <FormControl>
-                  <Input type="date" {...register("dateEnd")} size={"sm"} disabled={isLoading} />
-                </FormControl>
-              </WrapItem>
+              <FormField
+                name="dateStart"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <Popover>
+                      <PopoverTrigger>
+                        <FormItem>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-[180px] pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                            disabled={isLoading}
+                          >
+                            {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                            <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormItem>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <CalendarInput
+                          mode="single"
+                          onSelect={field.onChange}
+                          disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                name="dateEnd"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <Popover>
+                      <PopoverTrigger>
+                        <FormItem>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-[180px] pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                            disabled={isLoading}
+                          >
+                            {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                            <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormItem>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <CalendarInput
+                          mode="single"
+                          // selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </>
           )}
-          <WrapItem>
-            <FormControl maxW={"200px"}>
-              <Controller
-                control={control}
-                name="selectedCategoriesIds"
-                render={() => (
-                  <Select
-                    isMulti
-                    size={"sm"}
-                    isLoading={isLoading}
-                    value={filtereSelectedCategories}
-                    placeholder={"Select Category..."}
-                    getOptionLabel={(category) => category.name}
-                    getOptionValue={(category) => category.name}
-                    options={filteredCategories}
-                    onChange={(selectedCategoryList) => {
-                      if (Array.isArray(selectedCategoryList)) {
-                        setFilteredSelectedCategories(selectedCategoryList);
-                      }
-                      setValue(
-                        "selectedCategoriesIds",
-                        selectedCategoryList.map((category) => category.id)
-                      );
-                    }}
-                  />
-                )}
-              />
-              <FormErrorHelperText>{errors.selectedCategoriesIds?.message}</FormErrorHelperText>
-            </FormControl>
-          </WrapItem>
-          <WrapItem>
-            <FormControl maxW={"200px"}>
-              <Controller
-                control={control}
-                name="currencies"
-                render={() => (
-                  <Select
-                    isMulti
-                    size={"sm"}
-                    value={selectedCurrencies}
-                    options={currencyOptions}
-                    isDisabled={isLoading}
-                    placeholder="Currency..."
-                    onChange={(selectedCurrencies) => {
-                      if (Array.isArray(selectedCurrencies)) {
-                        setSelectedCurrencies(selectedCurrencies);
-                        let selectedCurrenciesValue: Currency[] = selectedCurrencies.map((curr) => curr.value);
-                        setValue("currencies", selectedCurrenciesValue);
-                      }
-                    }}
-                  />
-                )}
-              />
-              <FormErrorHelperText>{errors.currencies?.message}</FormErrorHelperText>
-            </FormControl>
-          </WrapItem>
-          {/* <WrapItem>
-          <CheckboxOperationTypeElement isChecked={true} setIsChecked={setIsChecked} />
-        </WrapItem> */}
-          {/* <WrapItem>
-          <FormControl>
-            <Box
-              cursor="pointer"
-              borderRadius={"lg"}
-              borderWidth={"1px"}
-              boxShadow={"md"}
-              borderColor={"teal.600"}
-              px={5}
-              py={1}
-            >
-              <input {...getInputProps()} hidden />
-              <Text {...getLabelProps()} textAlign={"center"}>
-                Income
-              </Text>
-            </Box>
-          </FormControl>
-          <FormControl>
-            <Box
-              cursor="pointer"
-              borderRadius={"lg"}
-              borderWidth={"1px"}
-              boxShadow={"md"}
-              borderColor={"red.600"}
-              px={5}
-              py={1}
-              {...htmlProps}
-            >
-              <Box {...getCheckboxProps()}>
-                <input {...getInputProps()} hidden />
-                <Text {...getLabelProps()} textAlign={"center"}>
-                  {state.isChecked ? "clicked" : "Expense"}
-                </Text>
-              </Box>
-            </Box>
-          </FormControl>
-        </WrapItem> */}
-          <Spacer />
-          <WrapItem>
-            <Button rightIcon={<LuSearch />} type="submit" colorScheme="teal" size={"sm"} isLoading={isLoading}>
-              Search
+          <FormField
+            name="selectedCategoriesIds"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <Select
+                  instanceId={useId()}
+                  styles={selectStyles}
+                  isMulti
+                  isLoading={isLoading}
+                  value={filtereSelectedCategories}
+                  placeholder="Select Category..."
+                  getOptionLabel={(category) => category.name}
+                  getOptionValue={(category) => String(category.id)}
+                  options={filteredCategories}
+                  onChange={(selectedCategoryList) => {
+                    if (Array.isArray(selectedCategoryList)) {
+                      setFilteredSelectedCategories(selectedCategoryList);
+                    }
+                    setValue(
+                      "selectedCategoriesIds",
+                      selectedCategoryList.map((category) => category.id)
+                    );
+                  }}
+                />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            name="currencies"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <Select
+                  isLoading={isLoading}
+                  instanceId={useId()}
+                  styles={selectStyles}
+                  isMulti
+                  placeholder="Currency..."
+                  value={selectedCurrencies}
+                  options={currencyOptions}
+                  isDisabled={isLoading}
+                  onChange={(selectedCurrencies) => {
+                    if (Array.isArray(selectedCurrencies)) {
+                      setSelectedCurrencies(selectedCurrencies);
+                      let selectedCurrenciesValue: Currency[] = selectedCurrencies.map((curr) => curr.value);
+                      setValue("currencies", selectedCurrenciesValue);
+                    }
+                  }}
+                />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="flex-grow" />
+          <div className="flex items-center space-x-4">
+            <Button disabled={isLoading} type="submit">
+              <Search className=" h-4 w-4" />
             </Button>
-          </WrapItem>
-          <WrapItem>
-            <Button colorScheme="yellow" size={"sm"} isLoading={isLoading} onClick={resetForm}>
+            <Button variant={"secondary"} disabled={isLoading} onClick={resetForm}>
               Clear
             </Button>
-          </WrapItem>
-          {selectedTransactionList.length > 0 && (
-            <WrapItem>
-              <IconButton
-                colorScheme="red"
-                size={"sm"}
-                aria-label="Delete selected transactions"
-                icon={<LuTrash2 />}
-                onClick={onOpenDeleteTransactionListModal}
-              />
-            </WrapItem>
-          )}
-        </Wrap>
-      </form>
-      <DeleteTransactionListDialog
-        isOpen={isOpenDeleteTransactionListModal}
-        onClose={onCloseDeleteTransactionListModal}
-        selectedTransactionList={selectedTransactionList}
-      />
+          </div>
+        </form>
+      </Form>
     </>
   );
 };

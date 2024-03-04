@@ -1,16 +1,23 @@
-import { LuFileDiff, LuLayoutDashboard, LuLogOut, LuSettings } from "react-icons/lu";
+import { FileDiff, LayoutDashboard, LogOut, LucideIcon, Settings } from "lucide-react";
 
-export const navigationItems = [
+export interface NavigationItem {
+  type: "link" | "header";
+  label: string;
+  icon?: LucideIcon;
+  path?: string | undefined;
+}
+
+export const navigationItems: NavigationItem[] = [
   {
     type: "link",
     label: "Dashboard",
-    icon: LuLayoutDashboard,
     path: "/dashboard",
+    icon: LayoutDashboard,
   },
   {
     type: "link",
     label: "Transactions History",
-    icon: LuFileDiff,
+    icon: FileDiff,
     path: "/dashboard/transactions",
   },
   {
@@ -20,13 +27,13 @@ export const navigationItems = [
   {
     type: "link",
     label: "Settings",
-    icon: LuSettings,
+    icon: Settings,
     path: "/dashboard/settings",
   },
   {
     type: "link",
     label: "Logout",
-    icon: LuLogOut,
+    icon: LogOut,
     path: "/login",
   },
 ];

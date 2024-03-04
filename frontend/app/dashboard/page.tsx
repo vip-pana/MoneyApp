@@ -1,17 +1,16 @@
-import { Box, Center, Heading } from "@chakra-ui/react";
 import CardsStat from "../components/dashboard/cardsStat";
 import MainCard from "../components/dashboard/mainCard/mainCard";
 
 const Dashboard = () => {
   return (
     <>
-      <Center>
-        <Heading size="md">My transactions</Heading>
-      </Center>
+      <center>
+        <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">My transactions </h4>
+      </center>
       <CardsStat />
-      <Box mt={"20px"}>
+      <div className="mt-5">
         <MainCard />
-      </Box>
+      </div>
     </>
   );
 };

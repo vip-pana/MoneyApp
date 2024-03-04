@@ -1,4 +1,3 @@
-import { Box, Center, VStack } from "@chakra-ui/react";
 import Logo from "../ui/login/logo";
 
 const LoginLayout = ({
@@ -8,14 +7,14 @@ const LoginLayout = ({
 }>) => {
   return (
     <>
-      <Center>
-        <Box mt={"20vh"}>
+      <center>
+        <div className="mt-36">
           <Logo />
-        </Box>
-      </Center>
-      <Center>
-        <VStack mt={"15vh"}>{children}</VStack>
-      </Center>
+        </div>
+      </center>
+      <div className="flex justify-center mt-20">
+        <div className="flex flex-col items-center">{children}</div>
+      </div>
     </>
   );
 };

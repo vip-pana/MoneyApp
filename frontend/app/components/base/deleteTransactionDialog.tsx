@@ -1,30 +1,26 @@
 "use client";
 
+import {
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { graphql } from "@/gql/generated";
 import { TransactionModalProps } from "@/utils/definitions/typeDefinition";
 import { useDeleteTransactionMutation } from "@/utils/definitions/useQueryDefinition";
 import { manageApiCallErrors } from "@/utils/errorUtils";
 import { useTransactionTableStore } from "@/utils/zustand/transactionTableStore";
 import { useUserStore } from "@/utils/zustand/userStore";
-import {
-  AlertDialogOverlay,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogBody,
-  AlertDialogFooter,
-  Button,
-  AlertDialog,
-  Text,
-} from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
-import React from "react";
 import { toast } from "sonner";
 
-const DeleteTransactionDialog = ({ isOpen, onClose, selectedTransaction }: TransactionModalProps) => {
+const AlertDeleteTransactionDialog = ({ selectedTransaction }: TransactionModalProps) => {
   const { email, selectedAccountId, setTransactions, setExpenseAmount, setIncomeAmount } = useUserStore();
   const { setTransactionsFiltered } = useTransactionTableStore();
-
-  const cancelRef = React.useRef<HTMLButtonElement>(null);
 
   const deleteTransactionMutation = graphql(`
     mutation deleteTransaction($transaction: DeleteTransactionInputTypeInput!) {
@@ -50,7 +46,7 @@ const DeleteTransactionDialog = ({ isOpen, onClose, selectedTransaction }: Trans
     queryFn: () =>
       useDeleteTransactionMutation({
         email: email,
-        transactionId: selectedTransaction.id,
+        transactionId: selectedTransaction?.id,
         accountId: selectedAccountId,
       }),
     enabled: false,
@@ -62,38 +58,33 @@ const DeleteTransactionDialog = ({ isOpen, onClose, selectedTransaction }: Trans
       manageApiCallErrors(error, data?.deleteTransaction.errors);
     } else if (data?.deleteTransaction.user?.accounts) {
       toast.success("Transaction deleted!");
-      setTransactions(data?.deleteTransaction.user.accounts[0].transactions);
+      setTransactions(data?.deleteTransaction?.user?.accounts[0]?.transactions);
       setTransactionsFiltered(data?.deleteTransaction.user.accounts[0].transactions);
       setIncomeAmount(data.deleteTransaction.user.accounts[0].incomeAmount);
       setExpenseAmount(data.deleteTransaction.user.accounts[0].expenseAmount);
-      onClose();
     }
   };
 
   return (
-    <AlertDialog isOpen={isOpen} onClose={onClose} leastDestructiveRef={cancelRef}>
-      <AlertDialogOverlay>
-        <AlertDialogContent>
-          <AlertDialogHeader>Delete Transaction</AlertDialogHeader>
-
-          <AlertDialogBody>
-            <Text>Amount: {selectedTransaction?.amount}</Text>
-            <Text>Description: {selectedTransaction?.description}</Text>
+    <>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete Transaction</AlertDialogTitle>
+          <AlertDialogDescription>
+            Amount: {selectedTransaction?.amount} <br />
+            Description: {selectedTransaction?.description} <br />
             Are you sure? You can't undo this action afterwards.
-          </AlertDialogBody>
-
-          <AlertDialogFooter>
-            <Button onClick={onClose} variant={"outline"}>
-              Cancel
-            </Button>
-            <Button colorScheme="red" onClick={onSubmit} isLoading={isLoading} ml={3}>
-              Delete
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialogOverlay>
-    </AlertDialog>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={onSubmit} disabled={isLoading} className="bg-red-400 ">
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </>
   );
 };
 
-export default DeleteTransactionDialog;
+export default AlertDeleteTransactionDialog;
