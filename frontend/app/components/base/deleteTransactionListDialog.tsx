@@ -38,8 +38,8 @@ const DeleteTransactionListDialog = ({
   }, [selectedTransactionList]);
 
   const deleteTransactionListMutation = graphql(`
-    mutation deleteTransactionList($transactions: DeleteTransactionListInputTypeInput!) {
-      deleteTransactionList(input: { transactions: $transactions }) {
+    mutation deleteTransactionList($transactions: DeleteTransactionListInput!) {
+      deleteTransactionList(transactions: $transactions) {
         user {
           accounts {
             ...accountFields

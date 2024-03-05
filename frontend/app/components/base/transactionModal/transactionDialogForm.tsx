@@ -79,8 +79,8 @@ const TransactionModalForm = ({
   };
 
   const addOrUpdateTransactionMutation = graphql(`
-    mutation addOrUpdateTransaction($transactionInput: AddOrUpdateTransactionInputTypeInput!) {
-      addOrUpdateTransaction(input: { transactionInput: $transactionInput }) {
+    mutation addOrUpdateTransaction($input: AddOrUpdateTransactionInput!) {
+      addOrUpdateTransaction(transactionInput: $input) {
         user {
           accounts {
             ...accountFields

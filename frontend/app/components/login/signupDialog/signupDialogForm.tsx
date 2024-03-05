@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Combobox } from "@/components/ui/combobox";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import CustomButtonSubmit from "@/components/ui/custom-button-submit";
 import { DialogFooter } from "@/components/ui/dialog";
@@ -34,8 +33,8 @@ const SignupDialogForm = () => {
   const router = useRouter();
 
   const signupQueryDocument = graphql(`
-    mutation signup($user: UserSignupInputTypeInput!) {
-      signup(input: { user: $user }) {
+    mutation signup($input: SignupInput!) {
+      signup(user: $input) {
         string
         errors {
           ...errorFields

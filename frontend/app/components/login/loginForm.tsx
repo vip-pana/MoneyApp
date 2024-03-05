@@ -23,9 +23,9 @@ const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any> })
   const { getValues } = form;
 
   const loginQueryDocument = graphql(`
-    mutation login($user: UserLoginInputTypeInput!) {
-      login(input: { user: $user }) {
-        accessOutputType {
+    mutation login($input: LoginInput!) {
+      login(user: $input) {
+        accessOutput {
           accessToken
         }
         errors {

@@ -23,8 +23,8 @@ const AlertDeleteTransactionDialog = ({ selectedTransaction }: TransactionModalP
   const { setTransactionsFiltered } = useTransactionTableStore();
 
   const deleteTransactionMutation = graphql(`
-    mutation deleteTransaction($transaction: DeleteTransactionInputTypeInput!) {
-      deleteTransaction(input: { transaction: $transaction }) {
+    mutation deleteTransaction($input: DeleteTransactionInput!) {
+      deleteTransaction(transaction: $input) {
         user {
           accounts {
             incomeAmount
