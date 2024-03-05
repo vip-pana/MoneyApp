@@ -1,4 +1,4 @@
-﻿using Backend.API.Types.InputTypes.Transaction;
+﻿using Backend.API.Types.Input.Transaction;
 using FluentValidation;
 
 namespace Backend.API.Validators.Transaction

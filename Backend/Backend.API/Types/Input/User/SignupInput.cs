@@ -1,6 +1,6 @@
 ﻿using Backend.Core.Enums;
 
-namespace Backend.API.Types.InputTypes.User
+namespace Backend.API.Types.Input.User
 {
     public class SignupInput
     {

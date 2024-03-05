@@ -1,7 +1,7 @@
 ﻿using AppAny.HotChocolate.FluentValidation;
 using Backend.API.Configuration.Models;
-using Backend.API.Types.InputTypes.User;
-using Backend.API.Types.OutputTypes;
+using Backend.API.Types.Input.User;
+using Backend.API.Types.Output;
 using Backend.API.Validators.User;
 using Backend.Core.Entities;
 using Backend.Core.Repositories;
@@ -35,21 +35,21 @@ namespace Backend.API.Properties
         [AllowAnonymous]
         [Error<UserAlreadyExistException>]
         [Error<GenericException>]
-        public async Task<string> Signup([UseFluentValidation, UseValidator<SignupInputValidator>] SignupInput user)
+        public async Task<string> Signup([UseFluentValidation, UseValidator<SignupInputValidator>] SignupInput input)
         {
-            var registeredUser = await _userRepository.GetByEmailAsync(email: user.Email);
+            var registeredUser = await _userRepository.GetByEmailAsync(email: input.Email);
 
             if (registeredUser is not null) throw new UserAlreadyExistException();
 
-            var defaultAccount = await _accountRepository.GenerateNewDefaultAccount(currency: user.SelectedCurrency);
+            var defaultAccount = await _accountRepository.GenerateNewDefaultAccount(currency: input.SelectedCurrency);
 
             User newUser = new()
             {
-                Name = user.Name,
-                Surname = user.Surname,
-                Email = user.Email,
+                Name = input.Name,
+                Surname = input.Surname,
+                Email = input.Email,
                 Accounts = [defaultAccount],
-                Password = AuthenticationUtils.HashPassword(user.Password)
+                Password = AuthenticationUtils.HashPassword(input.Password)
             };
 
             await _userRepository.Signup(user: newUser);
@@ -63,12 +63,12 @@ namespace Backend.API.Properties
         [Error<GenericException>]
         [Error<UserNotExistException>]
         [Error<WrongPasswordException>]
-        public async Task<AccessOutput> Login([UseFluentValidation, UseValidator<LoginInputValidator>] LoginInput user)
+        public async Task<AccessOutput> Login([UseFluentValidation, UseValidator<LoginInputValidator>] LoginInput input)
         {
             string accessToken;
-            var registeredUser = await _userRepository.GetByEmailAsync(user.Email) ?? throw new UserNotExistException(Email: user.Email);
+            var registeredUser = await _userRepository.GetByEmailAsync(input.Email) ?? throw new UserNotExistException(Email: input.Email);
 
-            if (!AuthenticationUtils.VerifyPassword(inputPassword: user.Password, hashedPassword: registeredUser.Password))
+            if (!AuthenticationUtils.VerifyPassword(inputPassword: input.Password, hashedPassword: registeredUser.Password))
             {
                 throw new WrongPasswordException();
             }

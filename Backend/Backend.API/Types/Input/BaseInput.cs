@@ -1,4 +1,4 @@
-﻿namespace Backend.API.Types.InputTypes
+﻿namespace Backend.API.Types.Input
 {
     public class BaseInput
     {

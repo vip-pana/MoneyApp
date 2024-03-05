@@ -1,4 +1,4 @@
-﻿namespace Backend.API.Types.InputTypes.Transaction
+﻿namespace Backend.API.Types.Input.Transaction
 {
     public class AddOrUpdateTransactionInput : BaseInput
     {

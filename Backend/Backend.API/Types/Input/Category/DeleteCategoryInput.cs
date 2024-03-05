@@ -1,4 +1,4 @@
-﻿namespace Backend.API.Types.InputTypes.Category
+﻿namespace Backend.API.Types.Input.Category
 {
     public class DeleteCategoryInput : BaseInput
     {

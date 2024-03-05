@@ -1,6 +1,6 @@
 ﻿using Backend.Core.Filters.Transaction;
 
-namespace Backend.API.Types.InputTypes.Transaction
+namespace Backend.API.Types.Input.Transaction
 {
     public class FilterTransactionListInput : BaseInput
     {

@@ -1,5 +1,5 @@
 ﻿using AppAny.HotChocolate.FluentValidation;
-using Backend.API.Types.InputTypes.Transaction;
+using Backend.API.Types.Input.Transaction;
 using Backend.API.Validators.Transaction;
 using Backend.Core.Entities;
 using Backend.Core.Repositories;
@@ -14,55 +14,55 @@ namespace Backend.API.Mutations
         [AllowAnonymous]
         [Error<UserNotExistException>]
         [Error<FieldIdNotExistException>]
-        public async Task<User> DeleteTransaction([UseFluentValidation, UseValidator<DeleteTransactionInputValidator>] DeleteTransactionInput transaction)
+        public async Task<User> DeleteTransaction([UseFluentValidation, UseValidator<DeleteTransactionInputValidator>] DeleteTransactionInput input)
         {
-            var registeredUser = await userRepository.GetByEmailAsync(email: transaction.UserEmail) ?? throw new UserNotExistException(transaction.UserEmail);
+            var registeredUser = await userRepository.GetByEmailAsync(email: input.UserEmail) ?? throw new UserNotExistException(input.UserEmail);
 
-            User res = await userRepository.DeleteTransactionOnUserAccount(transactionId: transaction.TransactionId, user: registeredUser, transaction.AccountId);
+            User res = await userRepository.DeleteTransactionOnUserAccount(transactionId: input.TransactionId, user: registeredUser, input.AccountId);
 
             return res;
         }
 
         [AllowAnonymous]
         [Error<UserNotExistException>]
-        public async Task<User> DeleteTransactionList([UseFluentValidation, UseValidator<DeleteTransactionListInputValidator>] DeleteTransactionListInput transactions)
+        public async Task<User> DeleteTransactionList([UseFluentValidation, UseValidator<DeleteTransactionListInputValidator>] DeleteTransactionListInput input)
         {
-            var registeredUser = await userRepository.GetByEmailAsync(email: transactions.UserEmail) ?? throw new UserNotExistException(transactions.UserEmail);
+            var registeredUser = await userRepository.GetByEmailAsync(email: input.UserEmail) ?? throw new UserNotExistException(input.UserEmail);
 
-            User res = await userRepository.DeleteTransactionListOnUserAccount(transactionIds: transactions.TransactionIds, user: registeredUser, transactions.AccountId);
+            User res = await userRepository.DeleteTransactionListOnUserAccount(transactionIds: input.TransactionIds, user: registeredUser, input.AccountId);
 
             return res;
         }
 
         [AllowAnonymous]
         [Error<UserNotExistException>]
-        public async Task<User> AddOrUpdateTransaction([UseFluentValidation, UseValidator<BaseTransactionInputValidator>] AddOrUpdateTransactionInput transactionInput)
+        public async Task<User> AddOrUpdateTransaction([UseFluentValidation, UseValidator<BaseTransactionInputValidator>] AddOrUpdateTransactionInput input)
         {
             User res;
-            var registeredUser = await userRepository.GetByEmailAsync(email: transactionInput.UserEmail) ?? throw new UserNotExistException(transactionInput.UserEmail);
+            var registeredUser = await userRepository.GetByEmailAsync(email: input.UserEmail) ?? throw new UserNotExistException(input.UserEmail);
 
             var transaction = new Transaction(
-                description: transactionInput.Transaction.Description,
-                amount: transactionInput.Transaction.Amount,
-                transactionType: transactionInput.Transaction.TransactionType,
-                currency: transactionInput.Transaction.Currency,
-                category: transactionInput.Transaction.Category,
-                dateTime: transactionInput.Transaction.DateTime
+                description: input.Transaction.Description,
+                amount: input.Transaction.Amount,
+                transactionType: input.Transaction.TransactionType,
+                currency: input.Transaction.Currency,
+                category: input.Transaction.Category,
+                dateTime: input.Transaction.DateTime
                 );
 
-            if (transactionInput.Transaction.Id != null)
+            if (input.Transaction.Id != null)
             {
-                transaction.Id = transactionInput.Transaction.Id;
+                transaction.Id = input.Transaction.Id;
 
-                var transactionExist = userRepository.GetTransactionById(transactionId: transactionInput.Transaction.Id, user: registeredUser, accountId: transactionInput.AccountId) != null;
+                var transactionExist = userRepository.GetTransactionById(transactionId: input.Transaction.Id, user: registeredUser, accountId: input.AccountId) != null;
 
                 if (!transactionExist) throw new FieldIdNotExistException();
 
-                res = await userRepository.UpdateTransactionOnUserAccount(transaction: transaction, user: registeredUser, accountId: transactionInput.AccountId);
+                res = await userRepository.UpdateTransactionOnUserAccount(transaction: transaction, user: registeredUser, accountId: input.AccountId);
             }
             else
             {
-                res = await userRepository.AddTransactionOnUserAccount(transaction: transaction, user: registeredUser, transactionInput.AccountId);
+                res = await userRepository.AddTransactionOnUserAccount(transaction: transaction, user: registeredUser, input.AccountId);
             }
 
             return res;

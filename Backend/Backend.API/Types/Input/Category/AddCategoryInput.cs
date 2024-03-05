@@ -1,6 +1,6 @@
 ﻿using Backend.Core.Enums;
 
-namespace Backend.API.Types.InputTypes.Category
+namespace Backend.API.Types.Input.Category
 {
     public class AddCategoryInput : BaseInput
     {

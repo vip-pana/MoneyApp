@@ -1,4 +1,4 @@
-﻿namespace Backend.API.Types.OutputTypes
+﻿namespace Backend.API.Types.Output
 {
     public class AccessOutput
     {

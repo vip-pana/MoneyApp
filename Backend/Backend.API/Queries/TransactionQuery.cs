@@ -1,5 +1,5 @@
 ﻿using AppAny.HotChocolate.FluentValidation;
-using Backend.API.Types.InputTypes.Transaction;
+using Backend.API.Types.Input.Transaction;
 using Backend.API.Validators.Transaction;
 using Backend.Core.Entities;
 using Backend.Core.Repositories;
@@ -10,12 +10,12 @@ namespace Backend.API.Queries
     [ExtendObjectType("Query")]
     public class TransactionQuery([Service] IUserRepository userRepository)
     {
-        [Authorize]
-        public async Task<User> GetUserTransactionsFiltered([UseFluentValidation, UseValidator<FilterTransactionListInputValidator>] FilterTransactionListInput filters)
+        [AllowAnonymous]
+        public async Task<User> GetUserTransactionsFiltered([UseFluentValidation, UseValidator<FilterTransactionListInputValidator>] FilterTransactionListInput input)
         {
-            var registeredUser = await userRepository.GetByEmailAsync(email: filters.UserEmail) ?? throw new GraphQLException(new Error("User not registered."));
+            var registeredUser = await userRepository.GetByEmailAsync(email: input.UserEmail) ?? throw new GraphQLException(new Error("User not registered."));
 
-            registeredUser = userRepository.FilterUserTransactions(filters.TransactionFilters, registeredUser, filters.AccountId);
+            registeredUser = userRepository.FilterUserTransactions(input.TransactionFilters, registeredUser, input.AccountId);
 
             return registeredUser;
         }

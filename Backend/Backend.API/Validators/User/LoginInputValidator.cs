@@ -1,4 +1,4 @@
-﻿using Backend.API.Types.InputTypes.User;
+﻿using Backend.API.Types.Input.User;
 using FluentValidation;
 
 namespace Backend.API.Validators.User

@@ -1,4 +1,4 @@
-﻿namespace Backend.API.Types.InputTypes.User
+﻿namespace Backend.API.Types.Input.User
 {
     public class LoginInput
     {
