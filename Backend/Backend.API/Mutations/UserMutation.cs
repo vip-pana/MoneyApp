@@ -63,7 +63,7 @@ namespace Backend.API.Properties
         [Error<GenericException>]
         [Error<UserNotExistException>]
         [Error<WrongPasswordException>]
-        public async Task<AccessOutputType> Login([UseFluentValidation, UseValidator<UserLoginInputTypeValidator>] LoginInput user)
+        public async Task<AccessOutput> Login([UseFluentValidation, UseValidator<UserLoginInputTypeValidator>] LoginInput user)
         {
             string accessToken;
             var registeredUser = await _userRepository.GetByEmailAsync(user.Email) ?? throw new UserNotExistException(Email: user.Email);
@@ -77,7 +77,7 @@ namespace Backend.API.Properties
                 accessToken = AuthenticationUtils.GenerateAccessToken(jwtParams: _jwtParams);
             }
 
-            var access = new AccessOutputType { AccessToken = accessToken };
+            var access = new AccessOutput { AccessToken = accessToken };
 
             return access;
         }
