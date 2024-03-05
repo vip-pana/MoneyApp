@@ -40,29 +40,12 @@ const MainContent = ({
         surname
         email
         accounts {
-          id
-          name
-          currency
-          incomeAmount
-          expenseAmount
+          ...accountBaseDetails
           transactions {
-            id
-            amount
-            transactionType
-            currency
-            dateTime
-            description
-            transactionType
-            category {
-              id
-              name
-              categoryType
-            }
+            ...transactionFields
           }
           categories {
-            id
-            name
-            categoryType
+            ...categoryFields
             subCategories {
               id
               name

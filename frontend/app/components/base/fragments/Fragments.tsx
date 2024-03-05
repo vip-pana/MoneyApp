@@ -20,9 +20,9 @@ const Fragments = () => {
     fragment transactionFields on Transaction {
       id
       amount
-      description
-      dateTime
       currency
+      dateTime
+      description
       transactionType
       category {
         ...categoryFields
@@ -41,6 +41,16 @@ const Fragments = () => {
       transactions {
         ...transactionFields
       }
+    }
+  `);
+
+  const accountBaseDetailFragment = graphql(`
+    fragment accountBaseDetails on Account {
+      id
+      name
+      currency
+      incomeAmount
+      expenseAmount
     }
   `);
 

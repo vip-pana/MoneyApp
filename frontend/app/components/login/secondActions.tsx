@@ -1,5 +1,3 @@
-"use client";
-
 import SignupDialog from "./signupDialog/signupDialog";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";

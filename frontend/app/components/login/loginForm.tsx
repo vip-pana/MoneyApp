@@ -19,7 +19,6 @@ import { Unlock } from "lucide-react";
 const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any> }) => {
   const router = useRouter();
   const { setEmailExist } = useUserStore();
-
   const { getValues } = form;
 
   const loginQueryDocument = graphql(`
@@ -35,7 +34,7 @@ const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any> })
 
   const onSubmit = async () => {
     const { data, isError, error } = await refetch();
-    if (isError || data?.login.string) {
+    if (isError || data?.login.errors) {
       manageApiCallErrors(error, data?.login.errors);
     } else if (data?.login.string) {
       sessionStorage.setItem("token", data.login.string);

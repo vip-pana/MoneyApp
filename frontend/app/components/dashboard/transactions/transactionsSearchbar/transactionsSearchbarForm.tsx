@@ -142,7 +142,7 @@ const TransactionsSearchbarForm = () => {
   };
 
   const transactionFilteredQuery = graphql(`
-    query userTransactionsFiltered($input: FilterTransactionListInput!!) {
+    query userTransactionsFiltered($input: FilterTransactionListInput!) {
       userTransactionsFiltered(input: $input) {
         accounts {
           transactions {
@@ -171,8 +171,8 @@ const TransactionsSearchbarForm = () => {
     const { data, isError, error } = await refetch();
     if (isError) {
       manageApiCallErrors(null, error);
-    } else if (data?.userTransactionsFiltered) {
-      setTransactionsFiltered(data.userTransactionsFiltered.accounts[0].transactions);
+    } else if (data?.accounts) {
+      setTransactionsFiltered(data.accounts[0].transactions);
     }
   };
 
