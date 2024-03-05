@@ -46,11 +46,11 @@ const DataTableTransactionTable = () => {
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    onPaginationChange: setPagination, //update the pagination state when internal APIs mutate the pagination state
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
-    onPaginationChange: setPagination, //update the pagination state when internal APIs mutate the pagination state
 
     state: {
       sorting,
@@ -135,8 +135,16 @@ const DataTableTransactionTable = () => {
         </Table>
       </div>
       <div className="flex items-center justify-center space-x-2 py-2">
-        <Button variant={"outline"} size={"sm"} onClick={() => table.nextPage()} disabled={!table.getCanPreviousPage()}>
+        <Button
+          variant={"outline"}
+          size={"sm"}
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
           Previous
+        </Button>
+        <Button variant={"outline"} size={"sm"}>
+          {table.getState().pagination.pageIndex}
         </Button>
         <Button variant={"outline"} size={"sm"} onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
           Next

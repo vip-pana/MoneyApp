@@ -36,6 +36,7 @@ export type TransactionsSearchValueDefinition = {
   dateEnd: Date | string;
   selectedCategoriesIds: string[];
   currencies: Currency[];
+  operationTypes: OperationType[];
 };
 
 export type GetUserByEmailQueryValueDefinition = {

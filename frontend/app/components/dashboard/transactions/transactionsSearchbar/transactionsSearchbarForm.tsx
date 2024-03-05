@@ -12,9 +12,8 @@ import { Currency, OperationType } from "@/gql/generated/graphql";
 import { graphql } from "@/gql/generated";
 import { useQuery } from "@tanstack/react-query";
 import { useTransactionsFilteredQuery } from "@/utils/definitions/useQueryDefinition";
-import { toast } from "sonner";
 import { useTransactionTableStore } from "@/utils/zustand/transactionTableStore";
-import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import {
   Select as ShadcnSelect,
   SelectContent,
@@ -31,6 +30,8 @@ import { Calendar as CalendarInput } from "@/components/ui/calendar";
 import Select, { CSSObjectWithLabel, ControlProps, GroupBase } from "react-select";
 import { useTheme } from "next-themes";
 import { Calendar, Search } from "lucide-react";
+import { manageApiCallErrors } from "@/utils/errorUtils";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface SelectCategory {
   id: string;
@@ -46,8 +47,8 @@ interface DateRangeOption {
 const today = new Date();
 
 const TransactionsSearchbarForm = () => {
-  const { selectedAccountId, email, expenseCategories, incomeCategories } = useUserStore();
-  const { setTransactionsFiltered, selectedTransactionList } = useTransactionTableStore();
+  const { selectedAccountId, email, expenseCategories, incomeCategories, transactions } = useUserStore();
+  const { setTransactionsFiltered } = useTransactionTableStore();
   const [isRangeDatesVisible, setIsRangeDateVisible] = useState(false);
   const [filteredCategories, setFilteredCategories] = useState<SelectCategory[]>([]);
   const { theme } = useTheme();
@@ -169,9 +170,7 @@ const TransactionsSearchbarForm = () => {
   const onSubmit = async () => {
     const { data, isError, error } = await refetch();
     if (isError) {
-      toast.error(error.name, {
-        description: error.message,
-      });
+      manageApiCallErrors(null, error);
     } else if (data?.userTransactionsFiltered) {
       setTransactionsFiltered(data.userTransactionsFiltered.accounts[0].transactions);
     }
@@ -182,6 +181,7 @@ const TransactionsSearchbarForm = () => {
     setFilteredSelectedCategories([]);
     setSelectedCurrencies([]);
     setIsRangeDateVisible(false);
+    setTransactionsFiltered(transactions);
   };
 
   const selectStyles = {
@@ -199,7 +199,7 @@ const TransactionsSearchbarForm = () => {
       borderRadius: "4px",
       border: "1px solid gray",
       marginTop: "2px",
-      backgroundColor: theme === "light" ? "white" : "#020817",
+      backgroundColor: theme === "light" ? "white" : "#09090b",
     }),
     singleValue: (provided: CSSObjectWithLabel) => ({
       ...provided,
@@ -213,8 +213,22 @@ const TransactionsSearchbarForm = () => {
     }),
     option: (provided: CSSObjectWithLabel, state: { isFocused: boolean }) => ({
       ...provided,
-      backgroundColor: state.isFocused ? (theme === "light" ? "#f1f5f9" : "#1e293b") : provided.backgroundColor,
+      backgroundColor: state.isFocused ? (theme === "light" ? "#f1f5f9" : "#27272a") : provided.backgroundColor,
       fontSize: "0.875rem",
+    }),
+    multiValue: (provided: CSSObjectWithLabel) => ({
+      ...provided,
+      backgroundColor: theme === "light" ? "#18181b" : "#27272a",
+      borderRadius: "4px",
+      color: theme === "light" ? "#f1f5f9" : "light",
+    }),
+    multiValueLabel: (provided: CSSObjectWithLabel) => ({
+      ...provided,
+      color: theme === "light" ? "#f1f5f9" : "light",
+    }),
+    input: (provided: CSSObjectWithLabel) => ({
+      ...provided,
+      color: theme === "light" ? "black" : "white", // Cambia il colore del testo durante la digitazione
     }),
   };
 
@@ -365,7 +379,7 @@ const TransactionsSearchbarForm = () => {
           <FormField
             name="currencies"
             control={form.control}
-            render={({ field }) => (
+            render={() => (
               <FormItem>
                 <Select
                   isLoading={isLoading}
@@ -385,6 +399,26 @@ const TransactionsSearchbarForm = () => {
                   }}
                 />
                 <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            name="operationTypes"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem className="flex gap-5">
+                <div className="mt-2">
+                  <FormLabel className="mr-2">Income</FormLabel>
+                  <FormControl>
+                    <Checkbox />
+                  </FormControl>
+                </div>
+                <div>
+                  <FormLabel className="mr-2">Expense</FormLabel>
+                  <FormControl>
+                    <Checkbox />
+                  </FormControl>
+                </div>
               </FormItem>
             )}
           />

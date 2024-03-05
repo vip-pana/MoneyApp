@@ -42,6 +42,7 @@ const TransactionModalForm = ({
     setTransactions,
     setIncomeAmount,
     setExpenseAmount,
+    currency,
   } = useUserStore();
 
   const form = useForm<TransactionModalFormValueDefinition>({
@@ -57,6 +58,7 @@ const TransactionModalForm = ({
       setValuesBySelectedTransaction(selectedTransaction);
     } else {
       setDateValueOnTransaction();
+      form.setValue("currency", currency);
     }
   }, [selectedTransaction]);
 
@@ -220,13 +222,19 @@ const TransactionModalForm = ({
                       >
                         <FormItem>
                           <FormControl>
-                            <RadioGroupItem value={OperationType.Income} />
+                            <RadioGroupItem
+                              checked={field.value === OperationType.Income}
+                              value={OperationType.Income}
+                            />
                           </FormControl>
                           <FormLabel className="ml-2">Income</FormLabel>
                         </FormItem>
                         <FormItem>
                           <FormControl>
-                            <RadioGroupItem value={OperationType.Expense} />
+                            <RadioGroupItem
+                              checked={field.value === OperationType.Expense}
+                              value={OperationType.Expense}
+                            />
                           </FormControl>
                           <FormLabel className="ml-2">Expense</FormLabel>
                         </FormItem>
