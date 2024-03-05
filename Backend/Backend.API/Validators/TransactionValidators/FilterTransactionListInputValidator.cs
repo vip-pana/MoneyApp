@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace Backend.API.Validators.TransactionValidators
 {
-    public class TransactionFilterInputTypeValidator : AbstractValidator<FilterTransactionListInput>
+    public class FilterTransactionListInputValidator : AbstractValidator<FilterTransactionListInput>
     {
-        public TransactionFilterInputTypeValidator() 
+        public FilterTransactionListInputValidator() 
         {
             RuleFor(x => x.UserEmail).NotEmpty();
             RuleFor(x => x.AccountId).NotEmpty();

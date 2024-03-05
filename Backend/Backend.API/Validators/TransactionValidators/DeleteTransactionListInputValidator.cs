@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace Backend.API.Validators.TransactionValidators
 {
-    public class DeleteTransactionListInputTypeValidator : AbstractValidator<DeleteTransactionListInput>
+    public class DeleteTransactionListInputValidator : AbstractValidator<DeleteTransactionListInput>
     {
-        public DeleteTransactionListInputTypeValidator()
+        public DeleteTransactionListInputValidator()
         {
             RuleFor(x => x.TransactionIds).NotEmpty().WithMessage("TransactionIds can't be null").NotNull();
             RuleFor(x => x.AccountId).NotEmpty();

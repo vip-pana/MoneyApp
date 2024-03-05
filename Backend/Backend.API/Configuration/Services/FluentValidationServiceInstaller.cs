@@ -11,10 +11,10 @@ namespace Backend.API.Configuration
             services.AddFluentValidationAutoValidation();
             services.AddTransient<UserLoginInputTypeValidator>();
             services.AddTransient<UserSignupInputTypeValidator>();
-            services.AddTransient<BaseTransactionInputTypeValidator>();
-            services.AddTransient<DeleteTransactionInputTypeValidator>();
-            services.AddTransient<DeleteTransactionListInputTypeValidator>();
-            services.AddTransient<TransactionFilterInputTypeValidator>();
+            services.AddTransient<BaseTransactionInputValidator>();
+            services.AddTransient<DeleteTransactionInputValidator>();
+            services.AddTransient<DeleteTransactionListInputValidator>();
+            services.AddTransient<FilterTransactionListInputValidator>();
         }
     }
 }

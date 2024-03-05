@@ -14,7 +14,7 @@ namespace Backend.API.Mutations
         [AllowAnonymous]
         [Error<UserNotExistException>]
         [Error<FieldIdNotExistException>]
-        public async Task<User> DeleteTransaction([UseFluentValidation, UseValidator<DeleteTransactionInputTypeValidator>] DeleteTransactionInput transaction)
+        public async Task<User> DeleteTransaction([UseFluentValidation, UseValidator<DeleteTransactionInputValidator>] DeleteTransactionInput transaction)
         {
             var registeredUser = await userRepository.GetByEmailAsync(email: transaction.UserEmail) ?? throw new UserNotExistException(transaction.UserEmail);
 
@@ -25,7 +25,7 @@ namespace Backend.API.Mutations
 
         [AllowAnonymous]
         [Error<UserNotExistException>]
-        public async Task<User> DeleteTransactionList([UseFluentValidation, UseValidator<DeleteTransactionListInputTypeValidator>] DeleteTransactionListInput transactions)
+        public async Task<User> DeleteTransactionList([UseFluentValidation, UseValidator<DeleteTransactionListInputValidator>] DeleteTransactionListInput transactions)
         {
             var registeredUser = await userRepository.GetByEmailAsync(email: transactions.UserEmail) ?? throw new UserNotExistException(transactions.UserEmail);
 
@@ -36,7 +36,7 @@ namespace Backend.API.Mutations
 
         [AllowAnonymous]
         [Error<UserNotExistException>]
-        public async Task<User> AddOrUpdateTransaction([UseFluentValidation, UseValidator<BaseTransactionInputTypeValidator>] AddOrUpdateTransactionInput transactionInput)
+        public async Task<User> AddOrUpdateTransaction([UseFluentValidation, UseValidator<BaseTransactionInputValidator>] AddOrUpdateTransactionInput transactionInput)
         {
             User res;
             var registeredUser = await userRepository.GetByEmailAsync(email: transactionInput.UserEmail) ?? throw new UserNotExistException(transactionInput.UserEmail);

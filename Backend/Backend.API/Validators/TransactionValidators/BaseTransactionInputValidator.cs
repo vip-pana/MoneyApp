@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace Backend.API.Validators.TransactionValidators
 {
-    public class BaseTransactionInputTypeValidator : AbstractValidator<AddOrUpdateTransactionInput>
+    public class BaseTransactionInputValidator : AbstractValidator<AddOrUpdateTransactionInput>
     {
-        public BaseTransactionInputTypeValidator()
+        public BaseTransactionInputValidator()
         {
             RuleFor(x => x.Transaction.Category).NotEmpty();
             RuleFor(x => x.Transaction.DateTime).NotEmpty();
