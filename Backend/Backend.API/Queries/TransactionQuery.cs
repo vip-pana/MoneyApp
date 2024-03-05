@@ -1,5 +1,5 @@
 ﻿using AppAny.HotChocolate.FluentValidation;
-using Backend.API.Types.InputTypes.TransactionTypes;
+using Backend.API.Types.InputTypes.Transaction;
 using Backend.API.Validators.TransactionValidators;
 using Backend.Core.Entities;
 using Backend.Core.Repositories;

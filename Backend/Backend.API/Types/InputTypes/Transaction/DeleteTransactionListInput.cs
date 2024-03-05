@@ -1,4 +1,4 @@
-﻿namespace Backend.API.Types.InputTypes.TransactionTypes
+﻿namespace Backend.API.Types.InputTypes.Transaction
 {
     public class DeleteTransactionListInput : BaseInput
     {

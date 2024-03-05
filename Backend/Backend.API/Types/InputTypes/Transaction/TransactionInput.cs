@@ -1,7 +1,7 @@
 ﻿using Backend.Core.Entities;
 using Backend.Core.Enums;
 
-namespace Backend.API.Types.InputTypes.TransactionTypes
+namespace Backend.API.Types.InputTypes.Transaction
 {
     public class TransactionInput
     {
