@@ -1,4 +1,4 @@
-﻿using Backend.Core.Filters.TransactionFilters;
+﻿using Backend.Core.Filters.Transaction;
 
 namespace Backend.API.Types.InputTypes.Transaction
 {

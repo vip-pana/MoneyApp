@@ -1,6 +1,6 @@
 ﻿using Backend.Core.Enums;
 
-namespace Backend.Core.Filters.TransactionFilters
+namespace Backend.Core.Filters.Transaction
 {
     public class TransactionFilters
     {

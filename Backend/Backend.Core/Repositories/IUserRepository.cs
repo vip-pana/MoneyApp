@@ -1,5 +1,5 @@
 ﻿using Backend.Core.Entities;
-using Backend.Core.Filters.TransactionFilters;
+using Backend.Core.Filters.Transaction;
 
 namespace Backend.Core.Repositories
 {

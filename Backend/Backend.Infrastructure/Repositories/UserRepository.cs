@@ -1,6 +1,6 @@
 ﻿using Backend.Core.Entities;
 using Backend.Core.Enums;
-using Backend.Core.Filters.TransactionFilters;
+using Backend.Core.Filters.Transaction;
 using Backend.Core.Repositories;
 using Backend.Infrastructure.Data;
 using Backend.Utils.Exceptions;
