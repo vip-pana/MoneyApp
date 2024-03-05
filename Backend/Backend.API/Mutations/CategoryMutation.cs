@@ -1,12 +1,4 @@
-﻿using AppAny.HotChocolate.FluentValidation;
-using Backend.API.Types.InputTypes.CategoryTypes;
-using Backend.API.Types.InputTypes.TransactionTypes;
-using Backend.API.Validators.CategoryValidators;
-using Backend.API.Validators.TransactionValidators;
-using Backend.Core.Entities;
-using Backend.Core.Repositories;
-using Backend.Utils.Exceptions;
-using HotChocolate.Authorization;
+﻿using Backend.Core.Repositories;
 
 namespace Backend.API.Mutations
 {
