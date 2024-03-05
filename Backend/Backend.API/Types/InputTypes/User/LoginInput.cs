@@ -1,6 +1,6 @@
-﻿namespace Backend.API.Types.InputTypes.UserTypes
+﻿namespace Backend.API.Types.InputTypes.User
 {
-    public class UserLoginInputType
+    public class LoginInput
     {
         public required string Email { get; init; }
         public required string Password { get; init; }

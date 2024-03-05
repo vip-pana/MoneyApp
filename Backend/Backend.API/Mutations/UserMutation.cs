@@ -1,6 +1,6 @@
 ﻿using AppAny.HotChocolate.FluentValidation;
 using Backend.API.Configuration.Models;
-using Backend.API.Types.InputTypes.UserTypes;
+using Backend.API.Types.InputTypes.User;
 using Backend.API.Types.OutputTypes;
 using Backend.API.Validators.UserValidators;
 using Backend.Core.Entities;
@@ -35,7 +35,7 @@ namespace Backend.API.Properties
         [AllowAnonymous]
         [Error<UserAlreadyExistException>]
         [Error<GenericException>]
-        public async Task<string> Signup([UseFluentValidation, UseValidator<UserSignupInputTypeValidator>] UserSignupInputType user)
+        public async Task<string> Signup([UseFluentValidation, UseValidator<UserSignupInputTypeValidator>] SignupInput user)
         {
             var registeredUser = await _userRepository.GetByEmailAsync(email: user.Email);
 
@@ -63,7 +63,7 @@ namespace Backend.API.Properties
         [Error<GenericException>]
         [Error<UserNotExistException>]
         [Error<WrongPasswordException>]
-        public async Task<AccessOutputType> Login([UseFluentValidation, UseValidator<UserLoginInputTypeValidator>] UserLoginInputType user)
+        public async Task<AccessOutputType> Login([UseFluentValidation, UseValidator<UserLoginInputTypeValidator>] LoginInput user)
         {
             string accessToken;
             var registeredUser = await _userRepository.GetByEmailAsync(user.Email) ?? throw new UserNotExistException(Email: user.Email);

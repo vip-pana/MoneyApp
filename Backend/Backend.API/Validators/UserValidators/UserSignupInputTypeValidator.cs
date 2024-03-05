@@ -1,9 +1,9 @@
-﻿using Backend.API.Types.InputTypes.UserTypes;
+﻿using Backend.API.Types.InputTypes.User;
 using FluentValidation;
 
 namespace Backend.API.Validators.UserValidators
 {
-    public class UserSignupInputTypeValidator : AbstractValidator<UserSignupInputType>
+    public class UserSignupInputTypeValidator : AbstractValidator<SignupInput>
     {
         public UserSignupInputTypeValidator()
         {

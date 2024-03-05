@@ -1,8 +1,8 @@
 ﻿using Backend.Core.Enums;
 
-namespace Backend.API.Types.InputTypes.UserTypes
+namespace Backend.API.Types.InputTypes.User
 {
-    public class UserSignupInputType
+    public class SignupInput
     {
         public required string Name { get; init; }
         public required string Surname { get; init; }
