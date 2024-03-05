@@ -36,7 +36,7 @@ namespace Backend.API.Mutations
 
         [AllowAnonymous]
         [Error<UserNotExistException>]
-        public async Task<User> AddOrUpdateTransaction([UseFluentValidation, UseValidator<BaseTransactionInputValidator>] AddOrUpdateTransactionInput input)
+        public async Task<User> AddOrUpdateTransaction([UseFluentValidation, UseValidator<AddOrUpdateTransactionInputValidator>] AddOrUpdateTransactionInput input)
         {
             User res;
             var registeredUser = await userRepository.GetByEmailAsync(email: input.UserEmail) ?? throw new UserNotExistException(input.UserEmail);

@@ -11,7 +11,7 @@ namespace Backend.API.Configuration
             services.AddFluentValidationAutoValidation();
             services.AddTransient<LoginInputValidator>();
             services.AddTransient<SignupInputValidator>();
-            services.AddTransient<BaseTransactionInputValidator>();
+            services.AddTransient<AddOrUpdateTransactionInputValidator>();
             services.AddTransient<DeleteTransactionInputValidator>();
             services.AddTransient<DeleteTransactionListInputValidator>();
             services.AddTransient<FilterTransactionListInputValidator>();
