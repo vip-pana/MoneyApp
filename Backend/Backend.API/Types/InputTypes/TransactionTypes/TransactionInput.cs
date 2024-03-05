@@ -3,7 +3,7 @@ using Backend.Core.Enums;
 
 namespace Backend.API.Types.InputTypes.TransactionTypes
 {
-    public class TransactionInputType
+    public class TransactionInput
     {
         public string? Id { get; set; }
         public required string Description { get; set; }

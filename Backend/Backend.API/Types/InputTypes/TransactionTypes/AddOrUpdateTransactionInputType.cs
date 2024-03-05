@@ -2,6 +2,6 @@
 {
     public class AddOrUpdateTransactionInputType : BaseInput
     {
-        public required TransactionInputType Transaction { get; init; }
+        public required TransactionInput Transaction { get; init; }
     }
 }
