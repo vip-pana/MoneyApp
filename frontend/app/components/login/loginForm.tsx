@@ -24,10 +24,8 @@ const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any> })
 
   const loginQueryDocument = graphql(`
     mutation login($input: LoginInput!) {
-      login(user: $input) {
-        accessOutput {
-          accessToken
-        }
+      login(input: $input) {
+        string
         errors {
           ...errorFields
         }
@@ -37,10 +35,10 @@ const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any> })
 
   const onSubmit = async () => {
     const { data, isError, error } = await refetch();
-    if (isError || data?.login.errors) {
+    if (isError || data?.login.string) {
       manageApiCallErrors(error, data?.login.errors);
-    } else if (data?.login.accessOutputType) {
-      sessionStorage.setItem("token", data.login.accessOutputType.accessToken);
+    } else if (data?.login.string) {
+      sessionStorage.setItem("token", data.login.string);
       sessionStorage.setItem(sessionStorageEmail, getValues("email"));
       router.push("/dashboard");
     }
@@ -66,7 +64,7 @@ const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any> })
             <FormItem>
               <FormControl>
                 <div className="relative">
-                  <Input placeholder="Email" type="email" {...field} disabled />
+                  <Input placeholder="Email" type="email" autoComplete="current-email" {...field} disabled />
                   <Button
                     type="button"
                     variant="ghost"
@@ -91,7 +89,13 @@ const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any> })
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <PasswordInput placeholder="Password" {...field} value={field.value || ""} disabled={isLoading} />
+                <PasswordInput
+                  placeholder="Password"
+                  autoComplete="current-password"
+                  {...field}
+                  value={field.value || ""}
+                  disabled={isLoading}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

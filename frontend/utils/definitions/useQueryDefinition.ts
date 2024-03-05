@@ -12,16 +12,17 @@ import {
   DeleteTransactionListPayload,
   DeleteTransactionMutation,
   LoginDocument,
+  LoginMutation,
   LoginPayload,
   OperationType,
   SignupDocument,
+  SignupMutation,
   SignupPayload,
+  User,
   UserByEmailDocument,
   UserByEmailQuery,
   UserExistByEmailDocument,
   UserExistByEmailQuery,
-  UserTransactionsFilteredDocument,
-  UserTransactionsFilteredQuery,
 } from "@/gql/generated/graphql";
 import {
   GetUserByEmailQueryValueDefinition,
@@ -45,8 +46,8 @@ export const useCheckEmailExistQuery = async (emailFormValue: string) => {
 };
 
 export const useLoginQuery = async ({ email, password }: LoginQueryValueDefinition) => {
-  const res = await request<LoginPayload>(queryUrl, LoginDocument, {
-    user: {
+  const res = await request<LoginMutation>(queryUrl, LoginDocument, {
+    input: {
       email: email,
       password: password,
     },
@@ -55,8 +56,8 @@ export const useLoginQuery = async ({ email, password }: LoginQueryValueDefiniti
 };
 
 export const useSignupQuery = async (props: SignupQueryValueDefinition) => {
-  const res = await request<SignupPayload>(queryUrl, SignupDocument, {
-    user: {
+  const res = await request<SignupMutation>(queryUrl, SignupDocument, {
+    input: {
       name: props.name,
       surname: props.surname,
       email: props.email,
@@ -115,7 +116,7 @@ export const useAddOrUpdateTransactionMutation = async (props: TransactionMutati
     queryUrl,
     AddOrUpdateTransactionDocument,
     {
-      transactionInput: {
+      input: {
         userEmail: props.email,
         accountId: props.accountId,
         transaction: {
@@ -143,7 +144,7 @@ export const useDeleteTransactionMutation = async (props: TransactionMutationVal
     queryUrl,
     DeleteTransactionDocument,
     {
-      transaction: {
+      input: {
         userEmail: props.email,
         accountId: props.accountId,
         transactionId: props.transactionId,
@@ -159,7 +160,7 @@ export const useDeleteTransactionListMutation = async (props: TransactionListMut
     queryUrl,
     DeleteTransactionListDocument,
     {
-      transactions: {
+      input: {
         userEmail: props.email,
         accountId: props.accountId,
         transactionIds: props.transactionIds,
@@ -171,9 +172,9 @@ export const useDeleteTransactionListMutation = async (props: TransactionListMut
 };
 
 export const useTransactionsFilteredQuery = async (props: TransactionsFilteredQueryValueDefinition) => {
-  const res = await request<UserTransactionsFilteredQuery>(
+  const res = await request<User>(
     queryUrl,
-    UserTransactionsFilteredDocument,
+    TransactionsFilteredDocument,
     {
       filters: {
         userEmail: props.email,

@@ -143,7 +143,7 @@ const TransactionsSearchbarForm = () => {
 
   const transactionFilteredQuery = graphql(`
     query userTransactionsFiltered($input: FilterTransactionListInput!!) {
-      userTransactionsFiltered(filters: $input) {
+      userTransactionsFiltered(input: $input) {
         accounts {
           transactions {
             ...transactionFields

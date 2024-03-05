@@ -1,7 +1,6 @@
 ﻿using AppAny.HotChocolate.FluentValidation;
 using Backend.API.Configuration.Models;
 using Backend.API.Types.Input.User;
-using Backend.API.Types.Output;
 using Backend.API.Validators.User;
 using Backend.Core.Entities;
 using Backend.Core.Repositories;
@@ -63,7 +62,7 @@ namespace Backend.API.Properties
         [Error<GenericException>]
         [Error<UserNotExistException>]
         [Error<WrongPasswordException>]
-        public async Task<AccessOutput> Login([UseFluentValidation, UseValidator<LoginInputValidator>] LoginInput input)
+        public async Task<string> Login([UseFluentValidation, UseValidator<LoginInputValidator>] LoginInput input)
         {
             string accessToken;
             var registeredUser = await _userRepository.GetByEmailAsync(input.Email) ?? throw new UserNotExistException(Email: input.Email);
@@ -77,9 +76,7 @@ namespace Backend.API.Properties
                 accessToken = AuthenticationUtils.GenerateAccessToken(jwtParams: _jwtParams);
             }
 
-            var access = new AccessOutput { AccessToken = accessToken };
-
-            return access;
+            return accessToken;
         }
         #endregion
     }

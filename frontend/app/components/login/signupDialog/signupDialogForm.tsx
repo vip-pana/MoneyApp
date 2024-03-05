@@ -34,7 +34,7 @@ const SignupDialogForm = () => {
 
   const signupQueryDocument = graphql(`
     mutation signup($input: SignupInput!) {
-      signup(user: $input) {
+      signup(input: $input) {
         string
         errors {
           ...errorFields
@@ -49,8 +49,8 @@ const SignupDialogForm = () => {
     const { data, isError, error } = await refetch();
     if (isError || data?.signup?.errors) {
       manageApiCallErrors(error, data?.signup?.errors);
-    } else if (data?.signup) {
-      sessionStorage.setItem("token", data.signup);
+    } else if (data?.signup.string) {
+      sessionStorage.setItem("token", data?.signup.string);
       sessionStorage.setItem(sessionStorageEmail, form.getValues("email"));
       router.push("/dashboard");
     }

@@ -1,4 +1,3 @@
-"use client";
 import TransactionsSearchbar from "@/app/components/dashboard/transactions/transactionsSearchbar/transactionsSearchbar";
 import DataTableTransactionTable from "@/app/components/dashboard/transactions/transactionsTable/dataTable";
 

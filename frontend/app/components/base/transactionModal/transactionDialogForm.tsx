@@ -1,6 +1,6 @@
 "use client";
 
-import { Currency, OperationType, TransactionInputTypeInput } from "@/gql/generated/graphql";
+import { Currency, OperationType, TransactionInput } from "@/gql/generated/graphql";
 import { TransactionModalFormValueDefinition } from "@/utils/definitions/typeDefinition";
 import { currencyOptions, getEnumValue } from "@/utils/enumUtils";
 import { useForm } from "react-hook-form";
@@ -31,7 +31,7 @@ const TransactionModalForm = ({
   selectedTransaction,
   setIsOpen,
 }: {
-  selectedTransaction?: TransactionInputTypeInput | undefined;
+  selectedTransaction?: TransactionInput | undefined;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
 }) => {
   const {
@@ -62,7 +62,7 @@ const TransactionModalForm = ({
     }
   }, [selectedTransaction]);
 
-  const setValuesBySelectedTransaction = (transaction: TransactionInputTypeInput) => {
+  const setValuesBySelectedTransaction = (transaction: TransactionInput) => {
     form.setValue("amount", transaction.amount.toString());
     form.setValue("currency", transaction.currency);
     form.setValue("description", transaction.description);
@@ -80,7 +80,7 @@ const TransactionModalForm = ({
 
   const addOrUpdateTransactionMutation = graphql(`
     mutation addOrUpdateTransaction($input: AddOrUpdateTransactionInput!) {
-      addOrUpdateTransaction(transactionInput: $input) {
+      addOrUpdateTransaction(input: $input) {
         user {
           accounts {
             ...accountFields
@@ -129,172 +129,70 @@ const TransactionModalForm = ({
   };
 
   return (
-    <>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="space-y-9 my-3">
-            <div className="flex flex-row justify-around gap-4">
-              <FormField
-                name="amount"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem className="w-full">
-                    <FormControl>
-                      <Input
-                        placeholder="0.01"
-                        type="number"
-                        step={"0.01"}
-                        {...field}
-                        value={field.value || ""}
-                        disabled={isLoading}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="currency"
-                render={({ field }) => (
-                  <FormItem>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button variant="outline" role="combobox" className="w-full justify-between">
-                            {field.value
-                              ? currencyOptions.find((option) => option.value === field.value)?.label
-                              : "Select a currency..."}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-full p-0">
-                        <Command>
-                          <CommandInput placeholder={"Search a currency..."} />
-                          <CommandEmpty>{"No currency found."}</CommandEmpty>
-                          <CommandGroup>
-                            {currencyOptions.map((option) => (
-                              <CommandItem
-                                key={option.value}
-                                value={option.value}
-                                onSelect={(currentValue) => {
-                                  form.setValue(
-                                    "currency",
-                                    getEnumValue(currentValue.charAt(0).toUpperCase() + currentValue.slice(1), Currency)
-                                  );
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    option.value === field.value ? "opacity-100" : "opacity-0"
-                                  )}
-                                />
-                                {option.label}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <center>
-              <FormField
-                name="operationType"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Which type of operation?</FormLabel>
-                    <FormControl>
-                      <RadioGroup
-                        className="flex flex-row justify-around"
-                        onValueChange={(val) => {
-                          let enumVal = val as OperationType;
-                          setSelectedOperationType(val);
-                          form.setValue("operationType", enumVal);
-                        }}
-                        defaultValue={field.value}
-                      >
-                        <FormItem>
-                          <FormControl>
-                            <RadioGroupItem
-                              checked={field.value === OperationType.Income}
-                              value={OperationType.Income}
-                            />
-                          </FormControl>
-                          <FormLabel className="ml-2">Income</FormLabel>
-                        </FormItem>
-                        <FormItem>
-                          <FormControl>
-                            <RadioGroupItem
-                              checked={field.value === OperationType.Expense}
-                              value={OperationType.Expense}
-                            />
-                          </FormControl>
-                          <FormLabel className="ml-2">Expense</FormLabel>
-                        </FormItem>
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </center>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <div className="space-y-9 my-3">
+          <div className="flex flex-row justify-around gap-4">
+            <FormField
+              name="amount"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormControl>
+                    <Input
+                      placeholder="0.01"
+                      type="number"
+                      step={"0.01"}
+                      {...field}
+                      value={field.value || ""}
+                      disabled={isLoading}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
-              name="category"
+              name="currency"
               render={({ field }) => (
                 <FormItem>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          className="w-full justify-between"
-                          disabled={isLoading || selectedOperationType == ""}
-                        >
+                        <Button variant="outline" role="combobox" className="w-full justify-between">
                           {field.value
-                            ? (selectedOperationType === "Expense" ? expenseCategories : incomeCategories).find(
-                                (option) => option.id === field.value.id
-                              )?.name
-                            : "Select a category..."}
+                            ? currencyOptions.find((option) => option.value === field.value)?.label
+                            : "Select a currency..."}
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
                     <PopoverContent className="w-full p-0">
                       <Command>
-                        <CommandInput placeholder={"Search a category..."} />
-                        <CommandEmpty>{"No category found."}</CommandEmpty>
+                        <CommandInput placeholder={"Search a currency..."} />
+                        <CommandEmpty>{"No currency found."}</CommandEmpty>
                         <CommandGroup>
-                          {(selectedOperationType === "Expense" ? expenseCategories : incomeCategories).map(
-                            (option) => (
-                              <CommandItem
-                                key={option.id}
-                                value={option.id}
-                                onSelect={(currentValue) => {
-                                  let val = (
-                                    selectedOperationType === "Expense" ? expenseCategories : incomeCategories
-                                  ).find((option) => option.id === currentValue);
-                                  if (val != undefined) form.setValue("category", val);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    option.name === field.value?.name ? "opacity-100" : "opacity-0"
-                                  )}
-                                />
-                                {option.name}
-                              </CommandItem>
-                            )
-                          )}
+                          {currencyOptions.map((option) => (
+                            <CommandItem
+                              key={option.value}
+                              value={option.value}
+                              onSelect={(currentValue) => {
+                                form.setValue(
+                                  "currency",
+                                  getEnumValue(currentValue.charAt(0).toUpperCase() + currentValue.slice(1), Currency)
+                                );
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  option.value === field.value ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {option.label}
+                            </CommandItem>
+                          ))}
                         </CommandGroup>
                       </Command>
                     </PopoverContent>
@@ -303,64 +201,159 @@ const TransactionModalForm = ({
                 </FormItem>
               )}
             />
+          </div>
+          <center>
             <FormField
-              name="description"
+              name="operationType"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel>Which type of operation?</FormLabel>
                   <FormControl>
-                    <Input placeholder="Description" {...field} value={field.value || ""} disabled={isLoading} />
+                    <RadioGroup
+                      className="flex flex-row justify-around"
+                      onValueChange={(val) => {
+                        let enumVal = val as OperationType;
+                        setSelectedOperationType(val);
+                        form.setValue("operationType", enumVal);
+                      }}
+                      defaultValue={field.value}
+                    >
+                      <FormItem>
+                        <FormControl>
+                          <RadioGroupItem checked={field.value === OperationType.Income} value={OperationType.Income} />
+                        </FormControl>
+                        <FormLabel className="ml-2">Income</FormLabel>
+                      </FormItem>
+                      <FormItem>
+                        <FormControl>
+                          <RadioGroupItem
+                            checked={field.value === OperationType.Expense}
+                            value={OperationType.Expense}
+                          />
+                        </FormControl>
+                        <FormLabel className="ml-2">Expense</FormLabel>
+                      </FormItem>
+                    </RadioGroup>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <FormField
-              name="date"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem className="w-full">
-                  <FormControl>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormItem className="w-full">
-                          <Button
-                            variant={"outline"}
-                            type="button"
-                            className={cn(
-                              "min-w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
+          </center>
+          <FormField
+            control={form.control}
+            name="category"
+            render={({ field }) => (
+              <FormItem>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className="w-full justify-between"
+                        disabled={isLoading || selectedOperationType == ""}
+                      >
+                        {field.value
+                          ? (selectedOperationType === "Expense" ? expenseCategories : incomeCategories).find(
+                              (option) => option.id === field.value.id
+                            )?.name
+                          : "Select a category..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0">
+                    <Command>
+                      <CommandInput placeholder={"Search a category..."} />
+                      <CommandEmpty>{"No category found."}</CommandEmpty>
+                      <CommandGroup>
+                        {(selectedOperationType === "Expense" ? expenseCategories : incomeCategories).map((option) => (
+                          <CommandItem
+                            key={option.id}
+                            value={option.id}
+                            onSelect={(currentValue) => {
+                              let val = (
+                                selectedOperationType === "Expense" ? expenseCategories : incomeCategories
+                              ).find((option) => option.id === currentValue);
+                              if (val != undefined) form.setValue("category", val);
+                            }}
                           >
-                            {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
-                            <Calendar className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormItem>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <CalendarInput
-                          mode="single"
-                          onSelect={field.onChange}
-                          disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                option.name === field.value?.name ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            {option.name}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            name="description"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Input placeholder="Description" {...field} value={field.value || ""} disabled={isLoading} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            name="date"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormControl>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormItem className="w-full">
+                        <Button
+                          variant={"outline"}
+                          type="button"
+                          className={cn(
+                            "min-w-full pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                          <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormItem>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <CalendarInput
+                        mode="single"
+                        onSelect={field.onChange}
+                        disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
-          <DialogFooter>
-            <div className="">
-              <CustomButtonSubmit title={selectedTransaction ? "Edit" : "Add"} isLoading={isLoading} />
-            </div>
-          </DialogFooter>
-        </form>
-      </Form>
-    </>
+        <DialogFooter>
+          <div className="">
+            <CustomButtonSubmit title={selectedTransaction ? "Edit" : "Add"} isLoading={isLoading} />
+          </div>
+        </DialogFooter>
+      </form>
+    </Form>
   );
 };
 
