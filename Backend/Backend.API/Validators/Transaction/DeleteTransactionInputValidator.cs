@@ -1,7 +1,7 @@
 ﻿using Backend.API.Types.InputTypes.Transaction;
 using FluentValidation;
 
-namespace Backend.API.Validators.TransactionValidators
+namespace Backend.API.Validators.Transaction
 {
     public class DeleteTransactionInputValidator : AbstractValidator<DeleteTransactionInput>
     {

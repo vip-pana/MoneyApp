@@ -2,7 +2,7 @@
 using Backend.API.Configuration.Models;
 using Backend.API.Types.InputTypes.User;
 using Backend.API.Types.OutputTypes;
-using Backend.API.Validators.UserValidators;
+using Backend.API.Validators.User;
 using Backend.Core.Entities;
 using Backend.Core.Repositories;
 using Backend.Utils.Authentication;
@@ -35,7 +35,7 @@ namespace Backend.API.Properties
         [AllowAnonymous]
         [Error<UserAlreadyExistException>]
         [Error<GenericException>]
-        public async Task<string> Signup([UseFluentValidation, UseValidator<UserSignupInputTypeValidator>] SignupInput user)
+        public async Task<string> Signup([UseFluentValidation, UseValidator<SignupInputValidator>] SignupInput user)
         {
             var registeredUser = await _userRepository.GetByEmailAsync(email: user.Email);
 
@@ -63,7 +63,7 @@ namespace Backend.API.Properties
         [Error<GenericException>]
         [Error<UserNotExistException>]
         [Error<WrongPasswordException>]
-        public async Task<AccessOutput> Login([UseFluentValidation, UseValidator<UserLoginInputTypeValidator>] LoginInput user)
+        public async Task<AccessOutput> Login([UseFluentValidation, UseValidator<LoginInputValidator>] LoginInput user)
         {
             string accessToken;
             var registeredUser = await _userRepository.GetByEmailAsync(user.Email) ?? throw new UserNotExistException(Email: user.Email);
