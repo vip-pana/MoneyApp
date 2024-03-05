@@ -1,8 +1,8 @@
 ﻿using Backend.Core.Enums;
 
-namespace Backend.API.Types.InputTypes.CategoryTypes
+namespace Backend.API.Types.InputTypes.Category
 {
-    public class AddCategoryInputType : BaseInput
+    public class AddCategoryInput : BaseInput
     {
         public required string Name { get; init; }
         public required OperationType OperationType { get; init; }
