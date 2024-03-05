@@ -2,7 +2,7 @@
 
 namespace Backend.API.Types.InputTypes.TransactionTypes
 {
-    public class TransactionFiltersInputType : BaseInput
+    public class FilterTransactionListInput : BaseInput
     {
         public required TransactionFilters TransactionFilters { get; init; }
     }

@@ -1,6 +1,6 @@
 ﻿namespace Backend.API.Types.InputTypes.TransactionTypes
 {
-    public class DeleteTransactionInputType : BaseInput
+    public class DeleteTransactionInput : BaseInput
     {
         public required string TransactionId { get; init; }
     }

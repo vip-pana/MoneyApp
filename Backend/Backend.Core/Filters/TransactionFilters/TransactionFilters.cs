@@ -1,5 +1,4 @@
-﻿using Backend.Core.Entities;
-using Backend.Core.Enums;
+﻿using Backend.Core.Enums;
 
 namespace Backend.Core.Filters.TransactionFilters
 {

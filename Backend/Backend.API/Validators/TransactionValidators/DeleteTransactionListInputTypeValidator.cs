@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace Backend.API.Validators.TransactionValidators
 {
-    public class DeleteTransactionListInputTypeValidator : AbstractValidator<DeleteTransactionListInputType>
+    public class DeleteTransactionListInputTypeValidator : AbstractValidator<DeleteTransactionListInput>
     {
         public DeleteTransactionListInputTypeValidator()
         {

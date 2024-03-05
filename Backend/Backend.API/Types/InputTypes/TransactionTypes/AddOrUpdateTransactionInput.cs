@@ -1,6 +1,6 @@
 ﻿namespace Backend.API.Types.InputTypes.TransactionTypes
 {
-    public class AddOrUpdateTransactionInputType : BaseInput
+    public class AddOrUpdateTransactionInput : BaseInput
     {
         public required TransactionInput Transaction { get; init; }
     }
