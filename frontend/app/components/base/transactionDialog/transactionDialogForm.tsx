@@ -1,7 +1,7 @@
 "use client";
 
 import { Currency, OperationType, TransactionInput } from "@/gql/generated/graphql";
-import { TransactionModalFormValueDefinition } from "@/utils/definitions/typeDefinition";
+import { TransactionDialogFormValueDefinition } from "@/utils/definitions/typeDefinition";
 import { currencyOptions, getEnumValue } from "@/utils/enumUtils";
 import { useForm } from "react-hook-form";
 import { graphql } from "@/gql/generated";
@@ -21,17 +21,17 @@ import { cn } from "@/lib/utils";
 import { Calendar as CalendarInput } from "@/components/ui/calendar";
 import { DialogFooter } from "@/components/ui/dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { formAddOrUpdateTransactionModalValidation } from "@/utils/definitions/typeValidation";
+import { formAddOrUpdateTransactionDialogValidation } from "@/utils/definitions/typeValidation";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import CustomButtonSubmit from "@/components/ui/custom-button-submit";
 import { Calendar, Check, ChevronsUpDown } from "lucide-react";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 
 const TransactionModalForm = ({
-  selectedTransaction,
+  selectedItem,
   setIsOpen,
 }: {
-  selectedTransaction?: TransactionInput | undefined;
+  selectedItem?: TransactionInput | undefined;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
 }) => {
   const {
@@ -44,23 +44,22 @@ const TransactionModalForm = ({
     setExpenseAmount,
     currency,
   } = useUserStore();
+  const { setTransactionsFiltered } = useTransactionTableStore(); // for update if i'm in modal inside transaction page
 
-  const form = useForm<TransactionModalFormValueDefinition>({
-    resolver: zodResolver(formAddOrUpdateTransactionModalValidation),
+  const form = useForm<TransactionDialogFormValueDefinition>({
+    resolver: zodResolver(formAddOrUpdateTransactionDialogValidation),
   });
 
-  const { setTransactionsFiltered } = useTransactionTableStore();
-
-  const [selectedOperationType, setSelectedOperationType] = useState("");
+  const [isSelectedOperationType, setIsSelectedOperationType] = useState(false);
 
   useEffect(() => {
-    if (selectedTransaction) {
-      setValuesBySelectedTransaction(selectedTransaction);
+    if (selectedItem) {
+      setValuesBySelectedTransaction(selectedItem);
     } else {
       setDateValueOnTransaction();
       form.setValue("currency", currency);
     }
-  }, [selectedTransaction]);
+  }, [selectedItem]);
 
   const setValuesBySelectedTransaction = (transaction: TransactionInput) => {
     form.setValue("amount", transaction.amount.toString());
@@ -68,8 +67,8 @@ const TransactionModalForm = ({
     form.setValue("description", transaction.description);
     form.setValue("category", transaction.category);
     form.setValue("operationType", transaction.transactionType);
-    setSelectedOperationType(transaction.transactionType.toString());
     setDateValueOnTransaction(transaction.dateTime);
+    setIsSelectedOperationType(true);
   };
 
   const setDateValueOnTransaction = (datetime?: any) => {
@@ -81,9 +80,30 @@ const TransactionModalForm = ({
   const addOrUpdateTransactionMutation = graphql(`
     mutation addOrUpdateTransaction($input: AddOrUpdateTransactionInput!) {
       addOrUpdateTransaction(input: $input) {
-        user {
-          accounts {
-            ...accountFields
+        account {
+          currency
+          incomeAmount
+          expenseAmount
+          categories {
+            ...categoryFields
+          }
+          transactions {
+            id
+            amount
+            currency
+            dateTime
+            description
+            transactionType
+            category {
+              id
+              name
+              categoryType
+              subCategories {
+                id
+                name
+                categoryType
+              }
+            }
           }
         }
         errors {
@@ -93,39 +113,37 @@ const TransactionModalForm = ({
     }
   `);
 
-  const { refetch: addOrUpdateTransactionRefetch, isLoading: isLoading } = useQuery({
+  const { refetch, isLoading } = useQuery({
     queryKey: ["addOrUpdateTransaction"],
     queryFn: () =>
       useAddOrUpdateTransactionMutation({
         accountId: selectedAccountId,
         email: email,
         transaction: form.getValues(),
-        transactionId: selectedTransaction?.id ?? undefined,
+        transactionId: selectedItem?.id ?? undefined,
       }),
     enabled: false,
   });
 
   const onSubmit = async () => {
-    if (form.getValues("category") != null) {
-      const { data, isError, error } = await addOrUpdateTransactionRefetch();
-      if (isError || data?.addOrUpdateTransaction.errors) {
-        manageApiCallErrors(error, data?.addOrUpdateTransaction.errors);
-      } else if (data?.addOrUpdateTransaction.user?.accounts) {
-        toast.success(selectedTransaction?.id ? "Transaction updated!" : "Transaction added!");
-        updateTransactionsData(data.addOrUpdateTransaction.user.accounts);
-        form.reset();
-      }
-      setIsOpen(false);
-    } else {
+    if (form.getValues("category") == null) {
       toast.error("Please select a category for this transaction");
+      return;
     }
-  };
 
-  const updateTransactionsData = (accounts: any) => {
-    setTransactions(accounts[0].transactions);
-    setTransactionsFiltered(accounts[0].transactions);
-    setExpenseAmount(accounts[0].expenseAmount);
-    setIncomeAmount(accounts[0].incomeAmount);
+    const { data, isError, error } = await refetch();
+
+    if (isError || data?.addOrUpdateTransaction.errors) {
+      manageApiCallErrors(error, data?.addOrUpdateTransaction.errors);
+    } else if (data?.addOrUpdateTransaction.account) {
+      toast.success(selectedItem?.id ? "Transaction updated!" : "Transaction added!");
+
+      setTransactions(data.addOrUpdateTransaction.account.transactions);
+      setTransactionsFiltered(data.addOrUpdateTransaction.account.transactions);
+      setExpenseAmount(data.addOrUpdateTransaction.account.expenseAmount);
+      setIncomeAmount(data.addOrUpdateTransaction.account.incomeAmount);
+    }
+    setIsOpen(false);
   };
 
   return (
@@ -153,8 +171,8 @@ const TransactionModalForm = ({
               )}
             />
             <FormField
-              control={form.control}
               name="currency"
+              control={form.control}
               render={({ field }) => (
                 <FormItem>
                   <Popover>
@@ -213,9 +231,8 @@ const TransactionModalForm = ({
                     <RadioGroup
                       className="flex flex-row justify-around"
                       onValueChange={(val) => {
-                        let enumVal = val as OperationType;
-                        setSelectedOperationType(val);
-                        form.setValue("operationType", enumVal);
+                        form.setValue("operationType", val as OperationType);
+                        setIsSelectedOperationType(true);
                       }}
                       defaultValue={field.value}
                     >
@@ -242,8 +259,8 @@ const TransactionModalForm = ({
             />
           </center>
           <FormField
-            control={form.control}
             name="category"
+            control={form.control}
             render={({ field }) => (
               <FormItem>
                 <Popover>
@@ -253,12 +270,13 @@ const TransactionModalForm = ({
                         variant="outline"
                         role="combobox"
                         className="w-full justify-between"
-                        disabled={isLoading || selectedOperationType == ""}
+                        disabled={isLoading || form.getValues("operationType") === undefined}
                       >
                         {field.value
-                          ? (selectedOperationType === "Expense" ? expenseCategories : incomeCategories).find(
-                              (option) => option.id === field.value.id
-                            )?.name
+                          ? (form.getValues("operationType") === OperationType.Expense
+                              ? expenseCategories
+                              : incomeCategories
+                            ).find((option) => option.id === field.value.id)?.name
                           : "Select a category..."}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
@@ -269,13 +287,18 @@ const TransactionModalForm = ({
                       <CommandInput placeholder={"Search a category..."} />
                       <CommandEmpty>{"No category found."}</CommandEmpty>
                       <CommandGroup>
-                        {(selectedOperationType === "Expense" ? expenseCategories : incomeCategories).map((option) => (
+                        {(form.getValues("operationType") === OperationType.Expense
+                          ? expenseCategories
+                          : incomeCategories
+                        ).map((option) => (
                           <CommandItem
                             key={option.id}
                             value={option.id}
                             onSelect={(currentValue) => {
                               let val = (
-                                selectedOperationType === "Expense" ? expenseCategories : incomeCategories
+                                form.getValues("operationType") === OperationType.Expense
+                                  ? expenseCategories
+                                  : incomeCategories
                               ).find((option) => option.id === currentValue);
                               if (val != undefined) form.setValue("category", val);
                             }}
@@ -349,7 +372,7 @@ const TransactionModalForm = ({
 
         <DialogFooter>
           <div className="">
-            <CustomButtonSubmit title={selectedTransaction ? "Edit" : "Add"} isLoading={isLoading} />
+            <CustomButtonSubmit title={selectedItem ? "Edit" : "Add"} isLoading={isLoading} />
           </div>
         </DialogFooter>
       </form>

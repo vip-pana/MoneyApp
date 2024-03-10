@@ -40,9 +40,26 @@ const DeleteTransactionListDialog = ({
   const deleteTransactionListMutation = graphql(`
     mutation deleteTransactionList($input: DeleteTransactionListInput!) {
       deleteTransactionList(input: $input) {
-        user {
-          accounts {
-            ...accountFields
+        account {
+          incomeAmount
+          expenseAmount
+          transactions {
+            id
+            amount
+            currency
+            dateTime
+            description
+            transactionType
+            category {
+              id
+              name
+              categoryType
+              subCategories {
+                id
+                name
+                categoryType
+              }
+            }
           }
         }
         errors {
@@ -65,16 +82,17 @@ const DeleteTransactionListDialog = ({
 
   const onSubmit = async () => {
     const { data, isError, error } = await refetch();
-    if (isError || data?.errors) {
-      manageApiCallErrors(error, data?.errors);
+    if (isError || data?.deleteTransactionList.errors) {
+      manageApiCallErrors(error, data?.deleteTransactionList.errors);
     }
-    if (data && data.deleteTransactionList.user) {
+    if (data && data.deleteTransactionList.account) {
       toast.success("Transactions deleted!");
       setSelectedTransactionList([]);
-      setTransactions(data.deleteTransactionList.user.accounts[0].transactions);
-      setTransactionsFiltered(data.deleteTransactionList.user.accounts[0].transactions);
-      setIncomeAmount(data.deleteTransactionList.user.accounts[0].incomeAmount);
-      setExpenseAmount(data.deleteTransactionList.user.accounts[0].expenseAmount);
+
+      setTransactions(data.deleteTransactionList.account.transactions);
+      setTransactionsFiltered(data.deleteTransactionList.account.transactions);
+      setIncomeAmount(data.deleteTransactionList.account.incomeAmount);
+      setExpenseAmount(data.deleteTransactionList.account.expenseAmount);
       setIsOpen(false);
     }
   };

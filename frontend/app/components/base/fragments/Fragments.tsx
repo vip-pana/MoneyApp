@@ -13,6 +13,17 @@ const Fragments = () => {
       id
       name
       categoryType
+      subCategories {
+        ...subcategoryFields
+      }
+    }
+  `);
+
+  const subcategoryFragment = graphql(`
+    fragment subcategoryFields on SubCategory {
+      id
+      name
+      categoryType
     }
   `);
 

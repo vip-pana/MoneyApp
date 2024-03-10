@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
@@ -10,27 +11,47 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { graphql } from "@/gql/generated";
-import { TransactionModalProps } from "@/utils/definitions/typeDefinition";
+import { Transaction } from "@/gql/generated/graphql";
 import { useDeleteTransactionMutation } from "@/utils/definitions/useQueryDefinition";
 import { manageApiCallErrors } from "@/utils/errorUtils";
 import { useTransactionTableStore } from "@/utils/zustand/transactionTableStore";
 import { useUserStore } from "@/utils/zustand/userStore";
+import { AlertDialogTrigger } from "@radix-ui/react-alert-dialog";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-const AlertDeleteTransactionDialog = ({ selectedTransaction }: TransactionModalProps) => {
+const AlertDeleteTransactionDialog = ({
+  selectedItem,
+  children,
+}: {
+  selectedItem: Transaction;
+  children: React.ReactNode;
+}) => {
   const { email, selectedAccountId, setTransactions, setExpenseAmount, setIncomeAmount } = useUserStore();
   const { setTransactionsFiltered } = useTransactionTableStore();
 
   const deleteTransactionMutation = graphql(`
     mutation deleteTransaction($input: DeleteTransactionInput!) {
       deleteTransaction(input: $input) {
-        user {
-          accounts {
-            incomeAmount
-            expenseAmount
-            transactions {
-              ...transactionFields
+        account {
+          incomeAmount
+          expenseAmount
+          transactions {
+            id
+            amount
+            currency
+            dateTime
+            description
+            transactionType
+            category {
+              id
+              name
+              categoryType
+              subCategories {
+                id
+                name
+                categoryType
+              }
             }
           }
         }
@@ -46,7 +67,7 @@ const AlertDeleteTransactionDialog = ({ selectedTransaction }: TransactionModalP
     queryFn: () =>
       useDeleteTransactionMutation({
         email: email,
-        transactionId: selectedTransaction?.id,
+        transactionId: selectedItem?.id,
         accountId: selectedAccountId,
       }),
     enabled: false,
@@ -56,23 +77,24 @@ const AlertDeleteTransactionDialog = ({ selectedTransaction }: TransactionModalP
     const { data, isError, error } = await refetch();
     if (isError || data?.deleteTransaction.errors) {
       manageApiCallErrors(error, data?.deleteTransaction.errors);
-    } else if (data?.deleteTransaction.user?.accounts) {
+    } else if (data?.deleteTransaction.account) {
       toast.success("Transaction deleted!");
-      setTransactions(data?.deleteTransaction?.user?.accounts[0]?.transactions);
-      setTransactionsFiltered(data?.deleteTransaction.user.accounts[0].transactions);
-      setIncomeAmount(data.deleteTransaction.user.accounts[0].incomeAmount);
-      setExpenseAmount(data.deleteTransaction.user.accounts[0].expenseAmount);
+      setTransactions(data.deleteTransaction.account.transactions);
+      setTransactionsFiltered(data.deleteTransaction.account.transactions);
+      setIncomeAmount(data.deleteTransaction.account.incomeAmount);
+      setExpenseAmount(data.deleteTransaction.account.expenseAmount);
     }
   };
 
   return (
-    <>
+    <AlertDialog>
+      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete Transaction</AlertDialogTitle>
           <AlertDialogDescription>
-            Amount: {selectedTransaction?.amount} <br />
-            Description: {selectedTransaction?.description} <br />
+            Amount: {selectedItem?.amount} <br />
+            Description: {selectedItem?.description} <br />
             Are you sure? You can't undo this action afterwards.
           </AlertDialogDescription>
         </AlertDialogHeader>
@@ -83,7 +105,7 @@ const AlertDeleteTransactionDialog = ({ selectedTransaction }: TransactionModalP
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
-    </>
+    </AlertDialog>
   );
 };
 
