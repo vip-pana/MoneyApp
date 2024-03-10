@@ -4,7 +4,6 @@ using Backend.Core.Filters.Transaction;
 using Backend.Core.Repositories;
 using Backend.Infrastructure.Data;
 using Backend.Utils.Exceptions;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 
@@ -30,57 +29,134 @@ namespace Backend.Infrastructure.Repositories
             await collection.ReplaceOneAsync(filter, user);
         }
 
-
-        #region PLAIN METHODS
-        public Transaction GetTransactionById(string transactionId, User user, string accountId)
+        #region TRANSACTIONS
+        public async Task<User> AddTransactionOnUserAccountAsync(User user, Transaction transaction, string accountId)
         {
-            if (user is null) throw new GenericException("User can't be null");
+            var account = user.Accounts.Find(account => account.Id == accountId) ?? throw new FieldIdNotExistException();
 
-            var transactionFound = GetAccountById(user: user, accountId: accountId).Transactions.Find(t => t.Id == transactionId);
+            account = AddTransactionOnAccount(account, transaction);
 
-            if (transactionFound is null) throw new GenericException("No transaction found with this id");
+            user = UpdateUserAccount(user, account);
 
-            return transactionFound;
+            user = ReCalculateAccountAmounts(user, accountId);
+
+            await UpdateUserAsync(user);
+            return user;
         }
 
-        public static Account GetAccountById(User user, string accountId)
+        public async Task<User> DeleteTransactionOnUserAccountAsync(string transactionId, User user, string accountId)
         {
-            if (user.Accounts != null && user.Accounts.Count != 0)
-            {
-                var accountFound = user.Accounts.Find(account => account.Id == accountId);
+            var transactionToRemove = GetAccountById(accounts: user.Accounts, accountId).Transactions.Find(transaction => transaction.Id == transactionId) ?? throw new GenericException("Transaction not exist in account");
+            GetAccountById(accounts: user.Accounts, accountId).Transactions.Remove(transactionToRemove);
 
-                if (accountFound != null)
-                {
-                    return accountFound;
-                }
-                else
-                {
-                    throw new GenericException("No user accounts found");
-                }
+            user = ReCalculateAccountAmounts(user, accountId);
+
+            await UpdateUserAsync(user);
+            return user;
+        }
+
+        public async Task<User> DeleteTransactionListOnUserAccountAsync(List<string> transactionIds, User user, string accountId)
+        {
+            foreach (var transactionId in transactionIds)
+            {
+                user = await DeleteTransactionOnUserAccountAsync(transactionId, user, accountId);
             }
-            else
+            return user;
+        }
+
+        public async Task<User> UpdateTransactionOnUserAccountAsync(Transaction transaction, User user, string accountId)
+        {
+            var transactionToRemove = TransactionRepository.GetTransactionById(accounts: user.Accounts, transactionId: transaction.Id, accountId: accountId);
+
+            GetAccountById(accounts: user.Accounts, accountId).Transactions.Remove(transactionToRemove);
+
+            GetAccountById(accounts: user.Accounts, accountId).Transactions.Add(transaction);
+            user = ReCalculateAccountAmounts(user, accountId);
+
+            await UpdateUserAsync(user);
+            return user;
+        }
+        #endregion
+
+        #region CATEGORIES
+        public async Task<User> AddCategoryOnUserAccountAsync(Category category, User user, string accountId)
+        {
+            var account = user.Accounts.Find(account => account.Id == accountId) ?? throw new GenericException("Account non trovato");
+
+            account.Categories.Add(category);
+
+            user = UpdateUserAccount(user, account);
+
+            await UpdateUserAsync(user);
+
+            return user;
+        } 
+        #endregion
+
+        #region PLAIN METHODS
+        public static Account GetAccountById(List<Account> accounts, string accountId)
+        {
+            if (accounts.Count is 0)
             {
                 throw new GenericException("This user not have accounts");
             }
+
+            var accountFound = accounts.Find(account => account.Id == accountId) ?? throw new GenericException("No user accounts found");
+
+            return accountFound;
         }
 
         private static User ReCalculateAccountAmounts(User user, string accountId)
         {
-            if (user.Accounts.Count != 0)
-            {
-                var totalIncomeAmount = GetAccountById(user: user, accountId: accountId).Transactions.Where(transaction => transaction.TransactionType == OperationType.Income).Sum(transaction => transaction.Amount);
-                GetAccountById(user: user, accountId: accountId).IncomeAmount = totalIncomeAmount != 0 ? Math.Round(totalIncomeAmount, 2) : 0;
+            var totalIncomeAmount = GetAccountById(accounts: user.Accounts, accountId: accountId)
+                .Transactions.Where(transaction => transaction.TransactionType == OperationType.Income)
+                .Sum(transaction => transaction.Amount);
+            GetAccountById(accounts: user.Accounts, accountId: accountId).IncomeAmount = totalIncomeAmount != 0 ? Math.Round(totalIncomeAmount, 2) : 0;
 
-                var totalExpenseAmount = GetAccountById(user: user, accountId: accountId).Transactions.Where(transaction => transaction.TransactionType == OperationType.Expense).Sum(transaction => transaction.Amount);
-                GetAccountById(user: user, accountId: accountId).ExpenseAmount = totalExpenseAmount != 0 ? Math.Round(totalExpenseAmount, 2) : 0;
-            }
+            var totalExpenseAmount = GetAccountById(accounts: user.Accounts, accountId: accountId)
+                .Transactions.Where(transaction => transaction.TransactionType == OperationType.Expense)
+                .Sum(transaction => transaction.Amount);
+            GetAccountById(accounts: user.Accounts, accountId: accountId).ExpenseAmount = totalExpenseAmount != 0 ? Math.Round(totalExpenseAmount, 2) : 0;
 
             return user;
         }
 
+        private static User UpdateUserTransactions(User user, string accountId, List<Transaction> transactions)
+        {
+            var account = user.Accounts.Find(account => account.Id == accountId) ?? throw new GenericException("No account found with these id");
+
+            account.Transactions = transactions;
+
+            user = UpdateUserAccount(user, account);
+
+            return user;
+        }
+
+        private static Account AddTransactionOnAccount(Account account, Transaction transaction)
+        {
+            var categoryExist = account.Categories.Exists(category => category.Id == transaction.Category.Id);
+            if (!categoryExist) throw new GenericException("The category in the transaction not exist in the account");
+
+            account.Transactions.Add(transaction);
+
+            return account;
+        }
+
+        private static User UpdateUserAccount(User user, Account account)
+        {
+            var index = user.Accounts.IndexOf(account);
+            if (index != -1)
+            {
+                user.Accounts[index] = account;
+            }
+            return user;
+        }
+        #endregion
+
+        #region FILTERS
         public User FilterUserTransactions(TransactionFilters filters, User user, string accountId)
         {
-            var transactions = GetAccountById(user: user, accountId: accountId).Transactions;
+            var transactions = GetAccountById(accounts: user.Accounts, accountId: accountId).Transactions;
             var filteredTransaction = FilterTransactionsByDatetimes(filters, transactions);
 
             if (filters.CategoriesIds is not null && filters.CategoriesIds.Count != 0)
@@ -97,25 +173,6 @@ namespace Backend.Infrastructure.Repositories
             return user;
         }
 
-        private static User UpdateUserTransactions(User user, string accountId, List<Transaction> transactions)
-        {
-            if (user.Accounts is null) throw new GenericException("No accounts inside the user");
-
-            var account = user.Accounts.Find(account => account.Id == accountId) ?? throw new GenericException("No account found with these id");
-
-            account.Transactions = transactions;
-
-            var index = user.Accounts.IndexOf(account);
-            if (index != -1)
-            {
-                user.Accounts[index] = account;
-            }
-
-            return user;
-        }
-        #endregion
-
-        #region FILTERS
         private static IEnumerable<Transaction> FilterByOperationTypes(List<OperationType> operationTypes, IEnumerable<Transaction> transactions)
         {
             return transactions.Where(transaction => operationTypes.Contains(transaction.TransactionType));
@@ -135,112 +192,7 @@ namespace Backend.Infrastructure.Repositories
         {
             return transactions.Where(transaction => transaction.Category.Id is not null && categoriesIds.Contains(transaction.Category.Id));
         }
-        #endregion
-
-        #region TRANSACTIONS METHODS
-        public async Task<User> AddTransactionOnUserAccount(Transaction transaction, User user, string accountId)
-        {
-            transaction.Id = ObjectId.GenerateNewId().ToString();
-
-            var account = user.Accounts.Find(account => account.Id == accountId) ?? throw new FieldIdNotExistException();
-
-            var categoryExist = account.Categories.Exists(category => category.Id == transaction.Category.Id);
-            if (!categoryExist) throw new GenericException("The category in the transaction not exist in the account");
-
-            account.Transactions.Add(transaction);
-
-            var index = user.Accounts.IndexOf(account);
-            if (index != -1)
-            {
-                user.Accounts[index] = account;
-            }
-
-            user = ReCalculateAccountAmounts(user, accountId);
-
-            var filter = Builders<User>.Filter.Eq(_ => _.Id, user.Id);
-            await collection.ReplaceOneAsync(filter, user);
-
-            return user;
-        }
-
-        public async Task<User> DeleteTransactionOnUserAccount(string transactionId, User user, string accountId)
-        {
-            var transactionToRemove = GetAccountById(user, accountId).Transactions.Find(transaction => transaction.Id == transactionId) ?? throw new GenericException("Transaction not exist in account");
-            GetAccountById(user, accountId).Transactions.Remove(transactionToRemove);
-
-            user = ReCalculateAccountAmounts(user, accountId);
-
-            await UpdateUserAsync(user);
-            return user;
-        }
-
-        public async Task<User> DeleteTransactionListOnUserAccount(List<string> transactionIds, User user, string accountId)
-        {
-            User result = user;
-            foreach (var transactionId in transactionIds)
-            {
-                result = await DeleteTransactionOnUserAccount(transactionId, user, accountId);
-            }
-            return result;
-        }
-
-        public async Task<User> UpdateTransactionOnUserAccount(Transaction transaction, User user, string accountId)
-        {
-            var transactionToRemove = GetTransactionById(transaction.Id, user, accountId);
-
-            GetAccountById(user, accountId).Transactions.Remove(transactionToRemove);
-
-            GetAccountById(user, accountId).Transactions.Add(transaction);
-            user = ReCalculateAccountAmounts(user, accountId);
-
-            await UpdateUserAsync(user);
-            return user;
-        }
 
         #endregion
-
-        #region CATEGORIES METHODS
-        //public async Task<User> DeleteCategoryOnUserAccount(string categoryId, string? subcategoryId, User user, string accountId)
-        //{
-        //    var account = GetAccountById(user, accountId);
-        //    var accountIndex = user.Accounts.IndexOf(account);
-        //    var category = account.Categories.Find(category => category.Id == categoryId) ?? throw new GenericException("Category not exist in account");
-
-        //    if (category.SubCategories != null && subcategoryId != null && !string.IsNullOrWhiteSpace(subcategoryId))
-        //    {
-        //        //var accountCategoryIndex = account.Categories.IndexOf(category);
-        //        //var subcategoryToRemove = category.SubCategories.Find(subcategory => subcategory.Id == subcategoryId) ?? throw new GenericException("Subcategory not exist in the category of the account");
-
-        //        //category.SubCategories.Remove(subcategoryToRemove);
-        //        //account.Categories[accountCategoryIndex] = category;
-        //        throw new GenericException("subcategories already not implemented");
-        //    }
-        //    else
-        //    {
-        //        var otherCategory = account.Transactions
-        //            .Where(t => t.Category.CategoryType == category.CategoryType)
-        //            .First(t => t.Category.Name == "Other").Category ?? throw new GenericException("Category other not found.");
-
-        //        // Trova tutte le transazioni con la stessa categoria ID come categoryId e le rimpiazzo con otherCategory
-        //        foreach (var transaction in account.Transactions.Where(t => t.Category.Id == categoryId))
-        //        {
-        //            transaction.Category = otherCategory;
-        //        }
-
-        //        account.Categories.Remove(category);
-        //    }
-
-        //    user.Accounts[accountIndex] = account;
-        //    await UpdateUserAsync(user);
-        //    return user;
-        //}
-
-        //public Task<User> AddCategoryOnUserAccount(Category category, User user, string accountId)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        #endregion
-
     }
 }
