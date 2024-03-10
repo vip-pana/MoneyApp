@@ -11,7 +11,11 @@ export const CategoriesColumns: ColumnDef<Category>[] = [
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => (
-      <div className={`${row.original.categoryType === OperationType.Income ? "text-teal-600" : "text-red-400"} `}>
+      <div
+        className={`font-bold ${
+          row.original.categoryType === OperationType.Income ? "text-teal-600" : "text-red-400"
+        } `}
+      >
         {row.original.name}
       </div>
     ),
@@ -25,21 +29,25 @@ export const CategoriesColumns: ColumnDef<Category>[] = [
     id: "actions",
     cell: ({ row }) => (
       <div className="text-right">
-        <EditCategoryDialog selectedItem={row.original}>
-          <Button variant={"ghost"} size={"icon"}>
-            <Pencil className="h-4 w-4" />
-          </Button>
-        </EditCategoryDialog>
-        <DeleteCategoryDialog selectedItem={row.original}>
-          <Button variant="ghost" size="icon">
-            <X className="h-4 w-4 text-red-600" />
-          </Button>
-        </DeleteCategoryDialog>
-        <SubCategoryDIalog selectedItem={row.original}>
-          <Button variant={"ghost"} size={"icon"}>
-            <Rows3 className="h-4 w-4" />
-          </Button>
-        </SubCategoryDIalog>
+        {row.original.name !== "Other" && (
+          <>
+            <EditCategoryDialog selectedItem={row.original}>
+              <Button variant={"ghost"} size={"icon"}>
+                <Pencil className="h-4 w-4" />
+              </Button>
+            </EditCategoryDialog>
+            <DeleteCategoryDialog selectedItem={row.original}>
+              <Button variant="ghost" size="icon">
+                <X className="h-4 w-4 text-red-600" />
+              </Button>
+            </DeleteCategoryDialog>
+            <SubCategoryDIalog selectedItem={row.original}>
+              <Button variant={"ghost"} size={"icon"}>
+                <Rows3 className="h-4 w-4" />
+              </Button>
+            </SubCategoryDIalog>
+          </>
+        )}
       </div>
     ),
   },

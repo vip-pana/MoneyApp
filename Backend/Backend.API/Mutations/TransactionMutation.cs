@@ -42,12 +42,20 @@ namespace Backend.API.Mutations
             User res;
             var registeredUser = await userRepository.GetByEmailAsync(email: input.UserEmail) ?? throw new UserNotExistException(input.UserEmail);
 
+            var category = new Category
+            {
+                Id = input.Transaction.Category.Id,
+                CategoryType = input.Transaction.Category.CategoryType,
+                Name = input.Transaction.Category.Name,
+                SubCategories = input.Transaction.Category.SubCategories ?? []
+            };
+
             var transaction = new Transaction(
                 description: input.Transaction.Description,
                 amount: input.Transaction.Amount,
                 transactionType: input.Transaction.TransactionType,
                 currency: input.Transaction.Currency,
-                category: input.Transaction.Category,
+                category: category,
                 dateTime: input.Transaction.DateTime
                 );
 

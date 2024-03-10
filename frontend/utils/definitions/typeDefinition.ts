@@ -63,6 +63,12 @@ export type TransactionQueryValueDefinition = {
   transaction?: TransactionDialogFormValueDefinition;
 };
 
+export type DeleteCategoryQueryValueDefinition = {
+  email: string;
+  accountId: string;
+  categoryId: string;
+};
+
 export type AddCategoryFormValueDefinition = {
   email: string;
   accountId: string;

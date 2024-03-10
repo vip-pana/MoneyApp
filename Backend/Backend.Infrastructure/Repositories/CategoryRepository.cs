@@ -2,6 +2,8 @@
 using Backend.Core.Enums;
 using Backend.Core.Repositories;
 using Backend.Infrastructure.Data;
+using Backend.Utils.Exceptions;
+using MongoDB.Driver;
 
 namespace Backend.Infrastructure.Repositories
 {
@@ -31,5 +33,7 @@ namespace Backend.Infrastructure.Repositories
 
             return c;
         }
+
+
     }
 }

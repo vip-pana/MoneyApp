@@ -9,6 +9,8 @@ import {
   AddCategoryMutation,
   AddOrUpdateTransactionDocument,
   AddOrUpdateTransactionMutation,
+  DeleteCategoryDocument,
+  DeleteCategoryMutation,
   DeleteTransactionDocument,
   DeleteTransactionListDocument,
   DeleteTransactionListMutation,
@@ -26,6 +28,7 @@ import {
 } from "@/gql/generated/graphql";
 import {
   AddCategoryFormValueDefinition,
+  DeleteCategoryQueryValueDefinition,
   LoginQueryValueDefinition,
   SignupQueryValueDefinition,
   TransactionListQueryValueDefinition as TransactionListMutationValueDefinition,
@@ -112,8 +115,6 @@ export const useAddOrUpdateTransactionMutation = async (props: TransactionMutati
 };
 
 export const useAddCategoryMutation = async (props: AddCategoryFormValueDefinition) => {
-  // if (!props.transaction) throw new Error("Missing transaction");
-
   const res = await request<AddCategoryMutation>(
     queryUrl,
     AddCategoryDocument,
@@ -124,6 +125,22 @@ export const useAddCategoryMutation = async (props: AddCategoryFormValueDefiniti
         name: props.name,
         operationType: props.operationType,
         subcategorysNames: props.subcategoriesName,
+      },
+    }
+    // headers
+  );
+  return res;
+};
+
+export const useDeleteCategoryMutation = async (props: DeleteCategoryQueryValueDefinition) => {
+  const res = await request<DeleteCategoryMutation>(
+    queryUrl,
+    DeleteCategoryDocument,
+    {
+      input: {
+        userEmail: props.email,
+        accountId: props.accountId,
+        categoryId: props.categoryId,
       },
     }
     // headers

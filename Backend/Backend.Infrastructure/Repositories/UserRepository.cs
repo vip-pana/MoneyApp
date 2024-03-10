@@ -6,6 +6,7 @@ using Backend.Infrastructure.Data;
 using Backend.Utils.Exceptions;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
+using System.Linq;
 
 namespace Backend.Infrastructure.Repositories
 {
@@ -90,7 +91,37 @@ namespace Backend.Infrastructure.Repositories
             await UpdateUserAsync(user);
 
             return user;
-        } 
+        }
+
+        public User DeleteCategoryReferencesOnAccountTransactions(Category c, User user, string accountId)
+        {
+            var account = user.Accounts.Find(account => account.Id == accountId) ?? throw new GenericException("Account non trovato");
+
+            var defaultCategory = account.Categories.Find(category => category.Name == "Other" && category.CategoryType == c.CategoryType) ?? throw new GenericException("Categoria Other non trovata");
+
+            if (defaultCategory.Id == c.Id)
+            {
+                throw new GenericException("La categoria other non può essere eliminata");
+            }
+
+            foreach (var transaction in account.Transactions.Where(transaction => transaction.Category.Id.Equals(c.Id)))
+            {
+                transaction.Category = defaultCategory;
+            }
+
+            user = UpdateUserAccount(user, account);
+
+            return user;
+        }
+
+        public async Task<User> DeleteCategory(User user, string accountId, Category categoryToRemove)
+        {
+            GetAccountById(accounts: user.Accounts, accountId).Categories.Remove(categoryToRemove);
+
+            await UpdateUserAsync(user);
+
+            return user;
+        }
         #endregion
 
         #region PLAIN METHODS
@@ -192,7 +223,6 @@ namespace Backend.Infrastructure.Repositories
         {
             return transactions.Where(transaction => transaction.Category.Id is not null && categoriesIds.Contains(transaction.Category.Id));
         }
-
         #endregion
     }
 }

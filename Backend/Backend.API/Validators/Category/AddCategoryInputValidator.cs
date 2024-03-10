@@ -7,7 +7,7 @@ namespace Backend.API.Validators.Category
     {
         public AddCategoryInputValidator()
         {
-            
+            RuleFor(x => x.Name).NotEqual("Other");
         }
     }
 }
