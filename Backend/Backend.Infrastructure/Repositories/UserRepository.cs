@@ -6,7 +6,6 @@ using Backend.Infrastructure.Data;
 using Backend.Utils.Exceptions;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
-using System.Linq;
 
 namespace Backend.Infrastructure.Repositories
 {
@@ -114,11 +113,38 @@ namespace Backend.Infrastructure.Repositories
             return user;
         }
 
-        public async Task<User> DeleteCategory(User user, string accountId, Category categoryToRemove)
+        public async Task<User> DeleteCategoryAsync(User user, string accountId, Category categoryToRemove)
         {
             GetAccountById(accounts: user.Accounts, accountId).Categories.Remove(categoryToRemove);
 
             await UpdateUserAsync(user);
+
+            return user;
+        }
+
+        public async Task<User> EditCategoryNameOnUserAccountAsync(User user, string accountId, Category category)
+        {
+            var categoryToRemove = GetAccountById(accounts: user.Accounts, accountId).Categories.Find(c => c.Id == category.Id) ?? throw new GenericException("Categoria non trovata");
+
+            GetAccountById(accounts: user.Accounts, accountId).Categories.Remove(categoryToRemove);
+
+            GetAccountById(accounts: user.Accounts, accountId).Categories.Add(category);
+
+            await UpdateUserAsync(user);
+
+            return user;
+        }
+
+        public User EditCategoryReferencesOnAccountTransactions(Category category, User user, string accountId)
+        {
+            var account = user.Accounts.Find(account => account.Id == accountId) ?? throw new GenericException("Account non trovato");
+
+            foreach (var transaction in account.Transactions.Where(t => t.Category.Id.Equals(category.Id)))
+            {
+                transaction.Category = category;
+            }
+
+            user = UpdateUserAccount(user, account);
 
             return user;
         }

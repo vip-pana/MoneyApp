@@ -15,6 +15,8 @@ import {
   DeleteTransactionListDocument,
   DeleteTransactionListMutation,
   DeleteTransactionMutation,
+  EditCategoryDocument,
+  EditCategoryMutation,
   LoginDocument,
   LoginMutation,
   SignupDocument,
@@ -29,6 +31,7 @@ import {
 import {
   AddCategoryFormValueDefinition,
   DeleteCategoryQueryValueDefinition,
+  EditCategoryQueryValueDefinition,
   LoginQueryValueDefinition,
   SignupQueryValueDefinition,
   TransactionListQueryValueDefinition as TransactionListMutationValueDefinition,
@@ -72,7 +75,7 @@ export const useSignupQuery = async (props: SignupQueryValueDefinition) => {
 };
 
 // AUTH REQUIRED
-export const UseUserByEmailQuery = async (email: string) => {
+export const useUserByEmailQuery = async (email: string) => {
   const res = await request<UserByEmailQuery>(
     queryUrl,
     UserByEmailDocument,
@@ -84,6 +87,7 @@ export const UseUserByEmailQuery = async (email: string) => {
   return res;
 };
 
+//# Transactions
 export const useAddOrUpdateTransactionMutation = async (props: TransactionMutationValueDefinition) => {
   if (!props.transaction) throw new Error("Missing transaction");
 
@@ -107,40 +111,6 @@ export const useAddOrUpdateTransactionMutation = async (props: TransactionMutati
             categoryType: props.transaction.operationType,
           },
         },
-      },
-    }
-    // headers
-  );
-  return res;
-};
-
-export const useAddCategoryMutation = async (props: AddCategoryFormValueDefinition) => {
-  const res = await request<AddCategoryMutation>(
-    queryUrl,
-    AddCategoryDocument,
-    {
-      input: {
-        userEmail: props.email,
-        accountId: props.accountId,
-        name: props.name,
-        operationType: props.operationType,
-        subcategorysNames: props.subcategoriesName,
-      },
-    }
-    // headers
-  );
-  return res;
-};
-
-export const useDeleteCategoryMutation = async (props: DeleteCategoryQueryValueDefinition) => {
-  const res = await request<DeleteCategoryMutation>(
-    queryUrl,
-    DeleteCategoryDocument,
-    {
-      input: {
-        userEmail: props.email,
-        accountId: props.accountId,
-        categoryId: props.categoryId,
       },
     }
     // headers
@@ -194,6 +164,58 @@ export const useTransactionsFilteredQuery = async (props: TransactionsFilteredQu
           categoriesIds: props.categoriesIds,
           currencies: props.currencies,
         },
+      },
+    }
+    // headers
+  );
+  return res;
+};
+
+// #Categories
+export const useAddCategoryMutation = async (props: AddCategoryFormValueDefinition) => {
+  const res = await request<AddCategoryMutation>(
+    queryUrl,
+    AddCategoryDocument,
+    {
+      input: {
+        userEmail: props.email,
+        accountId: props.accountId,
+        name: props.name,
+        operationType: props.operationType,
+        subcategorysNames: props.subcategoriesName,
+      },
+    }
+    // headers
+  );
+  return res;
+};
+
+export const useDeleteCategoryMutation = async (props: DeleteCategoryQueryValueDefinition) => {
+  const res = await request<DeleteCategoryMutation>(
+    queryUrl,
+    DeleteCategoryDocument,
+    {
+      input: {
+        userEmail: props.email,
+        accountId: props.accountId,
+        categoryId: props.categoryId,
+      },
+    }
+    // headers
+  );
+  return res;
+};
+
+export const useEditCategoryMutation = async (props: EditCategoryQueryValueDefinition) => {
+  const res = await request<EditCategoryMutation>(
+    queryUrl,
+    EditCategoryDocument,
+    {
+      input: {
+        userEmail: props.email,
+        accountId: props.accountId,
+        categoryId: props.categoryId,
+        name: props.name,
       },
     }
     // headers

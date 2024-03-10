@@ -69,6 +69,13 @@ export type DeleteCategoryQueryValueDefinition = {
   categoryId: string;
 };
 
+export type EditCategoryQueryValueDefinition = {
+  email: string;
+  accountId: string;
+  categoryId: string;
+  name: string;
+};
+
 export type AddCategoryFormValueDefinition = {
   email: string;
   accountId: string;

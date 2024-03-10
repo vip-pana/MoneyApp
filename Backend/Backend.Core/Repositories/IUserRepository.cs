@@ -19,7 +19,9 @@ namespace Backend.Core.Repositories
         #region CATEGORIES
         public Task<User> AddCategoryOnUserAccountAsync(Category category, User user, string accountId);
         User DeleteCategoryReferencesOnAccountTransactions(Category category, User user, string accountId);
-        Task<User> DeleteCategory(User user, string accountId, Category categoryToRemove);
+        User EditCategoryReferencesOnAccountTransactions(Category category, User user, string accountId);
+        Task<User> DeleteCategoryAsync(User user, string accountId, Category categoryToRemove);
+        Task<User> EditCategoryNameOnUserAccountAsync(User user, string accountId, Category category);
 
         #endregion
     }

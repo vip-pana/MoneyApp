@@ -2,11 +2,17 @@ import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Category } from "@/gql/generated/graphql";
+import { graphql } from "@/gql/generated";
+import { Category, OperationType } from "@/gql/generated/graphql";
+import { useEditCategoryMutation } from "@/utils/definitions/useQueryDefinition";
+import { manageApiCallErrors } from "@/utils/errorUtils";
+import { useCategoryTableStore } from "@/utils/zustand/categoryTableStore";
+import { useUserStore } from "@/utils/zustand/userStore";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Pencil } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { Dispatch, SetStateAction, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 type EditCategoryNameFormValueDefinition = {
@@ -24,27 +30,100 @@ const EditCategoryNameForm = ({
   selectedItem: Category;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
 }) => {
+  const { email, selectedAccountId, setIncomeCategories, setExpenseCategories, setTransactions } = useUserStore();
+  const { setCategoriesFiltered } = useCategoryTableStore();
+
   const form = useForm<EditCategoryNameFormValueDefinition>({
     resolver: zodResolver(editCategoryNameDialogValidation),
   });
+
+  const editCategoryMutation = graphql(`
+    mutation editCategory($input: EditCategoryInput!) {
+      editCategory(input: $input) {
+        user {
+          accounts {
+            transactions {
+              id
+              amount
+              description
+              transactionType
+              currency
+              category {
+                id
+                name
+                categoryType
+                subCategories {
+                  id
+                  name
+                  categoryType
+                }
+              }
+              dateTime
+            }
+            categories {
+              id
+              name
+              categoryType
+              subCategories {
+                id
+                name
+                categoryType
+              }
+            }
+          }
+        }
+        errors {
+          ...errorFields
+        }
+      }
+    }
+  `);
 
   useEffect(() => {
     form.setValue("name", selectedItem.name);
   }, [selectedItem]);
 
   const onSubmit = async () => {
-    // const { data, isError, error } = await refetch();
-    // if (isError || data?.addOrUpdateTransaction.errors) {
-    //   manageApiCallErrors(error, data?.addOrUpdateTransaction.errors);
-    // } else if (data?.addOrUpdateTransaction.account) {
-    //   toast.success(selectedItem?.id ? "Transaction updated!" : "Transaction added!");
-    //   setTransactions(data.addOrUpdateTransaction.account.transactions);
-    //   setTransactionsFiltered(data.addOrUpdateTransaction.account.transactions);
-    //   setExpenseAmount(data.addOrUpdateTransaction.account.expenseAmount);
-    //   setIncomeAmount(data.addOrUpdateTransaction.account.incomeAmount);
-    // }
-    // setIsOpen(false);
+    const { data, isError, error } = await refetch();
+    if (isError || data?.editCategory.errors) {
+      manageApiCallErrors(error, data?.editCategory.errors);
+    } else if (data?.editCategory.user?.accounts[0]) {
+      toast.success(selectedItem?.id ? "Transaction updated!" : "Transaction added!");
+      setTransactions(data.editCategory.user.accounts[0].transactions);
+      const incomeCategories = data.editCategory.user.accounts[0].categories
+        .filter((category) => category.categoryType === OperationType.Income)
+        .map((category) => ({
+          id: category.id,
+          name: category.name,
+          categoryType: category.categoryType,
+          subCategories: category.subCategories || [],
+        }));
+      setIncomeCategories(incomeCategories);
+      const expenseCategories = data.editCategory.user.accounts[0].categories
+        .filter((c) => c.categoryType === OperationType.Expense)
+        .map((c) => ({
+          id: c.id,
+          name: c.name,
+          categoryType: c.categoryType,
+          subCategories: c.subCategories || [],
+        }));
+      setExpenseCategories(expenseCategories);
+      setCategoriesFiltered([...incomeCategories, ...expenseCategories]);
+    }
+    setIsOpen(false);
   };
+
+  const { refetch, isLoading } = useQuery({
+    queryKey: ["editCategory"],
+    queryFn: () =>
+      useEditCategoryMutation({
+        accountId: selectedAccountId,
+        email: email,
+        name: form.getValues("name"),
+        categoryId: selectedItem.id,
+      }),
+    enabled: false,
+  });
 
   return (
     <Form {...form}>
@@ -56,12 +135,7 @@ const EditCategoryNameForm = ({
           render={({ field }) => (
             <FormItem className="w-full mt-2">
               <FormControl>
-                <Input
-                  id="name"
-                  placeholder="Name"
-                  {...field}
-                  value={field.value || ""} //disabled={isLoading}
-                />
+                <Input id="name" placeholder="Name" {...field} value={field.value || ""} disabled={isLoading} />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -6,7 +6,7 @@ import { graphql } from "@/gql/generated";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { UseUserByEmailQuery } from "@/utils/definitions/useQueryDefinition";
+import { useUserByEmailQuery } from "@/utils/definitions/useQueryDefinition";
 import { toast } from "sonner";
 import Navbar from "../../ui/dasboard/base/navbar/navbar";
 import Sidebar from "../../ui/dasboard/base/sidebar/sidebar";
@@ -81,7 +81,7 @@ const MainContent = ({
 
   const { isError, error, data } = useQuery({
     queryKey: ["userData"],
-    queryFn: () => UseUserByEmailQuery(sessionStorage.getItem(sessionStorageEmail) ?? ""),
+    queryFn: () => useUserByEmailQuery(sessionStorage.getItem(sessionStorageEmail) ?? ""),
   });
 
   useEffect(() => {

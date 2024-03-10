@@ -1,5 +1,4 @@
 ﻿using AppAny.HotChocolate.FluentValidation;
-using Backend.API.Types.Input;
 using Backend.API.Types.Input.Category;
 using Backend.API.Validators.Category;
 using Backend.Core.Entities;
@@ -39,6 +38,22 @@ namespace Backend.API.Mutations
 
         [AllowAnonymous]
         [Error<GenericException>]
+        public async Task<User> EditCategory([UseFluentValidation, UseValidator<EditCategoryInputValidator>] EditCategoryInput input)
+        {
+            var user = await userRepository.GetByEmailAsync(email: input.UserEmail) ?? throw new UserNotExistException(input.UserEmail);
+
+            var category = UserRepository.GetAccountById(accounts: user.Accounts, input.AccountId).Categories.Find(cat => cat.Id == input.CategoryId) ?? throw new GenericException("Categoria non trovata dentro l'account");
+            category.Name = input.Name;
+
+            user = userRepository.EditCategoryReferencesOnAccountTransactions(category: category, user: user, accountId: input.AccountId);
+
+            user = await userRepository.EditCategoryNameOnUserAccountAsync(user: user, accountId: input.AccountId, category: category);
+
+            return user;
+        }
+
+        [AllowAnonymous]
+        [Error<GenericException>]
         public async Task<User> DeleteCategory([UseFluentValidation, UseValidator<DeleteCategoryInputValidator>] DeleteCategoryInput input)
         {
             var user = await userRepository.GetByEmailAsync(email: input.UserEmail) ?? throw new UserNotExistException(input.UserEmail);
@@ -47,7 +62,7 @@ namespace Backend.API.Mutations
 
             user = userRepository.DeleteCategoryReferencesOnAccountTransactions(category: categoryToRemove, user: user, accountId: input.AccountId);
 
-            user = await userRepository.DeleteCategory(user: user, categoryToRemove: categoryToRemove, accountId: input.AccountId);
+            user = await userRepository.DeleteCategoryAsync(user: user, categoryToRemove: categoryToRemove, accountId: input.AccountId);
 
             return user;
         }
