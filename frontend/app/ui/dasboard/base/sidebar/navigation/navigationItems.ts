@@ -32,6 +32,12 @@ export const navigationItems: NavigationItem[] = [
   },
   {
     type: "link",
+    label: "TEMPORARY Categories",
+    icon: Settings,
+    path: "/dashboard/settings/categories",
+  },
+  {
+    type: "link",
     label: "Logout",
     icon: LogOut,
     path: "/login",

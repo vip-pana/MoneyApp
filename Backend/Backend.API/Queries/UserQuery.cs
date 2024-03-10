@@ -1,5 +1,6 @@
 ﻿using Backend.Core.Entities;
 using Backend.Core.Repositories;
+using Backend.Utils.Exceptions;
 using HotChocolate.Authorization;
 
 namespace Backend.API.Queries
@@ -18,12 +19,10 @@ namespace Backend.API.Queries
         }
 
         [AllowAnonymous]
+        [Error<GenericException>]
         public async Task<User> GetUserByEmail(string email)
         {
-            var res = await userRepository.GetByEmailAsync(email);
-            if (res == null) throw new GraphQLException(ErrorBuilder.New().SetMessage("Email not registered").SetCode("ABCODE").Build());
-            //new Error("email not registered")
-            return res;
+            return await userRepository.GetByEmailAsync(email) ?? throw new GenericException("Email not registered");
         }
     }
 }

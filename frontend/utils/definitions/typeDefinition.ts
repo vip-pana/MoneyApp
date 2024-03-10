@@ -21,7 +21,7 @@ export type SignUpValueDefinition = {
   currency: Currency;
 };
 
-export type TransactionModalFormValueDefinition = {
+export type TransactionDialogFormValueDefinition = {
   amount: number | string;
   currency: Currency;
   operationType: OperationType;
@@ -41,16 +41,6 @@ export type TransactionsSearchValueDefinition = {
 
 export type GetUserByEmailQueryValueDefinition = {
   email: string;
-  setName: (value: string) => void;
-  setSurname: (value: string) => void;
-  setEmail: (value: string) => void;
-  setCurrency: (value: Currency) => void;
-  setIncomeCategories: (categories: CategoryInput[]) => void;
-  setExpenseCategories: (categories: CategoryInput[]) => void;
-  setIncomeAmount: (value: number) => void;
-  setExpenseAmount: (value: number) => void;
-  setTransactions: (value: Transaction[]) => void;
-  setSelectedAccountId: (value: string) => void;
 };
 
 export type SignupQueryValueDefinition = {
@@ -68,9 +58,17 @@ export type LoginQueryValueDefinition = {
 
 export type TransactionQueryValueDefinition = {
   email: string;
-  transactionId: string | undefined;
   accountId: string;
-  transaction?: TransactionModalFormValueDefinition;
+  transactionId: string | undefined;
+  transaction?: TransactionDialogFormValueDefinition;
+};
+
+export type AddCategoryFormValueDefinition = {
+  email: string;
+  accountId: string;
+  name: string;
+  operationType: OperationType;
+  subcategoriesName: string[];
 };
 
 export type TransactionListQueryValueDefinition = {

@@ -1,6 +1,7 @@
 // for convention all methods created in this file will have at the end of the name the phrase "Validation"
 // here is the file where all validation will be created, all validation will pass through zod
 
+import { OperationType } from "@/gql/generated/graphql";
 import { z } from "zod";
 
 export const formCheckEmailValidation = z.object({
@@ -32,7 +33,7 @@ export const formSignupValidation = z
     path: ["confirmPassword"],
   });
 
-export const formAddOrUpdateTransactionModalValidation = z.object({
+export const formAddOrUpdateTransactionDialogValidation = z.object({
   amount: z.string().refine(
     (value) => {
       const numericValue = parseFloat(value);
@@ -45,6 +46,7 @@ export const formAddOrUpdateTransactionModalValidation = z.object({
   currency: z.string().min(1, "Please select one currency"),
   description: z.string().min(1, "Please insert a description"),
   date: z.coerce.date(),
+  operationType: z.enum([OperationType.Expense, OperationType.Income]),
 });
 
 export const formTransactionsSearchValidation = z.object({

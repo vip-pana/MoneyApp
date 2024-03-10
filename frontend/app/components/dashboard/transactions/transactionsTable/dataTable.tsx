@@ -22,10 +22,10 @@ import {
 import { ChevronDown, SlidersHorizontal, Trash2 } from "lucide-react";
 import { useUserStore } from "@/utils/zustand/userStore";
 import { useTransactionTableStore } from "@/utils/zustand/transactionTableStore";
-import { columns } from "./columns";
-import DeleteTransactionListDialog from "@/app/components/base/deleteTransactionListDialog";
+import { TransactionsColumns } from "./columns";
+import DeleteTransactionListDialog from "@/app/components/base/deleteTransactionDialogs/deleteTransactionListDialog";
 
-const DataTableTransactionTable = () => {
+const TransactionDataTable = () => {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
 
@@ -43,7 +43,7 @@ const DataTableTransactionTable = () => {
 
   const table = useReactTable({
     data: transactionsFiltered,
-    columns: columns,
+    columns: TransactionsColumns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination, //update the pagination state when internal APIs mutate the pagination state
@@ -60,7 +60,7 @@ const DataTableTransactionTable = () => {
   });
 
   return (
-    <div>
+    <>
       {table.getFilteredRowModel().rows.length > 0 && (
         <div className="flex items-center mt-2 gap-4">
           <DropdownMenu>
@@ -105,18 +105,16 @@ const DataTableTransactionTable = () => {
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                    </TableHead>
-                  );
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                   {row.getVisibleCells().map((cell) => (
@@ -126,7 +124,7 @@ const DataTableTransactionTable = () => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell colSpan={TransactionsColumns.length} className="h-24 text-center">
                   No Transactions.
                 </TableCell>
               </TableRow>
@@ -153,8 +151,8 @@ const DataTableTransactionTable = () => {
       <div className="flex-1 text-sm text-muted-foreground">
         {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s) selected.
       </div>
-    </div>
+    </>
   );
 };
 
-export default DataTableTransactionTable;
+export default TransactionDataTable;

@@ -12,6 +12,7 @@ import Navbar from "../../ui/dasboard/base/navbar/navbar";
 import Sidebar from "../../ui/dasboard/base/sidebar/sidebar";
 import { Button } from "@/components/ui/button";
 import { AlignJustify } from "lucide-react";
+import { OperationType } from "@/gql/generated/graphql";
 
 const MainContent = ({
   children,
@@ -40,12 +41,33 @@ const MainContent = ({
         surname
         email
         accounts {
-          ...accountBaseDetails
+          id
+          name
+          currency
+          incomeAmount
+          expenseAmount
           transactions {
-            ...transactionFields
+            id
+            amount
+            currency
+            dateTime
+            description
+            transactionType
+            category {
+              id
+              name
+              categoryType
+              subCategories {
+                id
+                name
+                categoryType
+              }
+            }
           }
           categories {
-            ...categoryFields
+            id
+            name
+            categoryType
             subCategories {
               id
               name
@@ -57,22 +79,9 @@ const MainContent = ({
     }
   `);
 
-  const { isError, error } = useQuery({
+  const { isError, error, data } = useQuery({
     queryKey: ["userData"],
-    queryFn: () =>
-      UseUserByEmailQuery({
-        email: sessionStorage.getItem(sessionStorageEmail) ?? "",
-        setName: setName,
-        setSurname: setSurname,
-        setEmail: setEmail,
-        setCurrency: setCurrency,
-        setIncomeCategories: setIncomeCategories,
-        setExpenseCategories: setExpenseCategories,
-        setIncomeAmount: setIncomeAmount,
-        setExpenseAmount: setExpenseAmount,
-        setTransactions: setTransactions,
-        setSelectedAccountId: setSelectedAccountId,
-      }),
+    queryFn: () => UseUserByEmailQuery(sessionStorage.getItem(sessionStorageEmail) ?? ""),
   });
 
   useEffect(() => {
@@ -81,8 +90,37 @@ const MainContent = ({
         description: error.message,
       });
       redirect("/login");
+    } else if (data?.userByEmail) {
+      setName(data.userByEmail.name);
+      setSurname(data.userByEmail.surname);
+      setEmail(data.userByEmail.email);
+      if (data.userByEmail.accounts) {
+        if (data.userByEmail.accounts[0].id) setSelectedAccountId(data.userByEmail.accounts[0].id);
+        setCurrency(data.userByEmail.accounts[0].currency);
+        setIncomeAmount(data.userByEmail.accounts[0].incomeAmount);
+        setExpenseAmount(data.userByEmail.accounts[0].expenseAmount);
+        setTransactions(data.userByEmail.accounts[0].transactions);
+        const incomeCategories = data.userByEmail.accounts[0].categories
+          .filter((category) => category.categoryType === OperationType.Income)
+          .map((category) => ({
+            id: category.id,
+            name: category.name,
+            categoryType: category.categoryType,
+            subCategories: category.subCategories || [],
+          }));
+        setIncomeCategories(incomeCategories);
+        const expenseCategories = data.userByEmail.accounts[0].categories
+          .filter((category) => category.categoryType === OperationType.Expense)
+          .map((category) => ({
+            id: category.id,
+            name: category.name,
+            categoryType: category.categoryType,
+            subCategories: category.subCategories || [],
+          }));
+        setExpenseCategories(expenseCategories);
+      }
     }
-  }, [isError, error]);
+  }, [isError, error, data]);
 
   return (
     <>

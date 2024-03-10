@@ -1,7 +1,6 @@
 "use client";
-import AlertDeleteTransactionDialog from "@/app/components/base/deleteTransactionDialog";
-import TransactionDialog from "@/app/components/base/transactionModal/transactionDialog";
-import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import AlertDeleteTransactionDialog from "@/app/components/base/deleteTransactionDialogs/deleteTransactionDialog";
+import TransactionDialog from "@/app/components/base/transactionDialog/transactionDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -15,9 +14,9 @@ import {
 import { OperationType, Transaction } from "@/gql/generated/graphql";
 import { ColumnDef } from "@tanstack/react-table";
 import { formatDate } from "date-fns";
-import { ArrowUpDown, FileEdit, MoreHorizontal, X } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal, Pencil, X } from "lucide-react";
 
-export const columns: ColumnDef<Transaction>[] = [
+export const TransactionsColumns: ColumnDef<Transaction>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -40,13 +39,11 @@ export const columns: ColumnDef<Transaction>[] = [
   {
     accessorKey: "category",
     header: "Category",
-    cell: ({ row }) => {
-      return (
-        <Badge className={`${row.original.transactionType === OperationType.Income ? "bg-teal-400" : "bg-red-400"}`}>
-          {row.original.category?.name}
-        </Badge>
-      );
-    },
+    cell: ({ row }) => (
+      <Badge className={`${row.original.transactionType === OperationType.Income ? "bg-teal-400" : "bg-red-400"}`}>
+        {row.original.category?.name}
+      </Badge>
+    ),
   },
   {
     accessorKey: "description",
@@ -89,19 +86,16 @@ export const columns: ColumnDef<Transaction>[] = [
     id: "actions",
     cell: ({ row }) => (
       <div className="text-right">
-        <TransactionDialog selectedTransaction={row.original}>
+        <TransactionDialog selectedItem={row.original}>
           <Button variant="ghost" size="icon">
-            <FileEdit className="h-4 w-4" />
+            <Pencil className="h-4 w-4" />
           </Button>
         </TransactionDialog>
-        <AlertDialog>
-          <AlertDialogTrigger>
-            <Button variant="ghost" size="icon">
-              <X className="h-4 w-4 text-red-600" />
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDeleteTransactionDialog selectedTransaction={row.original} />
-        </AlertDialog>
+        <AlertDeleteTransactionDialog selectedItem={row.original}>
+          <Button variant="ghost" size="icon">
+            <X className="h-4 w-4 text-red-600" />
+          </Button>
+        </AlertDeleteTransactionDialog>
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">

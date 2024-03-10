@@ -5,27 +5,27 @@
 import request from "graphql-request";
 import { queryUrl } from "../queryUrl";
 import {
+  AddCategoryDocument,
+  AddCategoryMutation,
   AddOrUpdateTransactionDocument,
   AddOrUpdateTransactionMutation,
   DeleteTransactionDocument,
   DeleteTransactionListDocument,
-  DeleteTransactionListPayload,
+  DeleteTransactionListMutation,
   DeleteTransactionMutation,
   LoginDocument,
   LoginMutation,
-  LoginPayload,
-  OperationType,
   SignupDocument,
   SignupMutation,
-  SignupPayload,
   User,
   UserByEmailDocument,
   UserByEmailQuery,
   UserExistByEmailDocument,
   UserExistByEmailQuery,
+  UserTransactionsFilteredDocument,
 } from "@/gql/generated/graphql";
 import {
-  GetUserByEmailQueryValueDefinition,
+  AddCategoryFormValueDefinition,
   LoginQueryValueDefinition,
   SignupQueryValueDefinition,
   TransactionListQueryValueDefinition as TransactionListMutationValueDefinition,
@@ -38,9 +38,9 @@ import {
 // };
 
 // NO AUTH NEEDED
-export const useCheckEmailExistQuery = async (emailFormValue: string) => {
+export const useCheckEmailExistQuery = async (email: string) => {
   const res = request<UserExistByEmailQuery>(queryUrl, UserExistByEmailDocument, {
-    email: emailFormValue,
+    email: email,
   });
   return res;
 };
@@ -69,43 +69,15 @@ export const useSignupQuery = async (props: SignupQueryValueDefinition) => {
 };
 
 // AUTH REQUIRED
-export const UseUserByEmailQuery = async (props: GetUserByEmailQueryValueDefinition) => {
+export const UseUserByEmailQuery = async (email: string) => {
   const res = await request<UserByEmailQuery>(
     queryUrl,
     UserByEmailDocument,
     {
-      email: props.email,
+      email: email,
     }
     // headers
   );
-  props.setName(res.userByEmail.name);
-  props.setSurname(res.userByEmail.surname);
-  props.setEmail(res.userByEmail.email);
-  if (res.userByEmail.accounts) {
-    if (res.userByEmail.accounts[0].id) props.setSelectedAccountId(res.userByEmail.accounts[0].id);
-    props.setCurrency(res.userByEmail.accounts[0].currency);
-    props.setIncomeAmount(res.userByEmail.accounts[0].incomeAmount);
-    props.setExpenseAmount(res.userByEmail.accounts[0].expenseAmount);
-    props.setTransactions(res.userByEmail.accounts[0].transactions);
-    const incomeCategories = res.userByEmail.accounts[0].categories
-      .filter((category) => category.categoryType === OperationType.Income)
-      .map((category) => ({
-        id: category.id,
-        name: category.name,
-        categoryType: category.categoryType,
-        subCategories: category.subCategories || [],
-      }));
-    props.setIncomeCategories(incomeCategories);
-    const expenseCategories = res.userByEmail.accounts[0].categories
-      .filter((category) => category.categoryType === OperationType.Expense)
-      .map((category) => ({
-        id: category.id,
-        name: category.name,
-        categoryType: category.categoryType,
-        subCategories: category.subCategories || [],
-      }));
-    props.setExpenseCategories(expenseCategories);
-  }
   return res;
 };
 
@@ -139,6 +111,26 @@ export const useAddOrUpdateTransactionMutation = async (props: TransactionMutati
   return res;
 };
 
+export const useAddCategoryMutation = async (props: AddCategoryFormValueDefinition) => {
+  // if (!props.transaction) throw new Error("Missing transaction");
+
+  const res = await request<AddCategoryMutation>(
+    queryUrl,
+    AddCategoryDocument,
+    {
+      input: {
+        userEmail: props.email,
+        accountId: props.accountId,
+        name: props.name,
+        operationType: props.operationType,
+        subcategorysNames: props.subcategoriesName,
+      },
+    }
+    // headers
+  );
+  return res;
+};
+
 export const useDeleteTransactionMutation = async (props: TransactionMutationValueDefinition) => {
   const res = await request<DeleteTransactionMutation>(
     queryUrl,
@@ -156,7 +148,7 @@ export const useDeleteTransactionMutation = async (props: TransactionMutationVal
 };
 
 export const useDeleteTransactionListMutation = async (props: TransactionListMutationValueDefinition) => {
-  const res = await request<DeleteTransactionListPayload>(
+  const res = await request<DeleteTransactionListMutation>(
     queryUrl,
     DeleteTransactionListDocument,
     {
@@ -174,7 +166,7 @@ export const useDeleteTransactionListMutation = async (props: TransactionListMut
 export const useTransactionsFilteredQuery = async (props: TransactionsFilteredQueryValueDefinition) => {
   const res = await request<User>(
     queryUrl,
-    TransactionsFilteredDocument,
+    UserTransactionsFilteredDocument,
     {
       filters: {
         userEmail: props.email,
