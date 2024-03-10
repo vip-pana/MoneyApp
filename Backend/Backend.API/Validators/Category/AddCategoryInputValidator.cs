@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace Backend.API.Validators.Category
 {
-    public class AddSubCategoryInputValidator : AbstractValidator<AddSubCategoryInput>
+    public class AddCategoryInputValidator : AbstractValidator<AddCategoryInput>
     {
-        public AddSubCategoryInputValidator()
+        public AddCategoryInputValidator()
         {
             
         }
