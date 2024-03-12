@@ -9,23 +9,23 @@ import {
   AddOrUpdateTransactionMutation,
   DeleteTransactionDocument,
   DeleteTransactionListDocument,
-  DeleteTransactionListPayload,
   DeleteTransactionMutation,
   LoginDocument,
   LoginMutation,
-  LoginPayload,
-  OperationType,
   SignupDocument,
   SignupMutation,
-  SignupPayload,
   User,
   UserByEmailDocument,
   UserByEmailQuery,
+  UserTransactionsFilteredDocument,
   UserExistByEmailDocument,
   UserExistByEmailQuery,
+  DeleteTransactionListMutation,
+  RefreshTokenMutation,
+  RefreshTokenDocument,
+  RefreshTokenInput,
 } from "@/gql/generated/graphql";
 import {
-  GetUserByEmailQueryValueDefinition,
   LoginQueryValueDefinition,
   SignupQueryValueDefinition,
   TransactionListQueryValueDefinition as TransactionListMutationValueDefinition,
@@ -33,19 +33,15 @@ import {
   TransactionsSearchQueryValueDefinition as TransactionsFilteredQueryValueDefinition,
 } from "./typeDefinition";
 
-// const headers = {
-//   Authorization: `Bearer`,
-// };
-
 // NO AUTH NEEDED
-export const useCheckEmailExistQuery = async (emailFormValue: string) => {
+export const UseCheckEmailExistQuery = async (emailFormValue: string) => {
   const res = request<UserExistByEmailQuery>(queryUrl, UserExistByEmailDocument, {
     email: emailFormValue,
   });
   return res;
 };
 
-export const useLoginQuery = async ({ email, password }: LoginQueryValueDefinition) => {
+export const UseLoginQuery = async ({ email, password }: LoginQueryValueDefinition) => {
   const res = await request<LoginMutation>(queryUrl, LoginDocument, {
     input: {
       email: email,
@@ -55,7 +51,7 @@ export const useLoginQuery = async ({ email, password }: LoginQueryValueDefiniti
   return res;
 };
 
-export const useSignupQuery = async (props: SignupQueryValueDefinition) => {
+export const UseSignupQuery = async (props: SignupQueryValueDefinition) => {
   const res = await request<SignupMutation>(queryUrl, SignupDocument, {
     input: {
       name: props.name,
@@ -69,47 +65,19 @@ export const useSignupQuery = async (props: SignupQueryValueDefinition) => {
 };
 
 // AUTH REQUIRED
-export const UseUserByEmailQuery = async (props: GetUserByEmailQueryValueDefinition) => {
+export const UseUserByEmailQuery = async (email: string, headers: {}) => {
   const res = await request<UserByEmailQuery>(
     queryUrl,
     UserByEmailDocument,
     {
-      email: props.email,
-    }
-    // headers
+      email: email,
+    },
+    headers
   );
-  props.setName(res.userByEmail.name);
-  props.setSurname(res.userByEmail.surname);
-  props.setEmail(res.userByEmail.email);
-  if (res.userByEmail.accounts) {
-    if (res.userByEmail.accounts[0].id) props.setSelectedAccountId(res.userByEmail.accounts[0].id);
-    props.setCurrency(res.userByEmail.accounts[0].currency);
-    props.setIncomeAmount(res.userByEmail.accounts[0].incomeAmount);
-    props.setExpenseAmount(res.userByEmail.accounts[0].expenseAmount);
-    props.setTransactions(res.userByEmail.accounts[0].transactions);
-    const incomeCategories = res.userByEmail.accounts[0].categories
-      .filter((category) => category.categoryType === OperationType.Income)
-      .map((category) => ({
-        id: category.id,
-        name: category.name,
-        categoryType: category.categoryType,
-        subCategories: category.subCategories || [],
-      }));
-    props.setIncomeCategories(incomeCategories);
-    const expenseCategories = res.userByEmail.accounts[0].categories
-      .filter((category) => category.categoryType === OperationType.Expense)
-      .map((category) => ({
-        id: category.id,
-        name: category.name,
-        categoryType: category.categoryType,
-        subCategories: category.subCategories || [],
-      }));
-    props.setExpenseCategories(expenseCategories);
-  }
   return res;
 };
 
-export const useAddOrUpdateTransactionMutation = async (props: TransactionMutationValueDefinition) => {
+export const UseAddOrUpdateTransactionMutation = async (props: TransactionMutationValueDefinition) => {
   if (!props.transaction) throw new Error("Missing transaction");
 
   const res = await request<AddOrUpdateTransactionMutation>(
@@ -133,13 +101,13 @@ export const useAddOrUpdateTransactionMutation = async (props: TransactionMutati
           },
         },
       },
-    }
-    // headers
+    },
+    props.headers
   );
   return res;
 };
 
-export const useDeleteTransactionMutation = async (props: TransactionMutationValueDefinition) => {
+export const UseDeleteTransactionMutation = async (props: TransactionMutationValueDefinition) => {
   const res = await request<DeleteTransactionMutation>(
     queryUrl,
     DeleteTransactionDocument,
@@ -149,14 +117,14 @@ export const useDeleteTransactionMutation = async (props: TransactionMutationVal
         accountId: props.accountId,
         transactionId: props.transactionId,
       },
-    }
-    // headers
+    },
+    props.headers
   );
   return res;
 };
 
-export const useDeleteTransactionListMutation = async (props: TransactionListMutationValueDefinition) => {
-  const res = await request<DeleteTransactionListPayload>(
+export const UseDeleteTransactionListMutation = async (props: TransactionListMutationValueDefinition) => {
+  const res = await request<DeleteTransactionListMutation>(
     queryUrl,
     DeleteTransactionListDocument,
     {
@@ -165,16 +133,16 @@ export const useDeleteTransactionListMutation = async (props: TransactionListMut
         accountId: props.accountId,
         transactionIds: props.transactionIds,
       },
-    }
-    // headers
+    },
+    props.headers
   );
   return res;
 };
 
-export const useTransactionsFilteredQuery = async (props: TransactionsFilteredQueryValueDefinition) => {
+export const UseTransactionsFilteredQuery = async (props: TransactionsFilteredQueryValueDefinition) => {
   const res = await request<User>(
     queryUrl,
-    TransactionsFilteredDocument,
+    UserTransactionsFilteredDocument,
     {
       filters: {
         userEmail: props.email,
@@ -186,8 +154,14 @@ export const useTransactionsFilteredQuery = async (props: TransactionsFilteredQu
           currencies: props.currencies,
         },
       },
-    }
-    // headers
+    },
+    props.headers
   );
   return res;
+};
+
+export const UseRefreshTokenMutation = async (refreshToken: string) => {
+  return await request<RefreshTokenMutation>(queryUrl, RefreshTokenDocument, {
+    input: { refreshToken: refreshToken },
+  });
 };

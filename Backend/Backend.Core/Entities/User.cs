@@ -7,10 +7,12 @@
         public required string Email { get; set; }
         public required string Password { get; set; }
         public required List<Account> Accounts { get; set; }
+        public int TokenVersion { get; set; }
 
         public User() : base()
         {
             Accounts = [];
+            TokenVersion = 0;
         }
     }
 }

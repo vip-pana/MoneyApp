@@ -1,11 +1,11 @@
 "use client";
 
-import { Currency, OperationType, TransactionInput } from "@/gql/generated/graphql";
+import { Currency, OperationType, Transaction } from "@/gql/generated/graphql";
 import { TransactionModalFormValueDefinition } from "@/utils/definitions/typeDefinition";
 import { currencyOptions, getEnumValue } from "@/utils/enumUtils";
 import { useForm } from "react-hook-form";
 import { graphql } from "@/gql/generated";
-import { useAddOrUpdateTransactionMutation } from "@/utils/definitions/useQueryDefinition";
+import { UseAddOrUpdateTransactionMutation } from "@/utils/definitions/useQueryDefinition";
 import { useUserStore } from "@/utils/zustand/userStore";
 import { useQuery } from "@tanstack/react-query";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
@@ -26,12 +26,13 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import CustomButtonSubmit from "@/components/ui/custom-button-submit";
 import { Calendar, Check, ChevronsUpDown } from "lucide-react";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { useAccessTokenStore } from "@/utils/zustand/accessTokenStore";
 
 const TransactionModalForm = ({
   selectedTransaction,
   setIsOpen,
 }: {
-  selectedTransaction?: TransactionInput | undefined;
+  selectedTransaction?: Transaction | undefined;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
 }) => {
   const {
@@ -52,6 +53,7 @@ const TransactionModalForm = ({
   const { setTransactionsFiltered } = useTransactionTableStore();
 
   const [selectedOperationType, setSelectedOperationType] = useState("");
+  const { accessToken } = useAccessTokenStore();
 
   useEffect(() => {
     if (selectedTransaction) {
@@ -62,7 +64,7 @@ const TransactionModalForm = ({
     }
   }, [selectedTransaction]);
 
-  const setValuesBySelectedTransaction = (transaction: TransactionInput) => {
+  const setValuesBySelectedTransaction = (transaction: Transaction) => {
     form.setValue("amount", transaction.amount.toString());
     form.setValue("currency", transaction.currency);
     form.setValue("description", transaction.description);
@@ -81,9 +83,30 @@ const TransactionModalForm = ({
   const addOrUpdateTransactionMutation = graphql(`
     mutation addOrUpdateTransaction($input: AddOrUpdateTransactionInput!) {
       addOrUpdateTransaction(input: $input) {
-        user {
-          accounts {
-            ...accountFields
+        account {
+          currency
+          incomeAmount
+          expenseAmount
+          categories {
+            ...categoryFields
+          }
+          transactions {
+            id
+            amount
+            currency
+            dateTime
+            description
+            transactionType
+            category {
+              id
+              name
+              categoryType
+              subCategories {
+                id
+                name
+                categoryType
+              }
+            }
           }
         }
         errors {
@@ -93,14 +116,18 @@ const TransactionModalForm = ({
     }
   `);
 
+  const headers = {
+    Authorization: `Bearer ${accessToken}`,
+  };
   const { refetch: addOrUpdateTransactionRefetch, isLoading: isLoading } = useQuery({
     queryKey: ["addOrUpdateTransaction"],
     queryFn: () =>
-      useAddOrUpdateTransactionMutation({
+      UseAddOrUpdateTransactionMutation({
         accountId: selectedAccountId,
         email: email,
         transaction: form.getValues(),
         transactionId: selectedTransaction?.id ?? undefined,
+        headers,
       }),
     enabled: false,
   });
@@ -110,10 +137,12 @@ const TransactionModalForm = ({
       const { data, isError, error } = await addOrUpdateTransactionRefetch();
       if (isError || data?.addOrUpdateTransaction.errors) {
         manageApiCallErrors(error, data?.addOrUpdateTransaction.errors);
-      } else if (data?.addOrUpdateTransaction.user?.accounts) {
+      } else if (data?.addOrUpdateTransaction?.account) {
         toast.success(selectedTransaction?.id ? "Transaction updated!" : "Transaction added!");
-        updateTransactionsData(data.addOrUpdateTransaction.user.accounts);
-        form.reset();
+        setTransactions(data.addOrUpdateTransaction.account.transactions);
+        setTransactionsFiltered(data.addOrUpdateTransaction.account.transactions);
+        setExpenseAmount(data.addOrUpdateTransaction.account.expenseAmount);
+        setIncomeAmount(data.addOrUpdateTransaction.account.incomeAmount);
       }
       setIsOpen(false);
     } else {

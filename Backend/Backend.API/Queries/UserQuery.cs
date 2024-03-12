@@ -7,7 +7,7 @@ namespace Backend.API.Queries
     [ExtendObjectType("Query")]
     public class UserQuery ([Service] IUserRepository userRepository)
     {
-        [AllowAnonymous]
+        [Authorize]
         public Task<IEnumerable<User>> GetUsersAsync() => userRepository.GetAllAsync();
 
         [AllowAnonymous]
@@ -17,7 +17,7 @@ namespace Backend.API.Queries
             return user != null;
         }
 
-        [AllowAnonymous]
+        [Authorize]
         public async Task<User> GetUserByEmail(string email)
         {
             var res = await userRepository.GetByEmailAsync(email);

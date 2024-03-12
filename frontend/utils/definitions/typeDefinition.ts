@@ -3,6 +3,10 @@
 
 import { CategoryInput, Currency, OperationType, Transaction } from "@/gql/generated/graphql";
 
+interface GqlHeaders {
+  headers: {};
+}
+
 export type CheckMailValueDefinition = {
   email: string;
 };
@@ -28,7 +32,7 @@ export type TransactionModalFormValueDefinition = {
   description: string;
   date: Date | string;
   category: CategoryInput;
-};
+} & GqlHeaders;
 
 export type TransactionsSearchValueDefinition = {
   dateRangeOption: string;
@@ -37,21 +41,11 @@ export type TransactionsSearchValueDefinition = {
   selectedCategoriesIds: string[];
   currencies: Currency[];
   operationTypes: OperationType[];
-};
+} & GqlHeaders;
 
 export type GetUserByEmailQueryValueDefinition = {
   email: string;
-  setName: (value: string) => void;
-  setSurname: (value: string) => void;
-  setEmail: (value: string) => void;
-  setCurrency: (value: Currency) => void;
-  setIncomeCategories: (categories: CategoryInput[]) => void;
-  setExpenseCategories: (categories: CategoryInput[]) => void;
-  setIncomeAmount: (value: number) => void;
-  setExpenseAmount: (value: number) => void;
-  setTransactions: (value: Transaction[]) => void;
-  setSelectedAccountId: (value: string) => void;
-};
+} & GqlHeaders;
 
 export type SignupQueryValueDefinition = {
   name: string;
@@ -71,13 +65,13 @@ export type TransactionQueryValueDefinition = {
   transactionId: string | undefined;
   accountId: string;
   transaction?: TransactionModalFormValueDefinition;
-};
+} & GqlHeaders;
 
 export type TransactionListQueryValueDefinition = {
   email: string;
   transactionIds: string[]; // only for deleteTransactionList
   accountId: string;
-};
+} & GqlHeaders;
 
 export type TransactionsSearchQueryValueDefinition = {
   email: string;
@@ -86,7 +80,7 @@ export type TransactionsSearchQueryValueDefinition = {
   dateEnd: Date | string;
   categoriesIds: string[];
   currencies: string[];
-};
+} & GqlHeaders;
 
 export type TransactionModalProps = {
   selectedTransaction?: Transaction;

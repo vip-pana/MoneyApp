@@ -11,7 +11,7 @@ import { useForm } from "react-hook-form";
 import { Currency, OperationType } from "@/gql/generated/graphql";
 import { graphql } from "@/gql/generated";
 import { useQuery } from "@tanstack/react-query";
-import { useTransactionsFilteredQuery } from "@/utils/definitions/useQueryDefinition";
+import { UseTransactionsFilteredQuery } from "@/utils/definitions/useQueryDefinition";
 import { useTransactionTableStore } from "@/utils/zustand/transactionTableStore";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import {
@@ -32,6 +32,8 @@ import { useTheme } from "next-themes";
 import { Calendar, Search } from "lucide-react";
 import { manageApiCallErrors } from "@/utils/errorUtils";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useAccessTokenStore } from "@/utils/zustand/accessTokenStore";
+import { execOnce } from "next/dist/shared/lib/utils";
 
 interface SelectCategory {
   id: string;
@@ -57,6 +59,7 @@ const TransactionsSearchbarForm = () => {
     resolver: zodResolver(formTransactionsSearchValidation),
   });
   const { setValue } = form;
+  const { accessToken } = useAccessTokenStore();
 
   const dateRangeOptions: DateRangeOption[] = [
     {
@@ -118,7 +121,7 @@ const TransactionsSearchbarForm = () => {
   useEffect(() => {
     setTodayDate();
     setFilteredCategories(formatCategories());
-  }, []);
+  }, [incomeCategories, expenseCategories]);
 
   const setTodayDate = () => {
     const formattedDate = format(today, "yyyy-MM-dd");
@@ -153,16 +156,20 @@ const TransactionsSearchbarForm = () => {
     }
   `);
 
+  const headers = {
+    Authorization: `Bearer ${accessToken}`,
+  };
   const { refetch, isLoading } = useQuery({
     queryKey: ["filterTransactions"],
     queryFn: () =>
-      useTransactionsFilteredQuery({
+      UseTransactionsFilteredQuery({
         accountId: selectedAccountId,
         email: email,
         currencies: form.getValues("currencies") ?? [],
         dateStart: form.getValues("dateStart"),
         dateEnd: form.getValues("dateEnd"),
         categoriesIds: form.getValues("selectedCategoriesIds") ?? [],
+        headers,
       }),
     enabled: false,
   });

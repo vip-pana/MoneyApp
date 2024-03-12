@@ -6,12 +6,14 @@ import { graphql } from "@/gql/generated";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { UseUserByEmailQuery } from "@/utils/definitions/useQueryDefinition";
-import { toast } from "sonner";
+import { UseRefreshTokenMutation, UseUserByEmailQuery } from "@/utils/definitions/useQueryDefinition";
 import Navbar from "../../ui/dasboard/base/navbar/navbar";
 import Sidebar from "../../ui/dasboard/base/sidebar/sidebar";
 import { Button } from "@/components/ui/button";
 import { AlignJustify } from "lucide-react";
+import { OperationType } from "@/gql/generated/graphql";
+import { useAccessTokenStore } from "@/utils/zustand/accessTokenStore";
+import { NOT_AUTHORIZED_ERROR, getGraphQLErrorCode, manageApiCallErrors } from "@/utils/errorUtils";
 
 const MainContent = ({
   children,
@@ -32,6 +34,7 @@ const MainContent = ({
   } = useUserStore();
 
   const [collapse, setCollapse] = useState(false);
+  const { accessToken, setAccessToken } = useAccessTokenStore();
 
   const userByEmailQueryDocument = graphql(`
     query userByEmail($email: String!) {
@@ -40,12 +43,33 @@ const MainContent = ({
         surname
         email
         accounts {
-          ...accountBaseDetails
+          id
+          name
+          currency
+          incomeAmount
+          expenseAmount
           transactions {
-            ...transactionFields
+            id
+            amount
+            currency
+            dateTime
+            description
+            transactionType
+            category {
+              id
+              name
+              categoryType
+              subCategories {
+                id
+                name
+                categoryType
+              }
+            }
           }
           categories {
-            ...categoryFields
+            id
+            name
+            categoryType
             subCategories {
               id
               name
@@ -57,30 +81,119 @@ const MainContent = ({
     }
   `);
 
-  const { isError, error } = useQuery({
+  const refreshTokenQueryDocument = graphql(`
+    mutation refreshToken($input: RefreshTokenInput!) {
+      refreshToken(input: $input) {
+        tokenResponse {
+          accessToken
+          refreshToken
+        }
+        errors {
+          ...errorFields
+        }
+      }
+    }
+  `);
+
+  const headers = {
+    Authorization: `Bearer ${accessToken}`,
+  };
+  const { isError, error, data, refetch } = useQuery({
     queryKey: ["userData"],
-    queryFn: () =>
-      UseUserByEmailQuery({
-        email: sessionStorage.getItem(sessionStorageEmail) ?? "",
-        setName: setName,
-        setSurname: setSurname,
-        setEmail: setEmail,
-        setCurrency: setCurrency,
-        setIncomeCategories: setIncomeCategories,
-        setExpenseCategories: setExpenseCategories,
-        setIncomeAmount: setIncomeAmount,
-        setExpenseAmount: setExpenseAmount,
-        setTransactions: setTransactions,
-        setSelectedAccountId: setSelectedAccountId,
-      }),
+    queryFn: () => UseUserByEmailQuery(sessionStorage.getItem(sessionStorageEmail) ?? "", headers),
+    retry: 0,
   });
+
+  const { refetch: refetchTokenMutation } = useQuery({
+    queryKey: ["refreshToken"],
+    queryFn: () => UseRefreshTokenMutation(sessionStorage.getItem("refreshToken") ?? ""),
+    enabled: false,
+    retry: 1,
+  });
+
+  const requireNewToken = async () => {
+    const { data: requireNewTokenData, isError: isRequireNewTokenError, error } = await refetchTokenMutation();
+    if (isRequireNewTokenError) {
+      console.log(error);
+      manageApiCallErrors(error, requireNewTokenData?.refreshToken.errors);
+      redirect("/login");
+    } else if (requireNewTokenData?.refreshToken?.tokenResponse?.accessToken) {
+      setAccessToken(requireNewTokenData.refreshToken.tokenResponse.accessToken);
+      sessionStorage.setItem("refreshToken", requireNewTokenData.refreshToken.tokenResponse.refreshToken ?? "");
+      recallUserData();
+    }
+  };
+
+  const recallUserData = async () => {
+    const { data: dataRefetch } = await refetch();
+
+    if (dataRefetch?.userByEmail) {
+      setName(dataRefetch.userByEmail.name);
+      setSurname(dataRefetch.userByEmail.surname);
+      setEmail(dataRefetch.userByEmail.email);
+      if (dataRefetch.userByEmail.accounts) {
+        if (dataRefetch.userByEmail.accounts[0].id) setSelectedAccountId(dataRefetch.userByEmail.accounts[0].id);
+        setCurrency(dataRefetch.userByEmail.accounts[0].currency);
+        setIncomeAmount(dataRefetch.userByEmail.accounts[0].incomeAmount);
+        setExpenseAmount(dataRefetch.userByEmail.accounts[0].expenseAmount);
+        setTransactions(dataRefetch.userByEmail.accounts[0].transactions);
+        const incomeCategories = dataRefetch.userByEmail.accounts[0].categories
+          .filter((category) => category.categoryType === OperationType.Income)
+          .map((category) => ({
+            id: category.id,
+            name: category.name,
+            categoryType: category.categoryType,
+            subCategories: category.subCategories || [],
+          }));
+        setIncomeCategories(incomeCategories);
+        const expenseCategories = dataRefetch.userByEmail.accounts[0].categories
+          .filter((category) => category.categoryType === OperationType.Expense)
+          .map((category) => ({
+            id: category.id,
+            name: category.name,
+            categoryType: category.categoryType,
+            subCategories: category.subCategories || [],
+          }));
+        setExpenseCategories(expenseCategories);
+      }
+    }
+  };
 
   useEffect(() => {
     if (isError) {
-      toast.error(error.name, {
-        description: error.message,
-      });
-      redirect("/login");
+      const errorCode = getGraphQLErrorCode(error);
+      if (errorCode === NOT_AUTHORIZED_ERROR) {
+        requireNewToken();
+      }
+    } else if (data?.userByEmail) {
+      setName(data.userByEmail.name);
+      setSurname(data.userByEmail.surname);
+      setEmail(data.userByEmail.email);
+      if (data.userByEmail.accounts) {
+        if (data.userByEmail.accounts[0].id) setSelectedAccountId(data.userByEmail.accounts[0].id);
+        setCurrency(data.userByEmail.accounts[0].currency);
+        setIncomeAmount(data.userByEmail.accounts[0].incomeAmount);
+        setExpenseAmount(data.userByEmail.accounts[0].expenseAmount);
+        setTransactions(data.userByEmail.accounts[0].transactions);
+        const incomeCategories = data.userByEmail.accounts[0].categories
+          .filter((category) => category.categoryType === OperationType.Income)
+          .map((category) => ({
+            id: category.id,
+            name: category.name,
+            categoryType: category.categoryType,
+            subCategories: category.subCategories || [],
+          }));
+        setIncomeCategories(incomeCategories);
+        const expenseCategories = data.userByEmail.accounts[0].categories
+          .filter((category) => category.categoryType === OperationType.Expense)
+          .map((category) => ({
+            id: category.id,
+            name: category.name,
+            categoryType: category.categoryType,
+            subCategories: category.subCategories || [],
+          }));
+        setExpenseCategories(expenseCategories);
+      }
     }
   }, [isError, error]);
 

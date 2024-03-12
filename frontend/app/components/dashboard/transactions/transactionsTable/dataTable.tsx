@@ -34,7 +34,7 @@ const DataTableTransactionTable = () => {
 
   React.useEffect(() => {
     setTransactionsFiltered(transactions);
-  }, []);
+  }, [transactions]);
 
   const [pagination, setPagination] = React.useState({
     pageIndex: 0, //initial page index
@@ -144,7 +144,7 @@ const DataTableTransactionTable = () => {
           Previous
         </Button>
         <Button variant={"outline"} size={"sm"}>
-          {table.getState().pagination.pageIndex}
+          {table.getState().pagination.pageIndex + 1}
         </Button>
         <Button variant={"outline"} size={"sm"} onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
           Next

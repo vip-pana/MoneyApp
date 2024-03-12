@@ -11,8 +11,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { graphql } from "@/gql/generated";
 import { OperationType, Transaction } from "@/gql/generated/graphql";
-import { useDeleteTransactionListMutation } from "@/utils/definitions/useQueryDefinition";
+import { UseDeleteTransactionListMutation } from "@/utils/definitions/useQueryDefinition";
 import { manageApiCallErrors } from "@/utils/errorUtils";
+import { useAccessTokenStore } from "@/utils/zustand/accessTokenStore";
 import { useTransactionTableStore } from "@/utils/zustand/transactionTableStore";
 import { useUserStore } from "@/utils/zustand/userStore";
 import { useQuery } from "@tanstack/react-query";
@@ -31,6 +32,7 @@ const DeleteTransactionListDialog = ({
   const { setTransactionsFiltered, setSelectedTransactionList } = useTransactionTableStore();
   const [transactionIds, setTransactionIds] = useState<string[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const { accessToken } = useAccessTokenStore();
 
   useEffect(() => {
     if (selectedTransactionList !== undefined)
@@ -40,9 +42,26 @@ const DeleteTransactionListDialog = ({
   const deleteTransactionListMutation = graphql(`
     mutation deleteTransactionList($input: DeleteTransactionListInput!) {
       deleteTransactionList(input: $input) {
-        user {
-          accounts {
-            ...accountFields
+        account {
+          incomeAmount
+          expenseAmount
+          transactions {
+            id
+            amount
+            currency
+            dateTime
+            description
+            transactionType
+            category {
+              id
+              name
+              categoryType
+              subCategories {
+                id
+                name
+                categoryType
+              }
+            }
           }
         }
         errors {
@@ -52,31 +71,35 @@ const DeleteTransactionListDialog = ({
     }
   `);
 
+  const headers = {
+    Authorization: `Bearer ${accessToken}`,
+  };
   const { refetch, isLoading } = useQuery({
     queryKey: ["deleteTransaction"],
     queryFn: () =>
-      useDeleteTransactionListMutation({
+      UseDeleteTransactionListMutation({
         email: email,
         accountId: selectedAccountId,
         transactionIds: transactionIds,
+        headers,
       }),
     enabled: false,
   });
 
   const onSubmit = async () => {
     const { data, isError, error } = await refetch();
-    if (isError || data?.errors) {
-      manageApiCallErrors(error, data?.errors);
-    }
-    if (data && data.deleteTransactionList.user) {
-      toast.success("Transactions deleted!");
-      setSelectedTransactionList([]);
-      setTransactions(data.deleteTransactionList.user.accounts[0].transactions);
-      setTransactionsFiltered(data.deleteTransactionList.user.accounts[0].transactions);
-      setIncomeAmount(data.deleteTransactionList.user.accounts[0].incomeAmount);
-      setExpenseAmount(data.deleteTransactionList.user.accounts[0].expenseAmount);
-      setIsOpen(false);
-    }
+    // if (isError || data?.errors) {
+    //   manageApiCallErrors(error, data?.errors);
+    // }
+    // if (data && data.deleteTransactionList.user) {
+    //   toast.success("Transactions deleted!");
+    //   setSelectedTransactionList([]);
+    //   setTransactions(data.deleteTransactionList.user.accounts[0].transactions);
+    //   setTransactionsFiltered(data.deleteTransactionList.user.accounts[0].transactions);
+    //   setIncomeAmount(data.deleteTransactionList.user.accounts[0].incomeAmount);
+    //   setExpenseAmount(data.deleteTransactionList.user.accounts[0].expenseAmount);
+    //   setIsOpen(false);
+    // }
   };
 
   return (
@@ -106,7 +129,7 @@ const DeleteTransactionListDialog = ({
               </span>
             ))}
             <br />
-            Are you sure? You can't undo this action afterwards.
+            Are you sure? You can t undo this action afterwards.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

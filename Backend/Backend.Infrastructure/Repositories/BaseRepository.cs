@@ -30,15 +30,20 @@ namespace Backend.Infrastructure.Repositories
         public async Task<T> InsertAsync(T entity)
         {
             await collection.InsertOneAsync(entity);
-
             return entity;
         }
 
         public async Task<bool> RemoveAsync(string id)
         {
             var result = await collection.DeleteOneAsync(Builders<T>.Filter.Eq(_ => _.Id, id));
-
             return result.DeletedCount > 0;
+        }
+
+        public async Task<bool> UpdateAsync(T entity)
+        {
+            var filter = Builders<T>.Filter.Eq(_ => _.Id, entity.Id);
+            var result = await collection.ReplaceOneAsync(filter, entity);
+            return result.ModifiedCount > 0;
         }
     }
 }
