@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import CustomButtonSubmit from "@/components/ui/custom-button-submit";
@@ -11,10 +13,11 @@ import { Currency } from "@/gql/generated/graphql";
 import { cn } from "@/lib/utils";
 import { SignUpValueDefinition } from "@/utils/definitions/typeDefinition";
 import { formSignupValidation } from "@/utils/definitions/typeValidation";
-import { useSignupQuery } from "@/utils/definitions/useQueryDefinition";
+import { UseSignupQuery } from "@/utils/definitions/useQueryDefinition";
 import { currencyOptions, getEnumValue } from "@/utils/enumUtils";
 import { manageApiCallErrors } from "@/utils/errorUtils";
 import { sessionStorageEmail } from "@/utils/queryUrl";
+import { useAccessTokenStore } from "@/utils/zustand/accessTokenStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 import { Check, ChevronsUpDown } from "lucide-react";
@@ -32,10 +35,15 @@ const SignupDialogForm = () => {
 
   const router = useRouter();
 
+  const { setAccessToken } = useAccessTokenStore();
+
   const signupQueryDocument = graphql(`
     mutation signup($input: SignupInput!) {
       signup(input: $input) {
-        string
+        tokenResponse {
+          accessToken
+          refreshToken
+        }
         errors {
           ...errorFields
         }
@@ -49,8 +57,9 @@ const SignupDialogForm = () => {
     const { data, isError, error } = await refetch();
     if (isError || data?.signup?.errors) {
       manageApiCallErrors(error, data?.signup?.errors);
-    } else if (data?.signup.string) {
-      sessionStorage.setItem("token", data?.signup.string);
+    } else if (data?.signup.tokenResponse?.accessToken != null && data?.signup.tokenResponse.refreshToken != null) {
+      setAccessToken(data.signup.tokenResponse.accessToken);
+      sessionStorage.setItem("refreshToken", data.signup.tokenResponse.refreshToken);
       sessionStorage.setItem(sessionStorageEmail, form.getValues("email"));
       router.push("/dashboard");
     }
@@ -58,7 +67,7 @@ const SignupDialogForm = () => {
 
   const { refetch, isLoading } = useQuery({
     queryKey: ["signup"],
-    queryFn: () => useSignupQuery(form.getValues()),
+    queryFn: () => UseSignupQuery(form.getValues()),
     enabled: false,
   });
 

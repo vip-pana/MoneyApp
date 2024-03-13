@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { UseFormSetValue, useForm } from "react-hook-form";
 import { graphql } from "@/gql/generated";
 import { useQuery } from "@tanstack/react-query";
-import { useCheckEmailExistQuery } from "@/utils/definitions/useQueryDefinition";
+import { UseCheckEmailExistQuery } from "@/utils/definitions/useQueryDefinition";
 import { useUserStore } from "@/utils/zustand/userStore";
 import { CheckMailValueDefinition, LoginValueDefinition } from "../../../utils/definitions/typeDefinition";
 import { toast } from "sonner";
@@ -31,7 +31,7 @@ const CheckEmailForm = ({
 
   const { refetch, isLoading } = useQuery({
     queryKey: ["checkEmailExist"],
-    queryFn: () => useCheckEmailExistQuery(getValues("email").toLowerCase()),
+    queryFn: () => UseCheckEmailExistQuery(getValues("email").toLowerCase()),
     enabled: false,
   });
 

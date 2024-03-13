@@ -1,7 +1,7 @@
 "use client";
 
 import { graphql } from "@/gql/generated";
-import { useLoginQuery as UseLoginQuery } from "@/utils/definitions/useQueryDefinition";
+import { UseLoginQuery as UseLoginQuery } from "@/utils/definitions/useQueryDefinition";
 import { sessionStorageEmail } from "@/utils/queryUrl";
 import { useUserStore } from "@/utils/zustand/userStore";
 import { useQuery } from "@tanstack/react-query";
@@ -15,16 +15,21 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
 import CustomButtonSubmit from "@/components/ui/custom-button-submit";
 import { Unlock } from "lucide-react";
+import { useAccessTokenStore } from "@/utils/zustand/accessTokenStore";
 
 const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any> }) => {
   const router = useRouter();
   const { setEmailExist } = useUserStore();
   const { getValues } = form;
+  const { setAccessToken } = useAccessTokenStore();
 
   const loginQueryDocument = graphql(`
     mutation login($input: LoginInput!) {
-      login(input: $input) {
-        string
+      login(user: $input) {
+        tokenResponse {
+          accessToken
+          refreshToken
+        }
         errors {
           ...errorFields
         }
@@ -36,8 +41,9 @@ const LoginForm = ({ form }: { form: UseFormReturn<LoginValueDefinition, any> })
     const { data, isError, error } = await refetch();
     if (isError || data?.login.errors) {
       manageApiCallErrors(error, data?.login.errors);
-    } else if (data?.login.string) {
-      sessionStorage.setItem("token", data.login.string);
+    } else if (data?.login.tokenResponse?.accessToken != null && data?.login.tokenResponse.refreshToken != null) {
+      setAccessToken(data.login.tokenResponse.accessToken);
+      sessionStorage.setItem("refreshToken", data.login.tokenResponse.refreshToken);
       sessionStorage.setItem(sessionStorageEmail, getValues("email"));
       router.push("/dashboard");
     }
