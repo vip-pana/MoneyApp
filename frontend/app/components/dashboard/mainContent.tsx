@@ -114,7 +114,6 @@ const MainContent = ({
   const requireNewToken = async () => {
     const { data: requireNewTokenData, isError: isRequireNewTokenError, error } = await refetchTokenMutation();
     if (isRequireNewTokenError) {
-      console.log(error);
       manageApiCallErrors(error, requireNewTokenData?.refreshToken.errors);
       redirect("/login");
     } else if (requireNewTokenData?.refreshToken?.tokenResponse?.accessToken) {
@@ -162,8 +161,13 @@ const MainContent = ({
   useEffect(() => {
     if (isError) {
       const errorCode = getGraphQLErrorCode(error);
-      if (errorCode === NOT_AUTHORIZED_ERROR) {
+      const tokenExist =
+        sessionStorage.getItem("refreshToken") !== "" && sessionStorage.getItem("refreshToken") !== null;
+
+      if (errorCode === NOT_AUTHORIZED_ERROR && tokenExist) {
         requireNewToken();
+      } else {
+        redirect("/login");
       }
     } else if (data?.userByEmail) {
       setName(data.userByEmail.name);

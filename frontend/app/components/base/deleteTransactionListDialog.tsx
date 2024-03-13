@@ -12,14 +12,12 @@ import { Button } from "@/components/ui/button";
 import { graphql } from "@/gql/generated";
 import { OperationType, Transaction } from "@/gql/generated/graphql";
 import { UseDeleteTransactionListMutation } from "@/utils/definitions/useQueryDefinition";
-import { manageApiCallErrors } from "@/utils/errorUtils";
 import { useAccessTokenStore } from "@/utils/zustand/accessTokenStore";
 import { useTransactionTableStore } from "@/utils/zustand/transactionTableStore";
 import { useUserStore } from "@/utils/zustand/userStore";
 import { useQuery } from "@tanstack/react-query";
 import { Loader } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { toast } from "sonner";
 
 const DeleteTransactionListDialog = ({
   selectedTransactionList,
