@@ -28,15 +28,7 @@ export const formSignupValidation = z
   });
 
 export const formAddOrUpdateTransactionDialogValidation = z.object({
-  amount: z.string().refine(
-    (value) => {
-      const numericValue = parseFloat(value);
-      return !isNaN(numericValue) && numericValue >= 0.01;
-    },
-    {
-      message: "Amount must be at least 0.01",
-    }
-  ),
+  amount: z.preprocess((a) => parseInt(z.string().parse(a), 10), z.number().gte(0.01, "Amount must be at least 0.01")),
   currency: z.string().min(1, "Please select one currency"),
   description: z.string().min(1, "Please insert a description"),
 });

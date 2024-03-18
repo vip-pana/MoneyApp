@@ -15,6 +15,7 @@ import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import AlertDeleteSingleRow from "./alertDeleteSingleRow/alertDeleteSingleRow";
 
 type editSubCategoryFormValueDefinition = {
   name: string;
@@ -42,6 +43,11 @@ const editSubCategoryMutation = graphql(`
             dateTime
             description
             transactionType
+            subCategory {
+              id
+              categoryType
+              name
+            }
             category {
               id
               name
@@ -67,11 +73,11 @@ const editSubCategoryFormValueDialogValidation = z.object({
 });
 
 const SubCategoryDialogSingleRow = ({
-  s,
+  subCategory,
   categoryId,
   setIsOpen,
 }: {
-  s: SubCategory;
+  subCategory: SubCategory;
   categoryId: string;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
@@ -102,7 +108,7 @@ const SubCategoryDialogSingleRow = ({
         subCategoryName: form.getValues("name"),
         selectedAccountId,
         categoryId,
-        subCategoryId: s.id,
+        subCategoryId: subCategory.id,
         userEmail,
         headers,
       }),
@@ -112,50 +118,48 @@ const SubCategoryDialogSingleRow = ({
   const [showEdit, setShowEdit] = React.useState(false);
 
   useEffect(() => {
-    form.setValue("name", s.name);
+    form.setValue("name", subCategory.name);
   }, [showEdit, setShowEdit]);
   return (
     <TableRow>
       <TableCell className="font-medium">
         {showEdit ? (
-          <>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)}>
-                <div className="flex flex-row gap-1">
-                  <FormField
-                    name="name"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input
-                            id="name"
-                            className="h-3"
-                            placeholder="Name"
-                            {...field}
-                            value={field.value || ""}
-                            disabled={isLoading}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button className="h-5 text-sm" type="submit" disabled={isLoading}>
-                    Save
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              <div className="flex flex-row gap-2 justify-between">
+                <FormField
+                  name="name"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          id="name"
+                          className="h-6"
+                          placeholder="Name"
+                          {...field}
+                          value={field.value || ""}
+                          disabled={isLoading}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button className="text-sm h-6" type="submit" disabled={isLoading}>
+                  Save
+                </Button>
+              </div>
+            </form>
+          </Form>
         ) : (
-          s.name
+          subCategory.name
         )}
       </TableCell>
       <TableCell className="text-right">
         {showEdit ? (
           <Button
-            className="h-5 text-sm"
+            className="h-6 text-sm"
             variant={"destructive"}
             onClick={() => setShowEdit(false)}
             disabled={isLoading}
@@ -173,9 +177,12 @@ const SubCategoryDialogSingleRow = ({
             >
               <Pencil className="h-3 w-3" />
             </Button>
-            <Button onClick={() => {}} variant="ghost" size="icon" className="w-5 h-5" type="button">
-              <X className="h-3 w-3 text-red-600" />
-            </Button>
+
+            <AlertDeleteSingleRow selectedItem={subCategory} categoryId={categoryId} setIsOpen={setIsOpen}>
+              <Button variant="ghost" size="icon" className="w-5 h-5" type="button">
+                <X className="h-3 w-3 text-red-600" />
+              </Button>
+            </AlertDeleteSingleRow>
           </>
         )}
       </TableCell>

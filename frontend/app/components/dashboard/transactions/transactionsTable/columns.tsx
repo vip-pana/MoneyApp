@@ -14,7 +14,7 @@ import {
 import { OperationType, Transaction } from "@/gql/generated/graphql";
 import { ColumnDef } from "@tanstack/react-table";
 import { formatDate } from "date-fns";
-import { ArrowUpDown, MoreHorizontal, Pencil, X } from "lucide-react";
+import { ArrowRight, ArrowUpDown, MoreHorizontal, Pencil, X } from "lucide-react";
 
 export const TransactionsColumns: ColumnDef<Transaction>[] = [
   {
@@ -40,9 +40,16 @@ export const TransactionsColumns: ColumnDef<Transaction>[] = [
     accessorKey: "category",
     header: "Category",
     cell: ({ row }) => (
-      <Badge className={`${row.original.transactionType === OperationType.Income ? "bg-teal-400" : "bg-red-400"}`}>
-        {row.original.category?.name}
-      </Badge>
+      <div className="flex flex-row gap-1 align-middle">
+        <Badge className={`${row.original.transactionType === OperationType.Income ? "bg-teal-400" : "bg-red-400"}`}>
+          {row.original.category.name}
+        </Badge>
+        {row.original.subCategory && (
+          <>
+            {"->"} <Badge> {row.original.subCategory.name}</Badge>
+          </>
+        )}
+      </div>
     ),
   },
   {
@@ -60,7 +67,7 @@ export const TransactionsColumns: ColumnDef<Transaction>[] = [
       </div>
     ),
     cell: ({ row }) => {
-      return <div>{formatDate(row.original.dateTime, "yyyy-MM-dd")}</div>;
+      return <div>{formatDate(row.original.dateTime, "dd-MM-yyyy")}</div>;
     },
   },
   {
@@ -98,7 +105,7 @@ export const TransactionsColumns: ColumnDef<Transaction>[] = [
         </AlertDeleteTransactionDialog>
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
+            <Button variant="ghost" className="h-8 w-8 p-0" size="icon">
               <span className="sr-only">Open menu</span>
               <MoreHorizontal className="h-4 w-4" />
             </Button>

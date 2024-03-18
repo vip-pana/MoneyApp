@@ -7,10 +7,12 @@ namespace Backend.API.Validators.Transaction
     {
         public AddOrUpdateTransactionInputValidator()
         {
-            RuleFor(x => x.Transaction.Category).NotEmpty();
-            RuleFor(x => x.Transaction.DateTime).NotEmpty();
-            RuleFor(x => x.Transaction.Description).NotEmpty();
             RuleFor(x => x.Transaction.Amount).NotEmpty().GreaterThan(0);
+            RuleFor(x => x.Transaction.Currency).NotEmpty();
+            RuleFor(x => x.Transaction.Category).NotEmpty();
+            RuleFor(x => x.Transaction.Description).NotEmpty();
+            RuleFor(x => x.Transaction.DateTime).NotEmpty();
+            // subcategories can be unselected
         }
     }
 }

@@ -14,7 +14,9 @@ const Fragments = () => {
       name
       categoryType
       subCategories {
-        ...subcategoryFields
+        id
+        name
+        categoryType
       }
     }
   `);

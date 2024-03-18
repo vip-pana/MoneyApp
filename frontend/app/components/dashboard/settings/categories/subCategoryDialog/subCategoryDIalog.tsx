@@ -38,7 +38,12 @@ const SubCategoryDialog = ({ category, children }: { category: Category; childre
               <TableBody className="overflow-y-auto max-h-4">
                 {category.subCategories.map((s, index) => {
                   return (
-                    <SubCategoryDialogSingleRow s={s} categoryId={category.id} key={index} setIsOpen={setIsOpen} />
+                    <SubCategoryDialogSingleRow
+                      subCategory={s}
+                      categoryId={category.id}
+                      key={index}
+                      setIsOpen={setIsOpen}
+                    />
                   );
                 })}
               </TableBody>

@@ -2,13 +2,13 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { useUserStore } from "@/utils/zustand/userStore";
+import { ArrowDown, ArrowUp } from "lucide-react";
 
 const TransactionCard = ({ isIncome }: { isIncome: boolean }) => {
   const { currency, expenseAmount, incomeAmount } = useUserStore();
 
   const getFormattedCurrency = (amount: number) => {
-    if (currency != undefined)
-      return new Intl.NumberFormat("en-US", { style: "currency", currency: currency.toString() }).format(amount);
+    return new Intl.NumberFormat("en-US", { style: "currency", currency: currency.toString() }).format(amount);
   };
   return (
     <Card>
@@ -19,23 +19,7 @@ const TransactionCard = ({ isIncome }: { isIncome: boolean }) => {
             <div className="text-3xl font-semibold mr-3">
               {getFormattedCurrency(isIncome ? incomeAmount : expenseAmount)}
             </div>
-            {isIncome ? (
-              <svg className="h-8 w-8 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M10 3a1 1 0 01.707.293l5 5a1 1 0 01-1.414 1.414L11 6.414V15a1 1 0 11-2 0V6.414l-3.293 3.293a1 1 0 01-1.414-1.414l5-5A1 1 0 0110 3z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            ) : (
-              <svg className="h-8 w-8 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M10 17a1 1 0 01-.707-.293l-5-5a1 1 0 011.414-1.414L9 13.586V5a1 1 0 112 0v8.586l3.293-3.293a1 1 0 111.414 1.414l-5 5A1 1 0 0110 17z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            )}
+            {isIncome ? <ArrowUp className="text-teal-500" /> : <ArrowDown className="text-red-500" />}
           </div>
           <div className="text-sm text-gray-600 dark:text-gray-300 mt-2">Secondary text</div>
         </div>

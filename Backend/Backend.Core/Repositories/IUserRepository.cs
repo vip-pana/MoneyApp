@@ -23,7 +23,8 @@ namespace Backend.Core.Repositories
         Task<User> DeleteCategoryAsync(User user, string accountId, Category categoryToRemove);
         Task<User> EditCategoryNameOnUserAccountAsync(User user, string accountId, Category category);
         Task<User> UpdateCategoryOnAccount(User user, Category category, string accountId);
-        User EditSubCategoryReferencesOnAccountTransactions(Category category, User user, string accountId, string subCategoryId);
+        User EditSubCategoryReferencesOnAccountTransactions(Category category, User user, string accountId, string subCategoryName, string subCategoryId);
+        User DeleteSubCategoryReferencesOnAccountTransactions(Category category, User user, string accountId, string subCategoryId);
 
         #endregion
     }

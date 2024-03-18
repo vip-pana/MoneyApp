@@ -46,7 +46,7 @@ const CategoriesDataTable = () => {
   });
 
   return (
-    <div>
+    <>
       <div className="flex justify-between items-end my-4 gap-4">
         <div className="flex items-center ">
           <Input
@@ -109,7 +109,7 @@ const CategoriesDataTable = () => {
         </Button>
       </div>
       <div className="flex-1 text-sm text-muted-foreground">Total rows: {table.getFilteredRowModel().rows.length}.</div>
-    </div>
+    </>
   );
 };
 

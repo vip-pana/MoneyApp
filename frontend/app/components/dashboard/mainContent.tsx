@@ -13,7 +13,14 @@ import { Button } from "@/components/ui/button";
 import { AlignJustify } from "lucide-react";
 import { UserByEmailQuery } from "@/gql/generated/graphql";
 import { useAccessTokenStore } from "@/utils/zustand/accessTokenStore";
-import { NOT_AUTHORIZED_ERROR, getGraphQLErrorCode, manageApiCallErrors } from "@/utils/errorUtils";
+import {
+  NOT_AUTHORIZED_ERROR,
+  getGraphQLErrorCode,
+  getGraphQLErrorMessage,
+  getTokenExpiredErrorMessage,
+  manageApiCallErrors,
+} from "@/utils/errorUtils";
+import { toast } from "sonner";
 
 const userByEmailQueryDocument = graphql(`
   query userByEmail($email: String!) {
@@ -149,11 +156,12 @@ const MainContent = ({
 
   useEffect(() => {
     if (isError) {
-      const errorCode = getGraphQLErrorCode(error);
+      const errorMsg = getTokenExpiredErrorMessage(error);
       const tokenExist = sessionStorage.getItem("refreshToken") !== null;
-      if (errorCode === NOT_AUTHORIZED_ERROR && tokenExist) {
+      if (errorMsg && tokenExist) {
         requireNewToken();
       } else {
+        toast.error("Session Expired", { description: "Please login." });
         redirect("/login");
       }
     } else if (data?.userByEmail) {
@@ -165,8 +173,13 @@ const MainContent = ({
     <>
       <Sidebar collapse={collapse} />
       <main className="relative flex w-full h-full border-gray border flex-col shadow-2xl rounded-xl">
-        <Button className="absolute top-6 left-6" variant="outline" onClick={() => setCollapse(!collapse)}>
-          <AlignJustify />
+        <Button
+          className="absolute top-6 left-6"
+          size={"icon"}
+          variant="outline"
+          onClick={() => setCollapse(!collapse)}
+        >
+          <AlignJustify className="h-6 w-6" />
         </Button>
         <Navbar />
         <div className="ml-20 mt-5 mr-12">{children}</div>

@@ -45,6 +45,9 @@ import {
   FilterTransactionListInput,
   EditSubCategoryMutation,
   EditSubCategoryDocument,
+  DeleteSubCategoryInput,
+  DeleteSubCategoryMutation,
+  DeleteSubCategoryDocument,
 } from "@/gql/generated/graphql";
 import { GqlHeaders } from "./typeDefinition";
 
@@ -200,6 +203,22 @@ export const UseEditCategoryMutation = async (input: EditCategoryInput & GqlHead
       input: {
         categoryId: input.categoryId,
         name: input.name,
+        selectedAccountId: input.selectedAccountId,
+        userEmail: input.userEmail,
+      },
+    },
+    input.headers
+  );
+};
+
+export const UseDeleteSubCategoryMutation = async (input: DeleteSubCategoryInput & GqlHeaders) => {
+  return await request<DeleteSubCategoryMutation>(
+    queryUrl,
+    DeleteSubCategoryDocument,
+    {
+      input: {
+        categoryId: input.categoryId,
+        subCategoryId: input.subCategoryId,
         selectedAccountId: input.selectedAccountId,
         userEmail: input.userEmail,
       },

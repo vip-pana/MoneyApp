@@ -95,10 +95,35 @@ namespace Backend.API.Mutations
                 if (subCategory.Id == input.SubCategoryId)
                 {
                     subCategory.Name = input.SubCategoryName;
+                    break;
                 }
             }
 
-            user = userRepository.EditSubCategoryReferencesOnAccountTransactions(category: category, user: user, accountId: input.SelectedAccountId, subCategoryId: input.SubCategoryId);
+            user = userRepository.EditSubCategoryReferencesOnAccountTransactions(category: category, user: user, accountId: input.SelectedAccountId, subCategoryName: input.SubCategoryName, subCategoryId: input.SubCategoryId);
+
+            await userRepository.UpdateUserAsync(user);
+
+            return user;
+        }
+
+        [Authorize]
+        [Error<GenericException>]
+        public async Task<User> DeleteSubCategory([UseFluentValidation, UseValidator<DeleteSubCategoryInputValidator>] DeleteSubCategoryInput input)
+        {
+            var user = await userRepository.GetByEmailAsync(email: input.UserEmail) ?? throw new UserNotExistException(input.UserEmail);
+
+            var category = UserRepository.GetAccountById(accounts: user.Accounts, input.SelectedAccountId).Categories.Find(cat => cat.Id == input.CategoryId) ?? throw new GenericException("Categoria non trovata dentro l'account");
+
+            foreach (var subCategory in category.SubCategories)
+            {
+                if (subCategory.Id == input.SubCategoryId)
+                {
+                    category.SubCategories.Remove(subCategory);
+                    break;
+                }
+            }
+
+            user = userRepository.DeleteSubCategoryReferencesOnAccountTransactions(category: category, user: user, accountId: input.SelectedAccountId, subCategoryId: input.SubCategoryId);
 
             await userRepository.UpdateUserAsync(user);
 

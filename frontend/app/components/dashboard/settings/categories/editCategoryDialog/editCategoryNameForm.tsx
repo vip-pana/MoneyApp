@@ -31,6 +31,11 @@ const editCategoryMutation = graphql(`
             description
             transactionType
             currency
+            subCategory {
+              id
+              categoryType
+              name
+            }
             category {
               id
               name

@@ -45,6 +45,7 @@ const LoginForm = ({ form }: { form: UseFormReturn<LoginInput, any> }) => {
       setHeaders(data.login.tokenResponse.accessToken);
       sessionStorage.setItem("refreshToken", data.login.tokenResponse.refreshToken);
       sessionStorage.setItem(sessionStorageEmail, getValues("email"));
+      setEmailExist(false); // for show checkEmail on logout
       router.push("/dashboard");
     }
   };

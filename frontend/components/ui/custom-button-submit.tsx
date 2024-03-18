@@ -12,7 +12,7 @@ const CustomButtonSubmit = ({
 }) => {
   return (
     <>
-      <Button type="submit" className="w-full" variant={isDistructive ? "destructive" : "default"}>
+      <Button type="submit" disabled={isLoading} className="w-full" variant={isDistructive ? "destructive" : "default"}>
         {isLoading ? (
           <>
             <Loader className="mr-2 h-4 w-4 animate-spin" />

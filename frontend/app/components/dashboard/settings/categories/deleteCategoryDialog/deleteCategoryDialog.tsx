@@ -30,6 +30,11 @@ const DeleteCategoryDocument = graphql(`
             description
             transactionType
             currency
+            subCategory {
+              id
+              categoryType
+              name
+            }
             category {
               id
               name

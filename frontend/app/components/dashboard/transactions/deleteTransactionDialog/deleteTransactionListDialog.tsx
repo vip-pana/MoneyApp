@@ -43,6 +43,11 @@ const deleteTransactionListMutation = graphql(`
           dateTime
           description
           transactionType
+          subCategory {
+            id
+            categoryType
+            name
+          }
           category {
             id
             name
