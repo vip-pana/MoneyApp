@@ -4,8 +4,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { graphql } from "@/gql/generated";
 import { Category, OperationType } from "@/gql/generated/graphql";
-import { useEditCategoryMutation } from "@/utils/definitions/useQueryDefinition";
+import { UseEditCategoryMutation } from "@/utils/definitions/useQueryDefinition";
 import { manageApiCallErrors } from "@/utils/errorUtils";
+import { useAccessTokenStore } from "@/utils/zustand/accessTokenStore";
 import { useCategoryTableStore } from "@/utils/zustand/categoryTableStore";
 import { useUserStore } from "@/utils/zustand/userStore";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,6 +20,48 @@ type EditCategoryNameFormValueDefinition = {
   name: string;
 };
 
+const editCategoryMutation = graphql(`
+  mutation editCategory($input: EditCategoryInput!) {
+    editCategory(input: $input) {
+      user {
+        accounts {
+          transactions {
+            id
+            amount
+            description
+            transactionType
+            currency
+            category {
+              id
+              name
+              categoryType
+              subCategories {
+                id
+                name
+                categoryType
+              }
+            }
+            dateTime
+          }
+          categories {
+            id
+            name
+            categoryType
+            subCategories {
+              id
+              name
+              categoryType
+            }
+          }
+        }
+      }
+      errors {
+        ...errorFields
+      }
+    }
+  }
+`);
+
 const editCategoryNameDialogValidation = z.object({
   name: z.string().min(1, "Please insert a name"),
 });
@@ -30,54 +73,13 @@ const EditCategoryNameForm = ({
   selectedItem: Category;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
 }) => {
-  const { email, selectedAccountId, setIncomeCategories, setExpenseCategories, setTransactions } = useUserStore();
+  const { userEmail, selectedAccountId, setIncomeCategories, setExpenseCategories, setTransactions } = useUserStore();
   const { setCategoriesFiltered } = useCategoryTableStore();
+  const { headers } = useAccessTokenStore();
 
   const form = useForm<EditCategoryNameFormValueDefinition>({
     resolver: zodResolver(editCategoryNameDialogValidation),
   });
-
-  const editCategoryMutation = graphql(`
-    mutation editCategory($input: EditCategoryInput!) {
-      editCategory(input: $input) {
-        user {
-          accounts {
-            transactions {
-              id
-              amount
-              description
-              transactionType
-              currency
-              category {
-                id
-                name
-                categoryType
-                subCategories {
-                  id
-                  name
-                  categoryType
-                }
-              }
-              dateTime
-            }
-            categories {
-              id
-              name
-              categoryType
-              subCategories {
-                id
-                name
-                categoryType
-              }
-            }
-          }
-        }
-        errors {
-          ...errorFields
-        }
-      }
-    }
-  `);
 
   useEffect(() => {
     form.setValue("name", selectedItem.name);
@@ -116,11 +118,12 @@ const EditCategoryNameForm = ({
   const { refetch, isLoading } = useQuery({
     queryKey: ["editCategory"],
     queryFn: () =>
-      useEditCategoryMutation({
-        accountId: selectedAccountId,
-        email: email,
+      UseEditCategoryMutation({
+        selectedAccountId,
+        userEmail,
         name: form.getValues("name"),
         categoryId: selectedItem.id,
+        headers,
       }),
     enabled: false,
   });

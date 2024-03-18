@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Pencil, Rows3, X } from "lucide-react";
 import EditCategoryDialog from "../editCategoryDialog/editCategoryDialog";
 import DeleteCategoryDialog from "../deleteCategoryDialog/deleteCategoryDialog";
-import SubCategoryDIalog from "../subCategoryDialog/subCategoryDIalog";
+import SubCategoryDialog from "../subCategoryDialog/subCategoryDialog";
 
 export const CategoriesColumns: ColumnDef<Category>[] = [
   {
@@ -41,11 +41,11 @@ export const CategoriesColumns: ColumnDef<Category>[] = [
                 <X className="h-4 w-4 text-red-600" />
               </Button>
             </DeleteCategoryDialog>
-            <SubCategoryDIalog selectedItem={row.original}>
+            <SubCategoryDialog category={row.original}>
               <Button variant={"ghost"} size={"icon"}>
                 <Rows3 className="h-4 w-4" />
               </Button>
-            </SubCategoryDIalog>
+            </SubCategoryDialog>
           </>
         )}
       </div>

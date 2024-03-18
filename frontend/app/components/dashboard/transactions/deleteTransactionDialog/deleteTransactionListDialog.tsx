@@ -11,14 +11,56 @@ import {
 import { Button } from "@/components/ui/button";
 import { graphql } from "@/gql/generated";
 import { OperationType, Transaction } from "@/gql/generated/graphql";
-import { useDeleteTransactionListMutation } from "@/utils/definitions/useQueryDefinition";
+import { UseDeleteTransactionListMutation } from "@/utils/definitions/useQueryDefinition";
 import { manageApiCallErrors } from "@/utils/errorUtils";
+import { useAccessTokenStore } from "@/utils/zustand/accessTokenStore";
 import { useTransactionTableStore } from "@/utils/zustand/transactionTableStore";
 import { useUserStore } from "@/utils/zustand/userStore";
 import { useQuery } from "@tanstack/react-query";
 import { Loader } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { toast } from "sonner";
+
+const deleteTransactionListMutation = graphql(`
+  mutation deleteTransactionList($input: DeleteTransactionListInput!) {
+    deleteTransactionList(input: $input) {
+      account {
+        currency
+        incomeAmount
+        expenseAmount
+        categories {
+          id
+          name
+          categoryType
+          subCategories {
+            ...subcategoryFields
+          }
+        }
+        transactions {
+          id
+          amount
+          currency
+          dateTime
+          description
+          transactionType
+          category {
+            id
+            name
+            categoryType
+            subCategories {
+              id
+              name
+              categoryType
+            }
+          }
+        }
+      }
+      errors {
+        ...errorFields
+      }
+    }
+  }
+`);
 
 const DeleteTransactionListDialog = ({
   selectedTransactionList,
@@ -27,55 +69,25 @@ const DeleteTransactionListDialog = ({
   selectedTransactionList: Transaction[];
   children: React.ReactNode;
 }) => {
-  const { email, selectedAccountId, setTransactions, setExpenseAmount, setIncomeAmount } = useUserStore();
+  const { userEmail, selectedAccountId, setTransactions, setExpenseAmount, setIncomeAmount } = useUserStore();
   const { setTransactionsFiltered, setSelectedTransactionList } = useTransactionTableStore();
-  const [transactionIds, setTransactionIds] = useState<string[]>([]);
-  const [isOpen, setIsOpen] = useState(false);
+  const { headers } = useAccessTokenStore();
+  const [transactionIds, setTransactionIds] = React.useState<string[]>([]);
+  const [isOpen, setIsOpen] = React.useState(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (selectedTransactionList !== undefined)
       setTransactionIds(selectedTransactionList.map((transaction) => transaction.id));
   }, [selectedTransactionList]);
 
-  const deleteTransactionListMutation = graphql(`
-    mutation deleteTransactionList($input: DeleteTransactionListInput!) {
-      deleteTransactionList(input: $input) {
-        account {
-          incomeAmount
-          expenseAmount
-          transactions {
-            id
-            amount
-            currency
-            dateTime
-            description
-            transactionType
-            category {
-              id
-              name
-              categoryType
-              subCategories {
-                id
-                name
-                categoryType
-              }
-            }
-          }
-        }
-        errors {
-          ...errorFields
-        }
-      }
-    }
-  `);
-
   const { refetch, isLoading } = useQuery({
     queryKey: ["deleteTransaction"],
     queryFn: () =>
-      useDeleteTransactionListMutation({
-        email: email,
-        accountId: selectedAccountId,
+      UseDeleteTransactionListMutation({
         transactionIds: transactionIds,
+        userEmail,
+        selectedAccountId,
+        headers,
       }),
     enabled: false,
   });
@@ -84,11 +96,9 @@ const DeleteTransactionListDialog = ({
     const { data, isError, error } = await refetch();
     if (isError || data?.deleteTransactionList.errors) {
       manageApiCallErrors(error, data?.deleteTransactionList.errors);
-    }
-    if (data && data.deleteTransactionList.account) {
+    } else if (data && data.deleteTransactionList.account) {
       toast.success("Transactions deleted!");
       setSelectedTransactionList([]);
-
       setTransactions(data.deleteTransactionList.account.transactions);
       setTransactionsFiltered(data.deleteTransactionList.account.transactions);
       setIncomeAmount(data.deleteTransactionList.account.incomeAmount);

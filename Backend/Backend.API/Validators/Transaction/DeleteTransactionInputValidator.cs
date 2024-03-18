@@ -8,7 +8,7 @@ namespace Backend.API.Validators.Transaction
         public DeleteTransactionInputValidator()
         {
             RuleFor(x => x.TransactionId).NotEmpty().WithMessage("Transaction id can't be null").NotNull();
-            RuleFor(x => x.AccountId).NotEmpty();
+            RuleFor(x => x.SelectedAccountId).NotEmpty();
             RuleFor(x => x.UserEmail).NotEmpty();
         }
     }

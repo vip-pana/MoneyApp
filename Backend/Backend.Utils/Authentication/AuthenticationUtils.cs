@@ -23,22 +23,49 @@ namespace Backend.Utils.Authentication
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
+        public static string GenerateRefreshToken(JwtParams jwtParams)
+        {
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtParams.JwtRefreshKey));
+
+            var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+               jwtParams.JwtIssuer,
+               jwtParams.JwtAudience,
+               claims: jwtParams.Claims,
+               expires: DateTime.Now.AddMonths(1),
+               signingCredentials: signingCredentials);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public static JwtSecurityToken ReadToken(string token)
+        {
+            return new JwtSecurityTokenHandler().ReadJwtToken(token);
+        }
+
+        public static IEnumerable<Claim> GenerateClaims(string id, int version)
+        {
+            return [new(ClaimTypes.NameIdentifier, id), new(ClaimTypes.Version, version.ToString())];
+        }
+
         public static string HashPassword(string password)
-        {
-            return BCrypt.Net.BCrypt.HashPassword(password);
+            {
+                return BCrypt.Net.BCrypt.HashPassword(password);
+            }
+
+            public static bool VerifyPassword(string inputPassword, string hashedPassword)
+            {
+                return BCrypt.Net.BCrypt.Verify(inputPassword, hashedPassword);
+            }
         }
 
-        public static bool VerifyPassword(string inputPassword, string hashedPassword)
+        public class JwtParams
         {
-           return BCrypt.Net.BCrypt.Verify(inputPassword, hashedPassword);
+            public required string JwtKey { get; set; }
+            public required string JwtRefreshKey { get; set; }
+            public required string JwtIssuer { get; set; }
+            public required string JwtAudience { get; set; }
+            public IEnumerable<Claim>? Claims { get; set; }
         }
     }
-
-    public class JwtParams
-    {
-        public required string JwtKey { get; set; }
-        public required string JwtIssuer { get; set; }
-        public required string JwtAudience { get; set; }
-        public IEnumerable<Claim>? Claims { get; set; }
-    }
-}

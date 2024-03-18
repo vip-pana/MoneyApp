@@ -1,12 +1,7 @@
 // for convention all methods created in this file will have at the end of the name the phrase "Validation"
 // here is the file where all validation will be created, all validation will pass through zod
 
-import { OperationType } from "@/gql/generated/graphql";
 import { z } from "zod";
-
-export const formCheckEmailValidation = z.object({
-  email: z.string().min(1, "Email is empty, please insert email").email("Email format is not valid"),
-});
 
 export const formLoginValidation = z.object({
   email: z.string().min(1, "Email is empty, please insert email").email("Email format is not valid"),
@@ -26,7 +21,6 @@ export const formSignupValidation = z
       .regex(new RegExp(".*[a-z].*"), "One lowercase character")
       .regex(new RegExp(".*\\d.*"), "One number"),
     confirmPassword: z.string(),
-    currency: z.string().min(1, "Select a currency"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Password must be exactly the same.",
@@ -45,8 +39,6 @@ export const formAddOrUpdateTransactionDialogValidation = z.object({
   ),
   currency: z.string().min(1, "Please select one currency"),
   description: z.string().min(1, "Please insert a description"),
-  date: z.coerce.date(),
-  operationType: z.enum([OperationType.Expense, OperationType.Income]),
 });
 
 export const formTransactionsSearchValidation = z.object({

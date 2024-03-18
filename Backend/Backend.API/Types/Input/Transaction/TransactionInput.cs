@@ -12,6 +12,7 @@ namespace Backend.API.Types.Input.Transaction
         public required Currency Currency { get; set; }
         public required CategoryInput Category { get; set; }
         public required DateTime DateTime { get; set; }
+        public SubCategory? SelectedSubCategory { get; set; }
     }
 
     public class CategoryInput : BaseEntity

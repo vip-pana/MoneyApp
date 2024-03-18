@@ -1,21 +1,9 @@
-import { Currency, OperationType } from "@/gql/generated/graphql";
+import { Currency } from "@/gql/generated/graphql";
+import { Dropdown } from "./definitions/typeDefinition";
 
 export const getEnumValue = (value: string, enumType: any) => enumType[value as keyof typeof enumType];
 
-export const formatEnumValueByString = (enumToFormat: string): string => {
-  let value = enumToFormat.toLowerCase();
-  value = value.charAt(0).toUpperCase() + value.slice(1);
-  return value;
-};
-
-export type CurrencyDropdown = {
-  value: Currency;
-  label: string;
-};
-
-export const currencyOptions: CurrencyDropdown[] = Object.keys(Currency).map((key) => ({
+export const currencyOptions: Dropdown[] = Object.keys(Currency).map((key) => ({
   value: Currency[key as keyof typeof Currency],
   label: Currency[key as keyof typeof Currency].toUpperCase(),
 }));
-
-export const operationTypeOptions = Object.keys(OperationType);

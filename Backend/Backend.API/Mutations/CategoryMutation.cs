@@ -12,59 +12,99 @@ namespace Backend.API.Mutations
     [ExtendObjectType("Mutation")]
     public class CategoryMutation([Service] IUserRepository userRepository, [Service] ICategoryRepository categoryRepository)
     {
-        [AllowAnonymous]
-        [Error<GenericException>]
-        public async Task AddSubCategory([UseFluentValidation, UseValidator<AddSubCategoryInputValidator>] AddSubCategoryInput input) 
-        {
-            var registeredUser = await userRepository.GetByEmailAsync(email: input.UserEmail) ?? throw new UserNotExistException(input.UserEmail);
-
-            throw new NotImplementedException();
-        }
-
-        [AllowAnonymous]
+        #region Category
+        [Authorize]
         [Error<GenericException>]
         public async Task<List<Category>> AddCategory([UseFluentValidation, UseValidator<AddCategoryInputValidator>] AddCategoryInput input)
         {
             var user = await userRepository.GetByEmailAsync(email: input.UserEmail) ?? throw new UserNotExistException(input.UserEmail);
 
-            var category = categoryRepository.CreateCategory(categoryName: input.Name, operationType: input.OperationType, subcategoryNames: input.SubcategorysNames);
+            var category = categoryRepository.CreateCategory(categoryName: input.Name, operationType: input.OperationType, subcategoryNames: input.SubcategoriesNames);
 
-            user = await userRepository.AddCategoryOnUserAccountAsync(category: category, user: user, accountId: input.AccountId);
+            user = await userRepository.AddCategoryOnUserAccountAsync(category: category, user: user, accountId: input.SelectedAccountId);
 
-            var account = user.Accounts.Find(account => account.Id == input.AccountId) ?? throw new GenericException("Account non trovato");
+            var account = user.Accounts.Find(account => account.Id == input.SelectedAccountId) ?? throw new GenericException("Account non trovato");
 
             return account.Categories;
         }
 
-        [AllowAnonymous]
+        [Authorize]
         [Error<GenericException>]
         public async Task<User> EditCategory([UseFluentValidation, UseValidator<EditCategoryInputValidator>] EditCategoryInput input)
         {
             var user = await userRepository.GetByEmailAsync(email: input.UserEmail) ?? throw new UserNotExistException(input.UserEmail);
 
-            var category = UserRepository.GetAccountById(accounts: user.Accounts, input.AccountId).Categories.Find(cat => cat.Id == input.CategoryId) ?? throw new GenericException("Categoria non trovata dentro l'account");
+            var category = UserRepository.GetAccountById(accounts: user.Accounts, input.SelectedAccountId).Categories.Find(cat => cat.Id == input.CategoryId) ?? throw new GenericException("Categoria non trovata dentro l'account");
             category.Name = input.Name;
 
-            user = userRepository.EditCategoryReferencesOnAccountTransactions(category: category, user: user, accountId: input.AccountId);
+            user = userRepository.EditCategoryReferencesOnAccountTransactions(category: category, user: user, accountId: input.SelectedAccountId);
 
-            user = await userRepository.EditCategoryNameOnUserAccountAsync(user: user, accountId: input.AccountId, category: category);
+            user = await userRepository.EditCategoryNameOnUserAccountAsync(user: user, accountId: input.SelectedAccountId, category: category);
 
             return user;
         }
 
-        [AllowAnonymous]
+        [Authorize]
         [Error<GenericException>]
         public async Task<User> DeleteCategory([UseFluentValidation, UseValidator<DeleteCategoryInputValidator>] DeleteCategoryInput input)
         {
             var user = await userRepository.GetByEmailAsync(email: input.UserEmail) ?? throw new UserNotExistException(input.UserEmail);
 
-            var categoryToRemove = UserRepository.GetAccountById(accounts: user.Accounts, input.AccountId).Categories.Find(cat => cat.Id == input.CategoryId) ?? throw new GenericException("Categoria non trovata dentro l'account");
+            var categoryToRemove = UserRepository.GetAccountById(accounts: user.Accounts, input.SelectedAccountId).Categories.Find(cat => cat.Id == input.CategoryId) ?? throw new GenericException("Categoria non trovata dentro l'account");
 
-            user = userRepository.DeleteCategoryReferencesOnAccountTransactions(category: categoryToRemove, user: user, accountId: input.AccountId);
+            user = userRepository.DeleteCategoryReferencesOnAccountTransactions(category: categoryToRemove, user: user, accountId: input.SelectedAccountId);
 
-            user = await userRepository.DeleteCategoryAsync(user: user, categoryToRemove: categoryToRemove, accountId: input.AccountId);
+            user = await userRepository.DeleteCategoryAsync(user: user, categoryToRemove: categoryToRemove, accountId: input.SelectedAccountId);
 
             return user;
         }
+        #endregion
+
+        #region SubCategory
+        [Authorize]
+        [Error<GenericException>]
+        public async Task<List<Category>> AddSubCategory([UseFluentValidation, UseValidator<AddSubCategoryInputValidator>] AddSubCategoryInput input)
+        {
+            var user = await userRepository.GetByEmailAsync(email: input.UserEmail) ?? throw new UserNotExistException(input.UserEmail);
+
+            var category = UserRepository.GetAccountById(accounts: user.Accounts, input.SelectedAccountId).Categories.Find(cat => cat.Id == input.CategoryId) ?? throw new GenericException("Categoria non trovata dentro l'account");
+
+            var subCategory = new SubCategory()
+            {
+                Name = input.SubCategoryName,
+                CategoryType = category.CategoryType
+            };
+
+            category.SubCategories.Add(subCategory);
+
+            user = await userRepository.UpdateCategoryOnAccount(user, category, input.SelectedAccountId);
+
+            return UserRepository.GetAccountById(accounts: user.Accounts, input.SelectedAccountId).Categories;
+        }
+
+        [Authorize]
+        [Error<GenericException>]
+        public async Task<User> EditSubCategory([UseFluentValidation, UseValidator<EditSubCategoryInputValidator>] EditSubCategoryInput input)
+        {
+            var user = await userRepository.GetByEmailAsync(email: input.UserEmail) ?? throw new UserNotExistException(input.UserEmail);
+
+            var category = UserRepository.GetAccountById(accounts: user.Accounts, input.SelectedAccountId).Categories.Find(cat => cat.Id == input.CategoryId) ?? throw new GenericException("Categoria non trovata dentro l'account");
+
+            foreach (var subCategory in category.SubCategories)
+            {
+                if (subCategory.Id == input.SubCategoryId)
+                {
+                    subCategory.Name = input.SubCategoryName;
+                }
+            }
+
+            user = userRepository.EditSubCategoryReferencesOnAccountTransactions(category: category, user: user, accountId: input.SelectedAccountId, subCategoryId: input.SubCategoryId);
+
+            await userRepository.UpdateUserAsync(user);
+
+            return user;
+        }
+        #endregion
+
     }
 }

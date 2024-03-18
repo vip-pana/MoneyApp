@@ -6,12 +6,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { formLoginValidation } from "@/utils/definitions/typeValidation";
 import { useUserStore } from "@/utils/zustand/userStore";
 import LoginForm from "./loginForm";
-import { LoginValueDefinition } from "../../../utils/definitions/typeDefinition";
+import { LoginInput } from "@/gql/generated/graphql";
 
 const FormLoginSections = () => {
   const { emailExist } = useUserStore();
 
-  const form = useForm<LoginValueDefinition>({
+  const form = useForm<LoginInput>({
     resolver: zodResolver(formLoginValidation),
   });
 

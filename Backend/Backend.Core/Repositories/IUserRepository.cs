@@ -7,7 +7,7 @@ namespace Backend.Core.Repositories
     {
         public Task<User> Signup(User user);
         public Task<User> GetByEmailAsync(string email);
-        
+        public Task UpdateUserAsync(User user);
         #region TRANSACTIONS
         public Task<User> AddTransactionOnUserAccountAsync(User user, Transaction transaction, string accountId);
         public Task<User> DeleteTransactionOnUserAccountAsync(string transactionId, User user, string accountId);
@@ -22,6 +22,8 @@ namespace Backend.Core.Repositories
         User EditCategoryReferencesOnAccountTransactions(Category category, User user, string accountId);
         Task<User> DeleteCategoryAsync(User user, string accountId, Category categoryToRemove);
         Task<User> EditCategoryNameOnUserAccountAsync(User user, string accountId, Category category);
+        Task<User> UpdateCategoryOnAccount(User user, Category category, string accountId);
+        User EditSubCategoryReferencesOnAccountTransactions(Category category, User user, string accountId, string subCategoryId);
 
         #endregion
     }

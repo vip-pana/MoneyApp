@@ -6,7 +6,7 @@ namespace Backend.API.Types.Input.Category
     {
         public required string Name { get; init; }
         public required OperationType OperationType { get; init; }
-        public required List<string> SubcategorysNames { get; init; }
+        public required List<string> SubcategoriesNames { get; init; }
 
     }
 }

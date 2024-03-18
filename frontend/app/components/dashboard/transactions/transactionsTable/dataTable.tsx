@@ -23,18 +23,18 @@ import { ChevronDown, SlidersHorizontal, Trash2 } from "lucide-react";
 import { useUserStore } from "@/utils/zustand/userStore";
 import { useTransactionTableStore } from "@/utils/zustand/transactionTableStore";
 import { TransactionsColumns } from "./columns";
-import DeleteTransactionListDialog from "@/app/components/base/deleteTransactionDialogs/deleteTransactionListDialog";
+import DeleteTransactionListDialog from "@/app/components/dashboard/transactions/deleteTransactionDialog/deleteTransactionListDialog";
 
 const TransactionDataTable = () => {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
-
   const { transactions } = useUserStore();
   const { transactionsFiltered, setTransactionsFiltered } = useTransactionTableStore();
 
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+
   React.useEffect(() => {
     setTransactionsFiltered(transactions);
-  }, []);
+  }, [transactions]);
 
   const [pagination, setPagination] = React.useState({
     pageIndex: 0, //initial page index
@@ -142,7 +142,7 @@ const TransactionDataTable = () => {
           Previous
         </Button>
         <Button variant={"outline"} size={"sm"}>
-          {table.getState().pagination.pageIndex}
+          {table.getState().pagination.pageIndex + 1}
         </Button>
         <Button variant={"outline"} size={"sm"} onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
           Next

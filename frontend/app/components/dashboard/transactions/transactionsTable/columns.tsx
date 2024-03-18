@@ -1,5 +1,5 @@
 "use client";
-import AlertDeleteTransactionDialog from "@/app/components/base/deleteTransactionDialogs/deleteTransactionDialog";
+import AlertDeleteTransactionDialog from "@/app/components/dashboard/transactions/deleteTransactionDialog/deleteTransactionDialog";
 import TransactionDialog from "@/app/components/base/transactionDialog/transactionDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

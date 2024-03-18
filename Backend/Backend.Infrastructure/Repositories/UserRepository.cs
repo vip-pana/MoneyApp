@@ -148,6 +148,41 @@ namespace Backend.Infrastructure.Repositories
 
             return user;
         }
+
+        public async Task<User> UpdateCategoryOnAccount(User user, Category category, string accountId)
+        {
+            foreach (var cat in GetAccountById(accounts: user.Accounts, accountId).Categories)
+            {
+                if (cat.Id == category.Id)
+                {
+                    GetAccountById(accounts: user.Accounts, accountId).Categories.Remove(cat);
+                    break;
+                }
+            }
+            GetAccountById(accounts: user.Accounts, accountId).Categories.Add(category);
+
+            await UpdateUserAsync(user);
+
+            return user;
+        }
+
+        public User EditSubCategoryReferencesOnAccountTransactions(Category category, User user, string accountId, string subCategoryName)
+        {
+            var account = user.Accounts.Find(account => account.Id == accountId) ?? throw new GenericException("Account non trovato");
+
+            foreach (var transaction in account.Transactions.Where(t => t.Category.Id.Equals(category.Id)))
+            {
+                transaction.Category = category;
+                if (transaction.SubCategory != null)
+                {
+                    transaction.SubCategory.Name = subCategoryName;
+                }
+            }
+
+            user = UpdateUserAccount(user, account);
+
+            return user;
+        }
         #endregion
 
         #region PLAIN METHODS

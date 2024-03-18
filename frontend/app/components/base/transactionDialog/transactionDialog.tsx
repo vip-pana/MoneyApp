@@ -11,9 +11,7 @@ const TransactionDialog = ({ selectedItem, children }: { selectedItem?: Transact
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>
-            {selectedItem == null || selectedItem == undefined ? "Add transaction" : "Edit transaction"}
-          </DialogTitle>
+          <DialogTitle>{selectedItem == undefined ? "Add transaction" : "Edit transaction"}</DialogTitle>
         </DialogHeader>
         <TransactionModalForm setIsOpen={setIsOpen} selectedItem={selectedItem} />
       </DialogContent>

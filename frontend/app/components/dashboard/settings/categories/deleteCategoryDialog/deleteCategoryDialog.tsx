@@ -10,16 +10,61 @@ import {
 } from "@/components/ui/alert-dialog";
 import { graphql } from "@/gql/generated";
 import { Category, OperationType } from "@/gql/generated/graphql";
-import { useDeleteCategoryMutation } from "@/utils/definitions/useQueryDefinition";
+import { UseDeleteCategoryMutation } from "@/utils/definitions/useQueryDefinition";
 import { manageApiCallErrors } from "@/utils/errorUtils";
+import { useAccessTokenStore } from "@/utils/zustand/accessTokenStore";
 import { useCategoryTableStore } from "@/utils/zustand/categoryTableStore";
 import { useUserStore } from "@/utils/zustand/userStore";
 import { AlertDialogTrigger } from "@radix-ui/react-alert-dialog";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+const DeleteCategoryDocument = graphql(`
+  mutation DeleteCategory($input: DeleteCategoryInput!) {
+    deleteCategory(input: $input) {
+      user {
+        accounts {
+          transactions {
+            id
+            amount
+            description
+            transactionType
+            currency
+            category {
+              id
+              name
+              categoryType
+              subCategories {
+                id
+                name
+                categoryType
+              }
+            }
+            dateTime
+          }
+          categories {
+            id
+            name
+            categoryType
+            subCategories {
+              id
+              name
+              categoryType
+            }
+          }
+        }
+      }
+      errors {
+        ...errorFields
+      }
+    }
+  }
+`);
+
 const DeleteCategoryDialog = ({ selectedItem, children }: { selectedItem: Category; children: React.ReactNode }) => {
-  const { email, selectedAccountId, setIncomeCategories, setExpenseCategories, setTransactions } = useUserStore();
+  const { userEmail, selectedAccountId, setIncomeCategories, setExpenseCategories, setTransactions } = useUserStore();
+  const { headers } = useAccessTokenStore();
+
   const { setCategoriesFiltered } = useCategoryTableStore();
 
   const onSubmit = async () => {
@@ -27,7 +72,7 @@ const DeleteCategoryDialog = ({ selectedItem, children }: { selectedItem: Catego
     if (isError || data?.deleteCategory.errors) {
       manageApiCallErrors(error, data?.deleteCategory.errors);
     } else if (data?.deleteCategory.user?.accounts) {
-      toast.success("Transaction deleted!");
+      toast.success("Category deleted!");
       setTransactions(data.deleteCategory.user?.accounts[0].transactions);
       const incomeCategories = data.deleteCategory.user.accounts[0].categories
         .filter((category) => category.categoryType === OperationType.Income)
@@ -54,55 +99,14 @@ const DeleteCategoryDialog = ({ selectedItem, children }: { selectedItem: Catego
   const { refetch, isLoading } = useQuery({
     queryKey: ["addCategory"],
     queryFn: () =>
-      useDeleteCategoryMutation({
-        accountId: selectedAccountId,
-        email: email,
+      UseDeleteCategoryMutation({
+        selectedAccountId,
+        userEmail,
         categoryId: selectedItem.id,
+        headers,
       }),
     enabled: false,
   });
-
-  const DeleteCategoryDocument = graphql(`
-    mutation DeleteCategory($input: DeleteCategoryInput!) {
-      deleteCategory(input: $input) {
-        user {
-          accounts {
-            transactions {
-              id
-              amount
-              description
-              transactionType
-              currency
-              category {
-                id
-                name
-                categoryType
-                subCategories {
-                  id
-                  name
-                  categoryType
-                }
-              }
-              dateTime
-            }
-            categories {
-              id
-              name
-              categoryType
-              subCategories {
-                id
-                name
-                categoryType
-              }
-            }
-          }
-        }
-        errors {
-          ...errorFields
-        }
-      }
-    }
-  `);
 
   return (
     <AlertDialog>
@@ -128,10 +132,7 @@ const DeleteCategoryDialog = ({ selectedItem, children }: { selectedItem: Catego
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={onSubmit}
-            className="bg-red-400" // disabled={isLoading}
-          >
+          <AlertDialogAction onClick={onSubmit} className="bg-red-400" disabled={isLoading}>
             Delete
           </AlertDialogAction>
         </AlertDialogFooter>

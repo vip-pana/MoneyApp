@@ -23,6 +23,7 @@ namespace Backend.API.Configuration
             services.AddTransient<AddSubCategoryInputValidator>();
             services.AddTransient<EditCategoryInputValidator>();
             services.AddTransient<DeleteCategoryInputValidator>();
+            services.AddTransient<EditSubCategoryInputValidator>();
         }
     }
 }

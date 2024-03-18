@@ -5,18 +5,11 @@
 import request from "graphql-request";
 import { queryUrl } from "../queryUrl";
 import {
-  AddCategoryDocument,
-  AddCategoryMutation,
   AddOrUpdateTransactionDocument,
   AddOrUpdateTransactionMutation,
-  DeleteCategoryDocument,
-  DeleteCategoryMutation,
   DeleteTransactionDocument,
   DeleteTransactionListDocument,
-  DeleteTransactionListMutation,
   DeleteTransactionMutation,
-  EditCategoryDocument,
-  EditCategoryMutation,
   LoginDocument,
   LoginMutation,
   SignupDocument,
@@ -24,201 +17,193 @@ import {
   User,
   UserByEmailDocument,
   UserByEmailQuery,
+  UserTransactionsFilteredDocument,
   UserExistByEmailDocument,
   UserExistByEmailQuery,
-  UserTransactionsFilteredDocument,
+  DeleteTransactionListMutation,
+  RefreshTokenMutation,
+  RefreshTokenDocument,
+  RefreshTokenInput,
+  EditCategoryMutation,
+  EditCategoryDocument,
+  DeleteCategoryMutation,
+  DeleteCategoryDocument,
+  AddCategoryMutation,
+  AddCategoryDocument,
+  AddSubCategoryMutation,
+  AddSubCategoryDocument,
+  LoginInput,
+  SignupInput,
+  DeleteTransactionInput,
+  DeleteTransactionListInput,
+  AddCategoryInput,
+  AddSubCategoryInput,
+  DeleteCategoryInput,
+  EditCategoryInput,
+  AddOrUpdateTransactionInput,
+  EditSubCategoryInput,
+  FilterTransactionListInput,
+  EditSubCategoryMutation,
+  EditSubCategoryDocument,
 } from "@/gql/generated/graphql";
-import {
-  AddCategoryFormValueDefinition,
-  DeleteCategoryQueryValueDefinition,
-  EditCategoryQueryValueDefinition,
-  LoginQueryValueDefinition,
-  SignupQueryValueDefinition,
-  TransactionListQueryValueDefinition as TransactionListMutationValueDefinition,
-  TransactionQueryValueDefinition as TransactionMutationValueDefinition,
-  TransactionsSearchQueryValueDefinition as TransactionsFilteredQueryValueDefinition,
-} from "./typeDefinition";
-
-// const headers = {
-//   Authorization: `Bearer`,
-// };
+import { GqlHeaders } from "./typeDefinition";
 
 // NO AUTH NEEDED
-export const useCheckEmailExistQuery = async (email: string) => {
-  const res = request<UserExistByEmailQuery>(queryUrl, UserExistByEmailDocument, {
-    email: email,
-  });
-  return res;
+export const UseCheckEmailExistQuery = async (email: string) => {
+  return request<UserExistByEmailQuery>(queryUrl, UserExistByEmailDocument, { email });
 };
 
-export const useLoginQuery = async ({ email, password }: LoginQueryValueDefinition) => {
-  const res = await request<LoginMutation>(queryUrl, LoginDocument, {
-    input: {
-      email: email,
-      password: password,
-    },
-  });
-  return res;
+export const UseLoginQuery = async (input: LoginInput) => {
+  return await request<LoginMutation>(queryUrl, LoginDocument, { input });
 };
 
-export const useSignupQuery = async (props: SignupQueryValueDefinition) => {
-  const res = await request<SignupMutation>(queryUrl, SignupDocument, {
-    input: {
-      name: props.name,
-      surname: props.surname,
-      email: props.email,
-      password: props.password,
-      selectedCurrency: props.currency,
-    },
-  });
-  return res;
+export const UseSignupQuery = async (input: SignupInput) => {
+  return await request<SignupMutation>(queryUrl, SignupDocument, { input });
+};
+
+export const UseRefreshTokenMutation = async (input: RefreshTokenInput) => {
+  return await request<RefreshTokenMutation>(queryUrl, RefreshTokenDocument, { input });
 };
 
 // AUTH REQUIRED
-export const useUserByEmailQuery = async (email: string) => {
-  const res = await request<UserByEmailQuery>(
-    queryUrl,
-    UserByEmailDocument,
-    {
-      email: email,
-    }
-    // headers
-  );
-  return res;
+export const UseUserByEmailQuery = async (email: string, headers: {}) => {
+  return await request<UserByEmailQuery>(queryUrl, UserByEmailDocument, { email }, headers);
 };
 
 //# Transactions
-export const useAddOrUpdateTransactionMutation = async (props: TransactionMutationValueDefinition) => {
-  if (!props.transaction) throw new Error("Missing transaction");
-
-  const res = await request<AddOrUpdateTransactionMutation>(
+export const UseAddOrUpdateTransactionMutation = async (input: AddOrUpdateTransactionInput & GqlHeaders) => {
+  return await request<AddOrUpdateTransactionMutation>(
     queryUrl,
     AddOrUpdateTransactionDocument,
-    {
-      input: {
-        userEmail: props.email,
-        accountId: props.accountId,
-        transaction: {
-          id: props.transactionId,
-          amount: parseFloat(props.transaction.amount.toString()),
-          currency: props.transaction.currency,
-          transactionType: props.transaction.operationType,
-          description: props.transaction.description,
-          dateTime: props.transaction.date,
-          category: {
-            id: props.transaction.category.id,
-            name: props.transaction.category.name,
-            categoryType: props.transaction.operationType,
-          },
-        },
-      },
-    }
-    // headers
+    { input },
+    input.headers
   );
-  return res;
 };
 
-export const useDeleteTransactionMutation = async (props: TransactionMutationValueDefinition) => {
-  const res = await request<DeleteTransactionMutation>(
+export const UseDeleteTransactionMutation = async (input: DeleteTransactionInput & GqlHeaders) => {
+  return await request<DeleteTransactionMutation>(
     queryUrl,
     DeleteTransactionDocument,
     {
       input: {
-        userEmail: props.email,
-        accountId: props.accountId,
-        transactionId: props.transactionId,
+        userEmail: input.userEmail,
+        selectedAccountId: input.selectedAccountId,
+        transactionId: input.transactionId,
       },
-    }
-    // headers
+    },
+    input.headers
   );
-  return res;
 };
 
-export const useDeleteTransactionListMutation = async (props: TransactionListMutationValueDefinition) => {
-  const res = await request<DeleteTransactionListMutation>(
+export const UseDeleteTransactionListMutation = async (input: DeleteTransactionListInput & GqlHeaders) => {
+  return await request<DeleteTransactionListMutation>(
     queryUrl,
     DeleteTransactionListDocument,
     {
       input: {
-        userEmail: props.email,
-        accountId: props.accountId,
-        transactionIds: props.transactionIds,
+        userEmail: input.userEmail,
+        selectedAccountId: input.selectedAccountId,
+        transactionIds: input.transactionIds,
       },
-    }
-    // headers
+    },
+    input.headers
   );
-  return res;
 };
 
-export const useTransactionsFilteredQuery = async (props: TransactionsFilteredQueryValueDefinition) => {
-  const res = await request<User>(
+export const UseTransactionsFilteredQuery = async (input: FilterTransactionListInput & GqlHeaders) => {
+  return await request<User>(
     queryUrl,
     UserTransactionsFilteredDocument,
     {
-      filters: {
-        userEmail: props.email,
-        accountId: props.accountId,
-        transactionFilters: {
-          dateStart: props.dateStart,
-          dateEnd: props.dateEnd,
-          categoriesIds: props.categoriesIds,
-          currencies: props.currencies,
-        },
+      input: {
+        selectedAccountId: input.selectedAccountId,
+        transactionFilters: input.transactionFilters,
+        userEmail: input.userEmail,
       },
-    }
-    // headers
+    },
+    input.headers
   );
-  return res;
 };
 
 // #Categories
-export const useAddCategoryMutation = async (props: AddCategoryFormValueDefinition) => {
-  const res = await request<AddCategoryMutation>(
+export const UseAddCategoryMutation = async (input: AddCategoryInput & GqlHeaders) => {
+  return await request<AddCategoryMutation>(
     queryUrl,
     AddCategoryDocument,
     {
       input: {
-        userEmail: props.email,
-        accountId: props.accountId,
-        name: props.name,
-        operationType: props.operationType,
-        subcategorysNames: props.subcategoriesName,
+        name: input.name,
+        operationType: input.operationType,
+        selectedAccountId: input.selectedAccountId,
+        subcategoriesNames: input.subcategoriesNames,
+        userEmail: input.userEmail,
       },
-    }
-    // headers
+    },
+    input.headers
+  );
+};
+
+export const UseAddSubCategoryMutation = async (input: AddSubCategoryInput & GqlHeaders) => {
+  return await request<AddSubCategoryMutation>(
+    queryUrl,
+    AddSubCategoryDocument,
+    {
+      input: {
+        categoryId: input.categoryId,
+        selectedAccountId: input.selectedAccountId,
+        subCategoryName: input.subCategoryName,
+        userEmail: input.userEmail,
+      },
+    },
+    input.headers
+  );
+};
+
+export const UseEditSubCategoryMutation = async (input: EditSubCategoryInput & GqlHeaders) => {
+  const res = await request<EditSubCategoryMutation>(
+    queryUrl,
+    EditSubCategoryDocument,
+    {
+      input: {
+        userEmail: input.userEmail,
+        categoryId: input.categoryId,
+        subCategoryId: input.subCategoryId,
+        selectedAccountId: input.selectedAccountId,
+        subCategoryName: input.subCategoryName,
+      },
+    },
+    input.headers
   );
   return res;
 };
 
-export const useDeleteCategoryMutation = async (props: DeleteCategoryQueryValueDefinition) => {
-  const res = await request<DeleteCategoryMutation>(
+export const UseDeleteCategoryMutation = async (input: DeleteCategoryInput & GqlHeaders) => {
+  return await request<DeleteCategoryMutation>(
     queryUrl,
     DeleteCategoryDocument,
     {
       input: {
-        userEmail: props.email,
-        accountId: props.accountId,
-        categoryId: props.categoryId,
+        categoryId: input.categoryId,
+        selectedAccountId: input.selectedAccountId,
+        userEmail: input.userEmail,
       },
-    }
-    // headers
+    },
+    input.headers
   );
-  return res;
 };
 
-export const useEditCategoryMutation = async (props: EditCategoryQueryValueDefinition) => {
-  const res = await request<EditCategoryMutation>(
+export const UseEditCategoryMutation = async (input: EditCategoryInput & GqlHeaders) => {
+  return await request<EditCategoryMutation>(
     queryUrl,
     EditCategoryDocument,
     {
       input: {
-        userEmail: props.email,
-        accountId: props.accountId,
-        categoryId: props.categoryId,
-        name: props.name,
+        categoryId: input.categoryId,
+        name: input.name,
+        selectedAccountId: input.selectedAccountId,
+        userEmail: input.userEmail,
       },
-    }
-    // headers
+    },
+    input.headers
   );
-  return res;
 };

@@ -6,65 +6,40 @@ import { graphql } from "@/gql/generated";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useUserByEmailQuery } from "@/utils/definitions/useQueryDefinition";
-import { toast } from "sonner";
+import { UseUserByEmailQuery, UseRefreshTokenMutation } from "@/utils/definitions/useQueryDefinition";
 import Navbar from "../../ui/dasboard/base/navbar/navbar";
 import Sidebar from "../../ui/dasboard/base/sidebar/sidebar";
 import { Button } from "@/components/ui/button";
 import { AlignJustify } from "lucide-react";
-import { OperationType } from "@/gql/generated/graphql";
+import { UserByEmailQuery } from "@/gql/generated/graphql";
+import { useAccessTokenStore } from "@/utils/zustand/accessTokenStore";
+import { NOT_AUTHORIZED_ERROR, getGraphQLErrorCode, manageApiCallErrors } from "@/utils/errorUtils";
 
-const MainContent = ({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) => {
-  const {
-    setName,
-    setSurname,
-    setEmail,
-    setCurrency,
-    setIncomeCategories,
-    setExpenseCategories,
-    setIncomeAmount,
-    setExpenseAmount,
-    setTransactions,
-    setSelectedAccountId,
-  } = useUserStore();
-
-  const [collapse, setCollapse] = useState(false);
-
-  const userByEmailQueryDocument = graphql(`
-    query userByEmail($email: String!) {
-      userByEmail(email: $email) {
+const userByEmailQueryDocument = graphql(`
+  query userByEmail($email: String!) {
+    userByEmail(email: $email) {
+      name
+      surname
+      email
+      accounts {
+        id
         name
-        surname
-        email
-        accounts {
+        currency
+        incomeAmount
+        expenseAmount
+        transactions {
           id
-          name
+          amount
           currency
-          incomeAmount
-          expenseAmount
-          transactions {
+          dateTime
+          description
+          transactionType
+          subCategory {
             id
-            amount
-            currency
-            dateTime
-            description
-            transactionType
-            category {
-              id
-              name
-              categoryType
-              subCategories {
-                id
-                name
-                categoryType
-              }
-            }
+            categoryType
+            name
           }
-          categories {
+          category {
             id
             name
             categoryType
@@ -75,65 +50,120 @@ const MainContent = ({
             }
           }
         }
+        categories {
+          id
+          name
+          categoryType
+          subCategories {
+            id
+            name
+            categoryType
+          }
+        }
       }
     }
-  `);
+  }
+`);
 
-  const { isError, error, data } = useQuery({
+const refreshTokenQueryDocument = graphql(`
+  mutation refreshToken($input: RefreshTokenInput!) {
+    refreshToken(input: $input) {
+      tokenResponse {
+        accessToken
+        refreshToken
+      }
+      errors {
+        ...errorFields
+      }
+    }
+  }
+`);
+
+const MainContent = ({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) => {
+  const {
+    setName,
+    setSurname,
+    setUserEmail: setEmail,
+    setCurrency,
+    setIncomeCategories,
+    setExpenseCategories,
+    setIncomeAmount,
+    setExpenseAmount,
+    setTransactions,
+    setSelectedAccountId,
+  } = useUserStore();
+  const { setHeaders, headers } = useAccessTokenStore();
+
+  const [collapse, setCollapse] = useState(false);
+
+  const { isError, error, data, refetch } = useQuery({
     queryKey: ["userData"],
-    queryFn: () => useUserByEmailQuery(sessionStorage.getItem(sessionStorageEmail) ?? ""),
+    queryFn: () => UseUserByEmailQuery(sessionStorage.getItem(sessionStorageEmail) ?? "", headers),
+    retry: 0,
   });
+
+  const { refetch: refetchToken } = useQuery({
+    queryKey: ["refreshToken"],
+    queryFn: () => UseRefreshTokenMutation({ refreshToken: sessionStorage.getItem("refreshToken") ?? "" }),
+    enabled: false,
+    retry: 1,
+  });
+
+  const requireNewToken = async () => {
+    const { data: refreshTokenData, isError: isRefreshTokenError, error } = await refetchToken();
+    if (isRefreshTokenError) {
+      manageApiCallErrors(error, refreshTokenData?.refreshToken.errors);
+      redirect("/login");
+    } else if (refreshTokenData?.refreshToken?.tokenResponse?.accessToken) {
+      setHeaders(refreshTokenData.refreshToken.tokenResponse.accessToken);
+      sessionStorage.setItem("refreshToken", refreshTokenData.refreshToken.tokenResponse.refreshToken ?? "");
+      recallUserData();
+    }
+  };
+
+  const setAllUserData = (data: UserByEmailQuery) => {
+    setName(data.userByEmail.name);
+    setSurname(data.userByEmail.surname);
+    setEmail(data.userByEmail.email);
+    if (data.userByEmail.accounts) {
+      if (data.userByEmail.accounts[0].id) setSelectedAccountId(data.userByEmail.accounts[0].id);
+      setCurrency(data.userByEmail.accounts[0].currency);
+      setIncomeAmount(data.userByEmail.accounts[0].incomeAmount);
+      setExpenseAmount(data.userByEmail.accounts[0].expenseAmount);
+      setTransactions(data.userByEmail.accounts[0].transactions);
+      setIncomeCategories(data.userByEmail.accounts[0].categories);
+      setExpenseCategories(data.userByEmail.accounts[0].categories);
+    }
+  };
+
+  const recallUserData = async () => {
+    const { data: userData } = await refetch();
+    if (userData?.userByEmail) {
+      setAllUserData(userData);
+    }
+  };
 
   useEffect(() => {
     if (isError) {
-      toast.error(error.name, {
-        description: error.message,
-      });
-      redirect("/login");
-    } else if (data?.userByEmail) {
-      setName(data.userByEmail.name);
-      setSurname(data.userByEmail.surname);
-      setEmail(data.userByEmail.email);
-      if (data.userByEmail.accounts) {
-        if (data.userByEmail.accounts[0].id) setSelectedAccountId(data.userByEmail.accounts[0].id);
-        setCurrency(data.userByEmail.accounts[0].currency);
-        setIncomeAmount(data.userByEmail.accounts[0].incomeAmount);
-        setExpenseAmount(data.userByEmail.accounts[0].expenseAmount);
-        setTransactions(data.userByEmail.accounts[0].transactions);
-        const incomeCategories = data.userByEmail.accounts[0].categories
-          .filter((category) => category.categoryType === OperationType.Income)
-          .map((category) => ({
-            id: category.id,
-            name: category.name,
-            categoryType: category.categoryType,
-            subCategories: category.subCategories || [],
-          }));
-        setIncomeCategories(incomeCategories);
-        const expenseCategories = data.userByEmail.accounts[0].categories
-          .filter((category) => category.categoryType === OperationType.Expense)
-          .map((category) => ({
-            id: category.id,
-            name: category.name,
-            categoryType: category.categoryType,
-            subCategories: category.subCategories || [],
-          }));
-        setExpenseCategories(expenseCategories);
+      const errorCode = getGraphQLErrorCode(error);
+      const tokenExist = sessionStorage.getItem("refreshToken") !== null;
+      if (errorCode === NOT_AUTHORIZED_ERROR && tokenExist) {
+        requireNewToken();
+      } else {
+        redirect("/login");
       }
+    } else if (data?.userByEmail) {
+      setAllUserData(data);
     }
-  }, [isError, error, data]);
+  }, [isError, error]);
 
   return (
     <>
-      <aside
-        className={`flex flex-col shadow-2xl border-gray border w-full h-full p-7 items-start justify-between rounded-xl mr-5`}
-        style={{
-          maxWidth: `${collapse ? 300 : 100}px`,
-          transition: "ease-in-out .2s",
-        }}
-      >
-        <Sidebar collapse={collapse} />
-      </aside>
-
+      <Sidebar collapse={collapse} />
       <main className="relative flex w-full h-full border-gray border flex-col shadow-2xl rounded-xl">
         <Button className="absolute top-6 left-6" variant="outline" onClick={() => setCollapse(!collapse)}>
           <AlignJustify />

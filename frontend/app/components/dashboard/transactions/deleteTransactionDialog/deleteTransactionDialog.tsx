@@ -12,63 +12,75 @@ import {
 } from "@/components/ui/alert-dialog";
 import { graphql } from "@/gql/generated";
 import { Transaction } from "@/gql/generated/graphql";
-import { useDeleteTransactionMutation } from "@/utils/definitions/useQueryDefinition";
+import { UseDeleteTransactionMutation } from "@/utils/definitions/useQueryDefinition";
 import { manageApiCallErrors } from "@/utils/errorUtils";
+import { useAccessTokenStore } from "@/utils/zustand/accessTokenStore";
 import { useTransactionTableStore } from "@/utils/zustand/transactionTableStore";
 import { useUserStore } from "@/utils/zustand/userStore";
 import { AlertDialogTrigger } from "@radix-ui/react-alert-dialog";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+const deleteTransactionMutation = graphql(`
+  mutation deleteTransaction($input: DeleteTransactionInput!) {
+    deleteTransaction(input: $input) {
+      account {
+        currency
+        incomeAmount
+        expenseAmount
+        categories {
+          id
+          name
+          categoryType
+          subCategories {
+            ...subcategoryFields
+          }
+        }
+        transactions {
+          id
+          amount
+          currency
+          dateTime
+          description
+          transactionType
+          category {
+            id
+            name
+            categoryType
+            subCategories {
+              id
+              name
+              categoryType
+            }
+          }
+        }
+      }
+      errors {
+        ...errorFields
+      }
+    }
+  }
+`);
+
 const AlertDeleteTransactionDialog = ({
   selectedItem,
   children,
 }: {
   selectedItem: Transaction;
-  children: React.ReactNode;
+  children: JSX.Element;
 }) => {
-  const { email, selectedAccountId, setTransactions, setExpenseAmount, setIncomeAmount } = useUserStore();
+  const { userEmail, selectedAccountId, setTransactions, setExpenseAmount, setIncomeAmount } = useUserStore();
   const { setTransactionsFiltered } = useTransactionTableStore();
-
-  const deleteTransactionMutation = graphql(`
-    mutation deleteTransaction($input: DeleteTransactionInput!) {
-      deleteTransaction(input: $input) {
-        account {
-          incomeAmount
-          expenseAmount
-          transactions {
-            id
-            amount
-            currency
-            dateTime
-            description
-            transactionType
-            category {
-              id
-              name
-              categoryType
-              subCategories {
-                id
-                name
-                categoryType
-              }
-            }
-          }
-        }
-        errors {
-          ...errorFields
-        }
-      }
-    }
-  `);
+  const { headers } = useAccessTokenStore();
 
   const { refetch, isLoading } = useQuery({
     queryKey: ["deleteTransaction"],
     queryFn: () =>
-      useDeleteTransactionMutation({
-        email: email,
+      UseDeleteTransactionMutation({
         transactionId: selectedItem?.id,
-        accountId: selectedAccountId,
+        userEmail,
+        selectedAccountId,
+        headers,
       }),
     enabled: false,
   });
@@ -79,8 +91,8 @@ const AlertDeleteTransactionDialog = ({
       manageApiCallErrors(error, data?.deleteTransaction.errors);
     } else if (data?.deleteTransaction.account) {
       toast.success("Transaction deleted!");
-      setTransactions(data.deleteTransaction.account.transactions);
-      setTransactionsFiltered(data.deleteTransaction.account.transactions);
+      setTransactions(data?.deleteTransaction.account.transactions);
+      setTransactionsFiltered(data?.deleteTransaction.account.transactions);
       setIncomeAmount(data.deleteTransaction.account.incomeAmount);
       setExpenseAmount(data.deleteTransaction.account.expenseAmount);
     }
@@ -88,7 +100,7 @@ const AlertDeleteTransactionDialog = ({
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
+      <AlertDialogTrigger>{children}</AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete Transaction</AlertDialogTitle>

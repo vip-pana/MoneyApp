@@ -1,6 +1,5 @@
 "use client";
 
-import { useUserStore } from "@/utils/zustand/userStore";
 import {
   ColumnFiltersState,
   flexRender,
@@ -11,11 +10,11 @@ import {
 } from "@tanstack/react-table";
 import { CategoriesColumns } from "./columns";
 import { useEffect, useState } from "react";
-import { Category } from "@/gql/generated/graphql";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import AddCategoryDialog from "../addCategoryDialog/addCategoryDialog";
 import { Input } from "@/components/ui/input";
+import { useUserStore } from "@/utils/zustand/userStore";
 import { useCategoryTableStore } from "@/utils/zustand/categoryTableStore";
 
 const CategoriesDataTable = () => {
@@ -24,11 +23,11 @@ const CategoriesDataTable = () => {
 
   useEffect(() => {
     setCategoriesFiltered([...incomeCategories, ...expenseCategories]);
-  }, []);
+  }, [incomeCategories, expenseCategories]);
 
   const [pagination, setPagination] = useState({
     pageIndex: 0, //initial page index
-    pageSize: 7, //default page size
+    pageSize: 5, //default page size
   });
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
@@ -103,7 +102,7 @@ const CategoriesDataTable = () => {
           Previous
         </Button>
         <Button variant={"outline"} size={"sm"}>
-          {table.getState().pagination.pageIndex}
+          {table.getState().pagination.pageIndex + 1}
         </Button>
         <Button variant={"outline"} size={"sm"} onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
           Next
