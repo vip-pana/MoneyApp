@@ -3,6 +3,6 @@
     public class BaseInput
     {
         public required string UserEmail { get; init; }
-        public required string AccountId { get; init; }
+        public required string SelectedAccountId { get; init; }
     }
 }

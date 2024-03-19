@@ -1,7 +1,6 @@
 "use client";
-import AlertDeleteTransactionDialog from "@/app/components/base/deleteTransactionDialog";
-import TransactionDialog from "@/app/components/base/transactionModal/transactionDialog";
-import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import AlertDeleteTransactionDialog from "@/app/components/dashboard/transactions/deleteTransactionDialog/deleteTransactionDialog";
+import TransactionDialog from "@/app/components/base/transactionDialog/transactionDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -15,9 +14,9 @@ import {
 import { OperationType, Transaction } from "@/gql/generated/graphql";
 import { ColumnDef } from "@tanstack/react-table";
 import { formatDate } from "date-fns";
-import { ArrowUpDown, FileEdit, MoreHorizontal, X } from "lucide-react";
+import { ArrowRight, ArrowUpDown, MoreHorizontal, Pencil, X } from "lucide-react";
 
-export const columns: ColumnDef<Transaction>[] = [
+export const TransactionsColumns: ColumnDef<Transaction>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -40,13 +39,18 @@ export const columns: ColumnDef<Transaction>[] = [
   {
     accessorKey: "category",
     header: "Category",
-    cell: ({ row }) => {
-      return (
+    cell: ({ row }) => (
+      <div className="flex flex-row gap-1 align-middle">
         <Badge className={`${row.original.transactionType === OperationType.Income ? "bg-teal-400" : "bg-red-400"}`}>
-          {row.original.category?.name}
+          {row.original.category.name}
         </Badge>
-      );
-    },
+        {row.original.subCategory && (
+          <>
+            {"->"} <Badge> {row.original.subCategory.name}</Badge>
+          </>
+        )}
+      </div>
+    ),
   },
   {
     accessorKey: "description",
@@ -63,7 +67,7 @@ export const columns: ColumnDef<Transaction>[] = [
       </div>
     ),
     cell: ({ row }) => {
-      return <div>{formatDate(row.original.dateTime, "yyyy-MM-dd")}</div>;
+      return <div>{formatDate(row.original.dateTime, "dd-MM-yyyy")}</div>;
     },
   },
   {
@@ -89,22 +93,19 @@ export const columns: ColumnDef<Transaction>[] = [
     id: "actions",
     cell: ({ row }) => (
       <div className="text-right">
-        <TransactionDialog selectedTransaction={row.original}>
+        <TransactionDialog selectedItem={row.original}>
           <Button variant="ghost" size="icon">
-            <FileEdit className="h-4 w-4" />
+            <Pencil className="h-4 w-4" />
           </Button>
         </TransactionDialog>
-        <AlertDialog>
-          <AlertDialogTrigger>
-            <Button variant="ghost" size="icon">
-              <X className="h-4 w-4 text-red-600" />
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDeleteTransactionDialog selectedTransaction={row.original} />
-        </AlertDialog>
+        <AlertDeleteTransactionDialog selectedItem={row.original}>
+          <Button variant="ghost" size="icon">
+            <X className="h-4 w-4 text-red-600" />
+          </Button>
+        </AlertDeleteTransactionDialog>
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
+            <Button variant="ghost" className="h-8 w-8 p-0" size="icon">
               <span className="sr-only">Open menu</span>
               <MoreHorizontal className="h-4 w-4" />
             </Button>

@@ -92,20 +92,23 @@ namespace Backend.Infrastructure.Repositories
             return user;
         }
 
-        public User DeleteCategoryReferencesOnAccountTransactions(Category c, User user, string accountId)
+        public User DeleteCategoryReferencesOnAccountTransactions(Category category, User user, string accountId)
         {
             var account = user.Accounts.Find(account => account.Id == accountId) ?? throw new GenericException("Account non trovato");
 
-            var defaultCategory = account.Categories.Find(category => category.Name == "Other" && category.CategoryType == c.CategoryType) ?? throw new GenericException("Categoria Other non trovata");
+            var defaultCategory = account.Categories.Find(cat => cat.Name == "Other" && cat.CategoryType == category.CategoryType) ?? throw new GenericException("Categoria Other non trovata");
 
-            if (defaultCategory.Id == c.Id)
+            if (defaultCategory.Id == category.Id)
             {
                 throw new GenericException("La categoria other non può essere eliminata");
             }
 
-            foreach (var transaction in account.Transactions.Where(transaction => transaction.Category.Id.Equals(c.Id)))
+
+
+            foreach (var transaction in account.Transactions.Where(transaction => transaction.Category.Id.Equals(category.Id)))
             {
                 transaction.Category = defaultCategory;
+                transaction.SubCategory = null;
             }
 
             user = UpdateUserAccount(user, account);
@@ -142,6 +145,59 @@ namespace Backend.Infrastructure.Repositories
             foreach (var transaction in account.Transactions.Where(t => t.Category.Id.Equals(category.Id)))
             {
                 transaction.Category = category;
+            }
+
+            user = UpdateUserAccount(user, account);
+
+            return user;
+        }
+
+        public async Task<User> UpdateCategoryOnAccount(User user, Category category, string accountId)
+        {
+            foreach (var cat in GetAccountById(accounts: user.Accounts, accountId).Categories)
+            {
+                if (cat.Id == category.Id)
+                {
+                    GetAccountById(accounts: user.Accounts, accountId).Categories.Remove(cat);
+                    break;
+                }
+            }
+            GetAccountById(accounts: user.Accounts, accountId).Categories.Add(category);
+
+            await UpdateUserAsync(user);
+
+            return user;
+        }
+
+        public User EditSubCategoryReferencesOnAccountTransactions(Category category, User user, string accountId, string subCategoryName, string subCategoryId)
+        {
+            var account = user.Accounts.Find(account => account.Id == accountId) ?? throw new GenericException("Account non trovato");
+
+            foreach (var transaction in account.Transactions.Where(t => t.Category.Id.Equals(category.Id)))
+            {
+                transaction.Category = category;
+                if (transaction.SubCategory != null && transaction.SubCategory.Id == subCategoryId)
+                {
+                    transaction.SubCategory.Name = subCategoryName;
+                }
+            }
+
+            user = UpdateUserAccount(user, account);
+
+            return user;
+        }
+
+        public User DeleteSubCategoryReferencesOnAccountTransactions(Category category, User user, string accountId, string subCategoryId)
+        {
+            var account = user.Accounts.Find(account => account.Id == accountId) ?? throw new GenericException("Account non trovato");
+
+            foreach (var transaction in account.Transactions.Where(t => t.Category.Id.Equals(category.Id)))
+            {
+                transaction.Category = category;
+                if (transaction.SubCategory != null && transaction.SubCategory.Id == subCategoryId)
+                {
+                    transaction.SubCategory = null;
+                }
             }
 
             user = UpdateUserAccount(user, account);
@@ -250,5 +306,5 @@ namespace Backend.Infrastructure.Repositories
             return transactions.Where(transaction => transaction.Category.Id is not null && categoriesIds.Contains(transaction.Category.Id));
         }
         #endregion
-    }
+    }
 }

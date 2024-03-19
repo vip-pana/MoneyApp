@@ -8,6 +8,12 @@ export const getGraphQLErrorMessage = (error: Error): string => {
   return errorObj.response.errors[0].message;
 };
 
+export const getTokenExpiredErrorMessage = (error: Error): string => {
+  const errorMessage = error.message.substring(error.message.indexOf("{"));
+  console.log(errorMessage);
+  return errorMessage;
+};
+
 export const getGraphQLErrorCode = (error: Error): string => {
   const errorMessage = error.message.substring(error.message.indexOf("{"));
   const errorObj = JSON.parse(errorMessage);

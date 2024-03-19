@@ -1,11 +1,20 @@
 import { create } from "zustand";
 
+type HeadersType = {
+  Authorization: string;
+};
+
 type AccessToken = {
-  accessToken: string;
-  setAccessToken: (value: string) => void;
+  headers: HeadersType;
+  setHeaders: (value: string) => void;
 };
 
 export const useAccessTokenStore = create<AccessToken>((set) => ({
-  accessToken: "",
-  setAccessToken: (value) => set((state) => ({ accessToken: value })),
+  headers: { Authorization: "" },
+  setHeaders: (value) =>
+    set(() => ({
+      headers: {
+        Authorization: `Bearer ${value}`,
+      },
+    })),
 }));

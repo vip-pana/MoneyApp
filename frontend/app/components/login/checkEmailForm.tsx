@@ -1,37 +1,40 @@
-import { formCheckEmailValidation } from "@/utils/definitions/typeValidation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UseFormSetValue, useForm } from "react-hook-form";
 import { graphql } from "@/gql/generated";
 import { useQuery } from "@tanstack/react-query";
 import { UseCheckEmailExistQuery } from "@/utils/definitions/useQueryDefinition";
 import { useUserStore } from "@/utils/zustand/userStore";
-import { CheckMailValueDefinition, LoginValueDefinition } from "../../../utils/definitions/typeDefinition";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import CustomButtonSubmit from "@/components/ui/custom-button-submit";
+import { z } from "zod";
+import { LoginInput } from "@/gql/generated/graphql";
 
-const CheckEmailForm = ({
-  setEmailLoginFormValue,
-}: {
-  setEmailLoginFormValue: UseFormSetValue<LoginValueDefinition>;
-}) => {
+type CheckMailValueDefinition = {
+  email: string;
+};
+
+export const formCheckEmailValidation = z.object({
+  email: z.string().min(1, "Email is empty, please insert email").email("Email format is not valid"),
+});
+
+const checkEmailExistQueryDocument = graphql(`
+  query userExistByEmail($email: String!) {
+    userExistByEmail(email: $email)
+  }
+`);
+
+const CheckEmailForm = ({ setEmailLoginFormValue }: { setEmailLoginFormValue: UseFormSetValue<LoginInput> }) => {
+  const { setEmailExist } = useUserStore();
+
   const form = useForm<CheckMailValueDefinition>({
     resolver: zodResolver(formCheckEmailValidation),
   });
-  const { getValues } = form;
-
-  const { setEmailExist } = useUserStore();
-
-  const checkEmailExistQueryDocument = graphql(`
-    query userExistByEmail($email: String!) {
-      userExistByEmail(email: $email)
-    }
-  `);
 
   const { refetch, isLoading } = useQuery({
     queryKey: ["checkEmailExist"],
-    queryFn: () => UseCheckEmailExistQuery(getValues("email").toLowerCase()),
+    queryFn: () => UseCheckEmailExistQuery(form.getValues("email").toLowerCase()),
     enabled: false,
   });
 
@@ -39,8 +42,9 @@ const CheckEmailForm = ({
     const { data, isError, error } = await refetch();
     if (isError || data?.userExistByEmail === false) {
       toast.error(isError ? error?.message : "User not registered");
+      setEmailExist(false);
     } else {
-      setEmailLoginFormValue("email", getValues("email").toLowerCase());
+      setEmailLoginFormValue("email", form.getValues("email").toLowerCase());
       setEmailExist(true);
     }
   };

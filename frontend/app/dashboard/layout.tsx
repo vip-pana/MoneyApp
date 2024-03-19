@@ -1,5 +1,5 @@
 import MainContent from "../components/dashboard/mainContent";
-import TransactionDialog from "../components/base/transactionModal/transactionDialog";
+import TransactionDialog from "../components/base/transactionDialog/transactionDialog";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 

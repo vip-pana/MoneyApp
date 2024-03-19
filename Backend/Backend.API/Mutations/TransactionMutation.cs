@@ -19,9 +19,9 @@ namespace Backend.API.Mutations
         {
             var registeredUser = await userRepository.GetByEmailAsync(email: input.UserEmail) ?? throw new UserNotExistException(input.UserEmail);
 
-            var res = await userRepository.DeleteTransactionOnUserAccountAsync(transactionId: input.TransactionId, user: registeredUser, input.AccountId);
+            var res = await userRepository.DeleteTransactionOnUserAccountAsync(transactionId: input.TransactionId, user: registeredUser, input.SelectedAccountId);
 
-            return UserRepository.GetAccountById(accounts: res.Accounts, accountId: input.AccountId);
+            return UserRepository.GetAccountById(accounts: res.Accounts, accountId: input.SelectedAccountId);
         }
 
         [AllowAnonymous]
@@ -30,9 +30,9 @@ namespace Backend.API.Mutations
         {
             var registeredUser = await userRepository.GetByEmailAsync(email: input.UserEmail) ?? throw new UserNotExistException(input.UserEmail);
 
-            var res = await userRepository.DeleteTransactionListOnUserAccountAsync(transactionIds: input.TransactionIds, user: registeredUser, input.AccountId);
+            var res = await userRepository.DeleteTransactionListOnUserAccountAsync(transactionIds: input.TransactionIds, user: registeredUser, input.SelectedAccountId);
 
-            return UserRepository.GetAccountById(accounts: res.Accounts, accountId: input.AccountId);
+            return UserRepository.GetAccountById(accounts: res.Accounts, accountId: input.SelectedAccountId);
         }
 
         [AllowAnonymous]
@@ -56,25 +56,26 @@ namespace Backend.API.Mutations
                 transactionType: input.Transaction.TransactionType,
                 currency: input.Transaction.Currency,
                 category: category,
-                dateTime: input.Transaction.DateTime
+                dateTime: input.Transaction.DateTime,
+                subCategory: input.Transaction.SelectedSubCategory
                 );
 
             if (input.Transaction.Id != null)
             {
                 transaction.Id = input.Transaction.Id;
 
-                var transactionExist = TransactionRepository.GetTransactionById(transactionId: input.Transaction.Id, accounts: registeredUser.Accounts, accountId: input.AccountId) != null;
+                var transactionExist = TransactionRepository.GetTransactionById(transactionId: input.Transaction.Id, accounts: registeredUser.Accounts, accountId: input.SelectedAccountId) != null;
 
                 if (!transactionExist) throw new FieldIdNotExistException();
 
-                res = await userRepository.UpdateTransactionOnUserAccountAsync(user: registeredUser, transaction: transaction, accountId: input.AccountId);
+                res = await userRepository.UpdateTransactionOnUserAccountAsync(user: registeredUser, transaction: transaction, accountId: input.SelectedAccountId);
             }
             else
             {
-                res = await userRepository.AddTransactionOnUserAccountAsync(user: registeredUser, transaction: transaction, accountId: input.AccountId);
+                res = await userRepository.AddTransactionOnUserAccountAsync(user: registeredUser, transaction: transaction, accountId: input.SelectedAccountId);
             }
 
-            return UserRepository.GetAccountById(accounts: res.Accounts, accountId: input.AccountId);
+            return UserRepository.GetAccountById(accounts: res.Accounts, accountId: input.SelectedAccountId);
         }
     }
 }

@@ -10,7 +10,15 @@ namespace Backend.API.Types.Input.Transaction
         public required double Amount { get; set; }
         public required OperationType TransactionType { get; set; }
         public required Currency Currency { get; set; }
-        public required Core.Entities.Category Category { get; set; }
+        public required CategoryInput Category { get; set; }
         public required DateTime DateTime { get; set; }
+        public SubCategory? SelectedSubCategory { get; set; }
+    }
+
+    public class CategoryInput : BaseEntity
+    {
+        public required string Name { get; set; }
+        public required OperationType CategoryType { get; set; }
+        public virtual List<SubCategory>? SubCategories { get; set; }
     }
 }

@@ -6,6 +6,6 @@ namespace Backend.Core.Entities
     {
         public required string Name {  get; set; }
         public required OperationType CategoryType { get; set; }
-        public virtual List<SubCategory>? SubCategories { get; set; }
+        public virtual List<SubCategory> SubCategories { get; set; } = [];
     }
 }

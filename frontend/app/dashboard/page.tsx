@@ -1,7 +1,5 @@
-import { useEffect } from "react";
 import CardsStat from "../components/dashboard/cardsStat";
 import MainCard from "../components/dashboard/mainCard/mainCard";
-import { useUserStore } from "@/utils/zustand/userStore";
 
 const Dashboard = () => {
   return (

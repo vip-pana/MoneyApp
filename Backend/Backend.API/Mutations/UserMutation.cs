@@ -63,12 +63,12 @@ namespace Backend.API.Properties
         [Error<GenericException>]
         [Error<UserNotExistException>]
         [Error<WrongPasswordException>]
-        public async Task<TokenResponse> Login([UseFluentValidation, UseValidator<LoginInputValidator>] LoginInput user)
+        public async Task<TokenResponse> Login([UseFluentValidation, UseValidator<LoginInputValidator>] LoginInput input)
         {
             TokenResponse tokenResponse;
-            var registeredUser = await _userRepository.GetByEmailAsync(user.Email) ?? throw new UserNotExistException(Email: user.Email);
+            var registeredUser = await _userRepository.GetByEmailAsync(input.Email) ?? throw new UserNotExistException(Email: input.Email);
 
-            if (!AuthenticationUtils.VerifyPassword(inputPassword: user.Password, hashedPassword: registeredUser.Password))
+            if (!AuthenticationUtils.VerifyPassword(inputPassword: input.Password, hashedPassword: registeredUser.Password))
             {
                 throw new WrongPasswordException();
             }
