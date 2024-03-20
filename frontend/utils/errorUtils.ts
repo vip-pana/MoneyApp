@@ -10,7 +10,6 @@ export const getGraphQLErrorMessage = (error: Error): string => {
 
 export const getTokenExpiredErrorMessage = (error: Error): string => {
   const errorMessage = error.message.substring(error.message.indexOf("{"));
-  console.log(errorMessage);
   return errorMessage;
 };
 

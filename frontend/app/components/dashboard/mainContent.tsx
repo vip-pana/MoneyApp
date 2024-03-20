@@ -13,13 +13,7 @@ import { Button } from "@/components/ui/button";
 import { AlignJustify } from "lucide-react";
 import { UserByEmailQuery } from "@/gql/generated/graphql";
 import { useAccessTokenStore } from "@/utils/zustand/accessTokenStore";
-import {
-  NOT_AUTHORIZED_ERROR,
-  getGraphQLErrorCode,
-  getGraphQLErrorMessage,
-  getTokenExpiredErrorMessage,
-  manageApiCallErrors,
-} from "@/utils/errorUtils";
+import { getTokenExpiredErrorMessage, manageApiCallErrors } from "@/utils/errorUtils";
 import { toast } from "sonner";
 
 const userByEmailQueryDocument = graphql(`
@@ -98,8 +92,6 @@ const MainContent = ({
     setCurrency,
     setIncomeCategories,
     setExpenseCategories,
-    setIncomeAmount,
-    setExpenseAmount,
     setTransactions,
     setSelectedAccountId,
   } = useUserStore();
@@ -139,8 +131,6 @@ const MainContent = ({
     if (data.userByEmail.accounts) {
       if (data.userByEmail.accounts[0].id) setSelectedAccountId(data.userByEmail.accounts[0].id);
       setCurrency(data.userByEmail.accounts[0].currency);
-      setIncomeAmount(data.userByEmail.accounts[0].incomeAmount);
-      setExpenseAmount(data.userByEmail.accounts[0].expenseAmount);
       setTransactions(data.userByEmail.accounts[0].transactions);
       setIncomeCategories(data.userByEmail.accounts[0].categories);
       setExpenseCategories(data.userByEmail.accounts[0].categories);

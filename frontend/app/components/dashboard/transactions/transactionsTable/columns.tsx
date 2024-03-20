@@ -1,4 +1,5 @@
 "use client";
+
 import AlertDeleteTransactionDialog from "@/app/components/dashboard/transactions/deleteTransactionDialog/deleteTransactionDialog";
 import TransactionDialog from "@/app/components/base/transactionDialog/transactionDialog";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +15,7 @@ import {
 import { OperationType, Transaction } from "@/gql/generated/graphql";
 import { ColumnDef } from "@tanstack/react-table";
 import { formatDate } from "date-fns";
-import { ArrowRight, ArrowUpDown, MoreHorizontal, Pencil, X } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal, Pencil, X } from "lucide-react";
 
 export const TransactionsColumns: ColumnDef<Transaction>[] = [
   {
