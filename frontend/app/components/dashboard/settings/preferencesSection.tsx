@@ -73,19 +73,17 @@ const PreferencesSection = () => {
   ];
 
   return (
-    <>
-      <div className="mr-11">
-        {menuSectionItems.map((item, index) => (
-          <MenuSectionItem
-            key={index}
-            sectionId={item.sectionId}
-            sectionName={item.sectionName}
-            sectionDescription={item.sectionDescription}
-            subSection={item.subSection}
-          />
-        ))}
-      </div>
-    </>
+    <div className="mr-11">
+      {menuSectionItems.map((item, index) => (
+        <MenuSectionItem
+          key={index}
+          sectionId={item.sectionId}
+          sectionName={item.sectionName}
+          sectionDescription={item.sectionDescription}
+          subSection={item.subSection}
+        />
+      ))}
+    </div>
   );
 };
 

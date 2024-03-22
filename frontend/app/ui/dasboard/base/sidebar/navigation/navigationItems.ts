@@ -1,4 +1,4 @@
-import { FileDiff, LayoutDashboard, LogOut, LucideIcon, Settings } from "lucide-react";
+import { FileDiff, Layers3, LayoutDashboard, LogOut, LucideIcon } from "lucide-react";
 
 export interface NavigationItem {
   type: "link" | "header";
@@ -26,20 +26,8 @@ export const navigationItems: NavigationItem[] = [
   },
   {
     type: "link",
-    label: "Settings",
-    icon: Settings,
-    path: "/dashboard/settings",
-  },
-  {
-    type: "link",
-    label: "TEMPORARY Categories",
-    icon: Settings,
+    label: "Categories",
+    icon: Layers3,
     path: "/dashboard/settings/categories",
-  },
-  {
-    type: "link",
-    label: "Logout",
-    icon: LogOut,
-    path: "/login",
   },
 ];

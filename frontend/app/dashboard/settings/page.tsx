@@ -7,3 +7,5 @@ const Settings = () => {
     </section>
   );
 };
+
+export default Settings;

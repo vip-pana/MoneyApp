@@ -17,25 +17,24 @@ import { Unlock } from "lucide-react";
 import { useAccessTokenStore } from "@/utils/zustand/accessTokenStore";
 import { LoginInput } from "@/gql/generated/graphql";
 
+const loginQueryDocument = graphql(`
+  mutation login($input: LoginInput!) {
+    login(input: $input) {
+      tokenResponse {
+        accessToken
+        refreshToken
+      }
+      errors {
+        ...errorFields
+      }
+    }
+  }
+`);
+
 const LoginForm = ({ form }: { form: UseFormReturn<LoginInput, any> }) => {
   const router = useRouter();
   const { setEmailExist } = useUserStore();
-  const { getValues } = form;
   const { setHeaders } = useAccessTokenStore();
-
-  const loginQueryDocument = graphql(`
-    mutation login($input: LoginInput!) {
-      login(input: $input) {
-        tokenResponse {
-          accessToken
-          refreshToken
-        }
-        errors {
-          ...errorFields
-        }
-      }
-    }
-  `);
 
   const onSubmit = async () => {
     const { data, isError, error } = await refetch();
@@ -44,7 +43,7 @@ const LoginForm = ({ form }: { form: UseFormReturn<LoginInput, any> }) => {
     } else if (data?.login.tokenResponse?.accessToken != null && data?.login.tokenResponse.refreshToken != null) {
       setHeaders(data.login.tokenResponse.accessToken);
       sessionStorage.setItem("refreshToken", data.login.tokenResponse.refreshToken);
-      sessionStorage.setItem(sessionStorageEmail, getValues("email"));
+      sessionStorage.setItem(sessionStorageEmail, form.getValues("email"));
       setEmailExist(false); // for show checkEmail on logout
       router.push("/dashboard");
     }
@@ -54,8 +53,8 @@ const LoginForm = ({ form }: { form: UseFormReturn<LoginInput, any> }) => {
     queryKey: ["login"],
     queryFn: () =>
       UseLoginQuery({
-        email: getValues("email").toLowerCase(),
-        password: getValues("password"),
+        email: form.getValues("email").toLowerCase(),
+        password: form.getValues("password"),
       }),
     enabled: false,
   });
