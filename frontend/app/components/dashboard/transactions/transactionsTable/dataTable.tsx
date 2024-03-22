@@ -12,7 +12,6 @@ import {
 } from "@tanstack/react-table";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import React from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,19 +23,20 @@ import { useUserStore } from "@/utils/zustand/userStore";
 import { useTransactionTableStore } from "@/utils/zustand/transactionTableStore";
 import { TransactionsColumns } from "./columns";
 import DeleteTransactionListDialog from "@/app/components/dashboard/transactions/deleteTransactionDialog/deleteTransactionListDialog";
+import { useEffect, useState } from "react";
 
 const TransactionDataTable = () => {
   const { transactions } = useUserStore();
   const { transactionsFiltered, setTransactionsFiltered } = useTransactionTableStore();
 
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
-  React.useEffect(() => {
+  useEffect(() => {
     setTransactionsFiltered(transactions);
   }, [transactions]);
 
-  const [pagination, setPagination] = React.useState({
+  const [pagination, setPagination] = useState({
     pageIndex: 0, //initial page index
     pageSize: 6, //default page size
   });
