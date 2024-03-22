@@ -1,4 +1,4 @@
-import Logo from "../ui/login/Logo";
+import Logo from "../../components/login/base/Logo";
 
 const LoginLayout = ({
   children,

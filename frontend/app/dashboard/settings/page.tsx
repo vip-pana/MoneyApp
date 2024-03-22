@@ -1,4 +1,4 @@
-import PreferencesSection from "@/app/components/dashboard/settings/preferencesSection";
+import PreferencesSection from "@/components/dashboard/settings/preferencesSection";
 
 const Settings = () => {
   return (
