@@ -21,6 +21,7 @@ namespace Backend.API.Configuration
                     .AddTypeExtension<CategoryMutation>()
                     .AddTypeExtension<UserMutation>()
                     .AddTypeExtension<TransactionMutation>()
+                    .AddTypeExtension<AccountMutation>()
                 .AddQueryFieldToMutationPayloads()
                 .AddMutationConventions()
                 .AddFluentValidation();

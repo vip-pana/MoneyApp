@@ -1,4 +1,5 @@
-﻿using Backend.API.Validators.Category;
+﻿using Backend.API.Validators.Account;
+using Backend.API.Validators.Category;
 using Backend.API.Validators.Transaction;
 using Backend.API.Validators.User;
 using FluentValidation.AspNetCore;
@@ -25,6 +26,8 @@ namespace Backend.API.Configuration
             services.AddTransient<DeleteCategoryInputValidator>();
             services.AddTransient<EditSubCategoryInputValidator>();
             services.AddTransient<DeleteSubCategoryInputValidator>();
+            //Account
+            services.AddTransient<AddAccountInputValidator>();
         }
     }
 }
