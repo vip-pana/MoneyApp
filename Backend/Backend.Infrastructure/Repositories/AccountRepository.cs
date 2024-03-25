@@ -2,20 +2,19 @@
 using Backend.Core.Enums;
 using Backend.Core.Repositories;
 using Backend.Infrastructure.Data;
-using Backend.Utils.Exceptions;
 
 namespace Backend.Infrastructure.Repositories
 {
     public class AccountRepository(IDbContext context) : BaseRepository<Account>(context), IAccountRepository
     {
         #region GENERATE CATEGORIES
-        public async Task<Account> GenerateNewDefaultAccount(Currency currency)
+        public Account GenerateNewAccount(Currency currency, string? accountName = null)
         {
             List<Category> categories = GenerateDefaultCategories();
 
             Account account = new()
             {
-                Name = "Default Account",
+                Name = accountName ?? "Default Account",
                 Currency = currency,
                 Categories = categories,
                 Transactions = [],
@@ -23,8 +22,6 @@ namespace Backend.Infrastructure.Repositories
                 IncomeAmount = 0.00,
                 ExpenseAmount = 0.00,
             };
-
-            await collection.InsertOneAsync(account);
 
             return account;
         }

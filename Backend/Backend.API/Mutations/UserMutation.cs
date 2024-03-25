@@ -43,7 +43,7 @@ namespace Backend.API.Properties
 
             if (registeredUser is not null) throw new UserAlreadyExistException();
 
-            var defaultAccount = await _accountRepository.GenerateNewDefaultAccount(currency: input.SelectedCurrency);
+            var defaultAccount = _accountRepository.GenerateNewAccount(currency: input.SelectedCurrency);
 
             User newUser = new()
             {
