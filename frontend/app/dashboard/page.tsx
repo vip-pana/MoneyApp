@@ -1,5 +1,5 @@
-import CardsStat from "../components/dashboard/cardsStat";
-import MainCard from "../components/dashboard/mainCard/mainCard";
+import CardsStat from "../../components/dashboard/cardsStat";
+import MainCard from "../../components/dashboard/mainCard/mainCard";
 
 const Dashboard = () => {
   return (

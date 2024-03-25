@@ -1,5 +1,5 @@
-import TransactionsSearchbar from "@/app/components/dashboard/transactions/transactionsSearchbar/transactionsSearchbar";
-import TransactionDataTable from "@/app/components/dashboard/transactions/transactionsTable/dataTable";
+import TransactionsSearchbar from "@/components/dashboard/transactions/transactionsSearchbar/transactionsSearchbar";
+import TransactionDataTable from "@/components/dashboard/transactions/transactionsTable/dataTable";
 
 const TransactionPage = () => {
   return (

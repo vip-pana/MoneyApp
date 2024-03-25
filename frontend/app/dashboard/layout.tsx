@@ -1,6 +1,6 @@
-import MainContent from "../components/dashboard/mainContent";
-import TransactionDialog from "../components/base/transactionDialog/transactionDialog";
-import { Button } from "@/components/ui/button";
+import MainContent from "../../components/dashboard/mainContent";
+import TransactionDialog from "../../components/base/transactionDialog/transactionDialog";
+import { Button } from "@/components/shadcnComponents/button";
 import { Plus } from "lucide-react";
 
 const Dashboardlayout = ({
